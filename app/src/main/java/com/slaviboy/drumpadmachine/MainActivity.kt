@@ -3,17 +3,34 @@ package com.slaviboy.drumpadmachine
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.slaviboy.composeunits.dw
+import com.slaviboy.composeunits.initSize
+import com.slaviboy.drumpadmachine.extensions.bounceClick
+import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
+import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initSize()
         setContent {
             Box(
                 modifier = Modifier
@@ -22,14 +39,75 @@ class MainActivity : ComponentActivity() {
                     .background(
                         brush = Brush.verticalGradient(
                             listOf(
-                                Color(0xFF2F2F40),
-                                Color(0xFF161529)
+                                backgroundGradientTop,
+                                backgroundGradientBottom
                             )
                         )
                     )
             ) {
-
+                Column {
+                    for (i in 0 until 5) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 0.05.dw),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            for (j in 0 until 3) {
+                                Pad(
+                                    Pad(color = PadColor.Aqua, isActive = true),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                )
+                                if (j < 2) {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(0.03.dw)
+                                    )
+                                }
+                            }
+                        }
+                        if (i < 4) {
+                            Spacer(
+                                modifier = Modifier
+                                    .height(0.03.dw)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+enum class PadColor(@DrawableRes val value: Int) {
+    Red(R.drawable.ic_rect_red),
+    Green(R.drawable.ic_rect_green),
+    Blue(R.drawable.ic_rect_blue),
+    Pink(R.drawable.ic_rect_pink),
+    Orange(R.drawable.ic_rect_orange),
+    Purple(R.drawable.ic_rect_purple),
+    Aqua(R.drawable.ic_rect_aqua)
+}
+
+data class Pad(
+    val color: PadColor,
+    val isActive: Boolean
+)
+
+@Composable
+fun Pad(
+    pad: Pad,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        painter = painterResource(id = pad.color.value),
+        contentDescription = null,
+        contentScale = ContentScale.FillWidth,
+        modifier = modifier
+            .bounceClick {
+
+            }
+
+    )
 }
