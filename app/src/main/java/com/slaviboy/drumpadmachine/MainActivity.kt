@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.slaviboy.audio.NativeLib
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.global.allTrue
@@ -44,6 +45,7 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val a = NativeLib().stringFromJNI()
         initSize()
         setContent {
             Box(

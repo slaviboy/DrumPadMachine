@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DrumPadMachine"
 include(":app")
- 
+include(":audio")
