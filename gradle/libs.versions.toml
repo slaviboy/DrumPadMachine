@@ -12,7 +12,6 @@ composeBom = "2023.10.01"
 percentageUnits = "1.0.0"
 appcompat = "1.6.1"
 material = "1.10.0"
-oboe = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,7 +32,6 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 slaviboy-percentage-units = { group = "com.github.slaviboy", name = "JetpackComposePercentageUnits", version.ref = "percentageUnits" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-oboe = { group = "com.google.oboe", name = "oboe", version.ref = "oboe" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

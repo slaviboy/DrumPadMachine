@@ -1,11 +1,13 @@
-#cmake_minimum_required(VERSION 3.4.1)
-#project("audio")
-#add_library(${CMAKE_PROJECT_NAME} SHARED audio.cpp)
-#find_package (oboe REQUIRED CONFIG)
-#target_link_libraries(${CMAKE_PROJECT_NAME} android log oboe::oboe)
-
 cmake_minimum_required(VERSION 3.4.1)
 project("audio")
-add_library(${CMAKE_PROJECT_NAME} SHARED audio.cpp)
-find_package (oboe REQUIRED CONFIG)
-target_link_libraries(${CMAKE_PROJECT_NAME} android log oboe::oboe)
+
+set (OBOE_DIR ../../../../oboe)
+
+include_directories(
+        ${OBOE_DIR}/src/main/cpp/src
+        ${OBOE_DIR}/src/main/cpp/include/oboe
+        ${CMAKE_CURRENT_LIST_DIR}
+        ../../../../shared)
+
+add_library(audio SHARED audio.cpp)
+target_link_libraries(audio log)

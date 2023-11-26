@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <string>
-#include <oboe/Oboe.h>
+
+#include <flowgraph/resampler/MultiChannelResampler.h>
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_slaviboy_audio_NativeLib_stringFromJNI(
