@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -41,22 +42,20 @@ import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.global.allTrue
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private var mDrumPadPlayer = DrumPadPlayer()
+    val viewModel: DrumPadViewModel by viewModels()
 
     override fun onStart() {
         super.onStart()
-        mDrumPadPlayer.setupAudioStream()
-        mDrumPadPlayer.loadWavAssets(assets)
-        mDrumPadPlayer.startAudioStream()
+        viewModel.init(assets)
     }
 
     override fun onStop() {
-        mDrumPadPlayer.teardownAudioStream()
-        mDrumPadPlayer.unloadWavAssets()
         super.onStop()
+        viewModel.terminate()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +90,10 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .weight(1f),
                                     onMotionActionChanged = {
-                                        mDrumPadPlayer.trigger(DrumPadPlayer.HIHATOPEN)
+                                        viewModel.playSound(
+                                            row = j,
+                                            column = i
+                                        )
                                     }
                                 )
                                 if (j < 2) {
