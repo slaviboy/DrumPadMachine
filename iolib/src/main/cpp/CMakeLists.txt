@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.4.1)
-project("iolib")
 
 set(OBOE_DIR ../../../../oboe)
 set(PARSELIB_DIR ../../../../parselib)
+
+set(iolib_sources
+        ${CMAKE_CURRENT_LIST_DIR}/player/SampleSource.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/SampleBuffer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/OneShotSampleSource.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/SimpleMultiPlayer.cpp
+)
+add_library(iolib STATIC ${iolib_sources})
 
 include_directories(
         iolib
@@ -12,17 +19,12 @@ include_directories(
         ${CMAKE_CURRENT_LIST_DIR}
         ../../../../shared)
 
-add_library(
+target_link_libraries(
         iolib
-        STATIC
-        ${CMAKE_CURRENT_LIST_DIR}/player/SampleSource.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/player/SampleBuffer.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/player/OneShotSampleSource.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/player/SimpleMultiPlayer.cpp
+        log
 )
-
-target_link_libraries(iolib log)
-
-target_include_directories(iolib
-        PUBLIC player
+target_include_directories(
+        iolib
+        PUBLIC
+        player
 )

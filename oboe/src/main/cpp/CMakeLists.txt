@@ -1,9 +1,4 @@
 cmake_minimum_required(VERSION 3.4.1)
-
-# Set the name of the project and store it in PROJECT_NAME. Also set the following variables:
-# PROJECT_SOURCE_DIR (usually the root directory where Oboe has been cloned e.g.)
-# PROJECT_BINARY_DIR (usually the containing project's binary directory,
-# e.g. ${OBOE_HOME}/samples/RhythmGame/.externalNativeBuild/cmake/ndkExtractorDebug/x86/oboe-bin)
 project(oboe)
 
 set(oboe_sources
@@ -71,15 +66,13 @@ set(oboe_sources
 
 add_library(oboe ${oboe_sources})
 
-# Specify directories which the compiler should look for headers
-target_include_directories(oboe
+target_include_directories(
+        oboe
         PRIVATE src
-        PUBLIC include)
-
-# Compile Flags:
-#     Enable -Werror when building debug config
-#     Enable -Ofast
-target_compile_options(oboe
+        PUBLIC include
+)
+target_compile_options(
+        oboe
         PRIVATE
         -std=c++17
         -Wall
@@ -88,17 +81,15 @@ target_compile_options(oboe
         -Wshadow-field
         "$<$<CONFIG:RELEASE>:-Ofast>"
         "$<$<CONFIG:DEBUG>:-O3>"
-        "$<$<CONFIG:DEBUG>:-Werror>")
+        "$<$<CONFIG:DEBUG>:-Werror>"
+)
 
-# Enable logging of D,V for debug builds
 target_compile_definitions(oboe PUBLIC $<$<CONFIG:DEBUG>:OBOE_ENABLE_LOGGING=1>)
 
 target_link_libraries(oboe PRIVATE log OpenSLES)
 
-# When installing oboe put the libraries in the lib/<ABI> folder e.g. lib/arm64-v8a
 install(TARGETS oboe
         LIBRARY DESTINATION lib/${ANDROID_ABI}
         ARCHIVE DESTINATION lib/${ANDROID_ABI})
 
-# Also install the headers
 install(DIRECTORY include/oboe DESTINATION include)

@@ -22,14 +22,15 @@ include_directories(
 
 target_link_libraries(
         parselib
-        log)
-
-target_include_directories(parselib
+        log
+)
+target_include_directories(
+        parselib
         PUBLIC stream
         PUBLIC wav
 )
-
-target_include_directories(parselib
+target_include_directories(
+        parselib
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )

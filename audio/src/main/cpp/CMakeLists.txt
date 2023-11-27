@@ -30,19 +30,3 @@ target_link_libraries(
         iolib
         log
 )
-
-#target_compile_options(audio PRIVATE -Wall -Werror "$<$<CONFIG:RELEASE>:-Ofast>")
-#
-#target_link_libraries( # Specifies the target library.
-#        audio
-#
-#        -Wl,--whole-archive
-#        iolib
-#        parselib
-#        oboe
-#        -Wl,--no-whole-archive
-#
-#
-#        # Links the target library to the log library
-#        # included in the NDK.
-#        log)
