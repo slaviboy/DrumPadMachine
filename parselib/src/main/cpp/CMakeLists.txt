@@ -15,7 +15,8 @@ add_library(parselib SHARED ${parselib_sources})
 
 #target_include_directories(parselib
 #        PUBLIC stream
-#        PUBLIC wav)
+#        PUBLIC wav
+#)
 
 set(OBOE_DIR ../../../../oboe)
 

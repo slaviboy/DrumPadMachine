@@ -2,6 +2,7 @@
 #include <string>
 
 #include <flowgraph/resampler/MultiChannelResampler.h>
+#include <player/OneShotSampleSource.h>
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_slaviboy_audio_NativeLib_stringFromJNI(
