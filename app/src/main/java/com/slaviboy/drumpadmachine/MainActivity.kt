@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,15 +36,31 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.slaviboy.audio.DrumPadPlayer
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.global.allTrue
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
 
 class MainActivity : ComponentActivity() {
+
+    val viewModel: DrumPadViewModel by viewModels()
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.init(assets)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.terminate()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //val a = NativeLib().stringFromJNI()
         initSize()
         setContent {
             Box(
@@ -69,9 +86,15 @@ class MainActivity : ComponentActivity() {
                         ) {
                             for (j in 0 until 3) {
                                 Pad(
-                                    Pad(color = PadColor.Aqua, isActive = true),
+                                    pad = Pad(color = PadColor.Aqua, isActive = true),
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .weight(1f),
+                                    onMotionActionChanged = {
+                                        viewModel.playSound(
+                                            row = j,
+                                            column = i
+                                        )
+                                    }
                                 )
                                 if (j < 2) {
                                     Spacer(
@@ -113,7 +136,8 @@ data class Pad(
 @Composable
 fun Pad(
     pad: Pad,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMotionActionChanged: (Int) -> Unit
 ) {
     var showGlow by remember {
         mutableStateOf(false)
@@ -145,6 +169,7 @@ fun Pad(
             .wrapContentSize()
             .pointerInteropFilter {
                 motionEvent = it.action
+                onMotionActionChanged(it.action)
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
                         showGlow = true
