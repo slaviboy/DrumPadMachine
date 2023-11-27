@@ -7,73 +7,73 @@ cmake_minimum_required(VERSION 3.4.1)
 project(oboe)
 
 set(oboe_sources
-        src/aaudio/AAudioLoader.cpp
-        src/aaudio/AudioStreamAAudio.cpp
-        src/common/AdpfWrapper.cpp
-        src/common/AudioSourceCaller.cpp
-        src/common/AudioStream.cpp
-        src/common/AudioStreamBuilder.cpp
-        src/common/DataConversionFlowGraph.cpp
-        src/common/FilterAudioStream.cpp
-        src/common/FixedBlockAdapter.cpp
-        src/common/FixedBlockReader.cpp
-        src/common/FixedBlockWriter.cpp
-        src/common/LatencyTuner.cpp
-        src/common/OboeExtensions.cpp
-        src/common/SourceFloatCaller.cpp
-        src/common/SourceI16Caller.cpp
-        src/common/SourceI24Caller.cpp
-        src/common/SourceI32Caller.cpp
-        src/common/Utilities.cpp
-        src/common/QuirksManager.cpp
-        src/fifo/FifoBuffer.cpp
-        src/fifo/FifoController.cpp
-        src/fifo/FifoControllerBase.cpp
-        src/fifo/FifoControllerIndirect.cpp
-        src/flowgraph/FlowGraphNode.cpp
-        src/flowgraph/ChannelCountConverter.cpp
-        src/flowgraph/ClipToRange.cpp
-        src/flowgraph/Limiter.cpp
-        src/flowgraph/ManyToMultiConverter.cpp
-        src/flowgraph/MonoBlend.cpp
-        src/flowgraph/MonoToMultiConverter.cpp
-        src/flowgraph/MultiToManyConverter.cpp
-        src/flowgraph/MultiToMonoConverter.cpp
-        src/flowgraph/RampLinear.cpp
-        src/flowgraph/SampleRateConverter.cpp
-        src/flowgraph/SinkFloat.cpp
-        src/flowgraph/SinkI16.cpp
-        src/flowgraph/SinkI24.cpp
-        src/flowgraph/SinkI32.cpp
-        src/flowgraph/SourceFloat.cpp
-        src/flowgraph/SourceI16.cpp
-        src/flowgraph/SourceI24.cpp
-        src/flowgraph/SourceI32.cpp
-        src/flowgraph/resampler/IntegerRatio.cpp
-        src/flowgraph/resampler/LinearResampler.cpp
-        src/flowgraph/resampler/MultiChannelResampler.cpp
-        src/flowgraph/resampler/PolyphaseResampler.cpp
-        src/flowgraph/resampler/PolyphaseResamplerMono.cpp
-        src/flowgraph/resampler/PolyphaseResamplerStereo.cpp
-        src/flowgraph/resampler/SincResampler.cpp
-        src/flowgraph/resampler/SincResamplerStereo.cpp
-        src/opensles/AudioInputStreamOpenSLES.cpp
-        src/opensles/AudioOutputStreamOpenSLES.cpp
-        src/opensles/AudioStreamBuffered.cpp
-        src/opensles/AudioStreamOpenSLES.cpp
-        src/opensles/EngineOpenSLES.cpp
-        src/opensles/OpenSLESUtilities.cpp
-        src/opensles/OutputMixerOpenSLES.cpp
-        src/common/StabilizedCallback.cpp
-        src/common/Trace.cpp
-        src/common/Version.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/aaudio/AAudioLoader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/aaudio/AudioStreamAAudio.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/AdpfWrapper.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/AudioSourceCaller.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/AudioStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/AudioStreamBuilder.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/DataConversionFlowGraph.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/FilterAudioStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/FixedBlockAdapter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/FixedBlockReader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/FixedBlockWriter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/LatencyTuner.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/OboeExtensions.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/SourceFloatCaller.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/SourceI16Caller.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/SourceI24Caller.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/SourceI32Caller.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/Utilities.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/QuirksManager.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/fifo/FifoBuffer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/fifo/FifoController.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/fifo/FifoControllerBase.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/fifo/FifoControllerIndirect.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/FlowGraphNode.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/ChannelCountConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/ClipToRange.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/Limiter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/ManyToMultiConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/MonoBlend.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/MonoToMultiConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/MultiToManyConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/MultiToMonoConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/RampLinear.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SampleRateConverter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SinkFloat.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SinkI16.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SinkI24.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SinkI32.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SourceFloat.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SourceI16.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SourceI24.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/SourceI32.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/IntegerRatio.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/LinearResampler.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/MultiChannelResampler.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/PolyphaseResampler.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/PolyphaseResamplerMono.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/PolyphaseResamplerStereo.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/SincResampler.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/flowgraph/resampler/SincResamplerStereo.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/AudioInputStreamOpenSLES.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/AudioOutputStreamOpenSLES.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/AudioStreamBuffered.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/AudioStreamOpenSLES.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/EngineOpenSLES.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/OpenSLESUtilities.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opensles/OutputMixerOpenSLES.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/StabilizedCallback.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/Trace.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/common/Version.cpp
 )
 
-add_library(oboe SHARED ${oboe_sources})
+add_library(oboe ${oboe_sources})
 
 # Specify directories which the compiler should look for headers
 target_include_directories(oboe
-        PUBLIC src
+        PRIVATE src
         PUBLIC include)
 
 # Compile Flags:

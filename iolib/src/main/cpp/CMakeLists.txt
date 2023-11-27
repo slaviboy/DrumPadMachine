@@ -18,12 +18,10 @@ add_library(
         player/SampleSource.cpp
         player/SampleBuffer.cpp
         player/OneShotSampleSource.cpp
-        player/SimpleMultiPlayer.cpp)
-
-target_link_libraries(
-        iolib
-        log
+        player/SimpleMultiPlayer.cpp
 )
+
+target_link_libraries(iolib log)
 
 target_include_directories(iolib
         PUBLIC player

@@ -7,10 +7,12 @@ set(IOLIB_DIR ../../../../iolib)
 
 #include(${PARSELIB_DIR}/src/main/cpp/CMakeLists.txt)
 #include(${IOLIB_DIR}/src/main/cpp/CMakeLists.txt)
+include(${OBOE_DIR}/src/main/cpp/CMakeLists.txt)
+
 include_directories(
         audio
         ${OBOE_DIR}/src/main/cpp/include
-        ${OBOE_DIR}/src/main/cpp/src/
+        ${OBOE_DIR}/src/main/cpp/src
         ${PARSELIB_DIR}/src/main/cpp
         ${IOLIB_DIR}/src/main/cpp
         ${CMAKE_CURRENT_LIST_DIR}
@@ -21,7 +23,9 @@ add_library(audio
         audio.cpp
         #DrumPlayerJNI.cpp
 )
-target_link_libraries(audio
+target_link_libraries(
+        audio
+        oboe
         log
 )
 
