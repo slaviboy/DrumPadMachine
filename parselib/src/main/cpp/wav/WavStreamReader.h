@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _IO_WAV_WAVSTREAMREADER_H_
-#define _IO_WAV_WAVSTREAMREADER_H_
+#ifndef WAVSTREAMREADER_H
+#define WAVSTREAMREADER_H
 
 #include <map>
 
@@ -86,4 +86,4 @@ private:
 
 } // namespace parselib
 
-#endif // _IO_WAV_WAVSTREAMREADER_H_
+#endif // WAVSTREAMREADER_H
