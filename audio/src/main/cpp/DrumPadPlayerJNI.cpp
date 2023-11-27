@@ -10,11 +10,11 @@
 #include <stream/MemInputStream.h>
 #include <wav/WavStreamReader.h>
 
+// iolib includes
 #include <player/OneShotSampleSource.h>
 #include <player/SimpleMultiPlayer.h>
-#include <oboe/Oboe.h>
 
-static const char* TAG = "DrumPlayerJNI";
+static const char* TAG = "DrumPadPlayerJNI";
 
 // JNI functions are "C" calling convention
 #ifdef __cplusplus
@@ -27,24 +27,24 @@ using namespace parselib;
 static SimpleMultiPlayer sDTPlayer;
 
 /**
- * Native (JNI) implementation of DrumPlayer.setupAudioStreamNative()
+ * Native (JNI) implementation of DrumPadPlayer.setupAudioStreamNative()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_setupAudioStreamNative(
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setupAudioStreamNative(
         JNIEnv* env, jobject, jint numChannels) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "%s", "init()");
     sDTPlayer.setupAudioStream(numChannels);
 }
 
 JNIEXPORT void JNICALL
-Java_com_slaviboy_audio_DrumPlayer_startAudioStreamNative(
+Java_com_slaviboy_audio_DrumPadPlayer_startAudioStreamNative(
         JNIEnv *env, jobject thiz) {
     sDTPlayer.startStream();
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.teardownAudioStreamNative()
+ * Native (JNI) implementation of DrumPadPlayer.teardownAudioStreamNative()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_teardownAudioStreamNative(JNIEnv* , jobject) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_teardownAudioStreamNative(JNIEnv* , jobject) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "%s", "deinit()");
 
     // we know in this case that the sample buffers are all 1-channel, 44.1K
@@ -52,12 +52,12 @@ JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_teardownAudioStreamNat
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.allocSampleDataNative()
+ * Native (JNI) implementation of DrumPadPlayer.allocSampleDataNative()
  */
 /**
- * Native (JNI) implementation of DrumPlayer.loadWavAssetNative()
+ * Native (JNI) implementation of DrumPadPlayer.loadWavAssetNative()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_loadWavAssetNative(
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_loadWavAssetNative(
         JNIEnv* env, jobject, jbyteArray bytearray, jint index, jfloat pan) {
     int len = env->GetArrayLength (bytearray);
 
@@ -81,44 +81,44 @@ JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_loadWavAssetNative(
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.unloadWavAssetsNative()
+ * Native (JNI) implementation of DrumPadPlayer.unloadWavAssetsNative()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_unloadWavAssetsNative(JNIEnv* env, jobject) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_unloadWavAssetsNative(JNIEnv* env, jobject) {
     sDTPlayer.unloadSampleData();
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.trigger()
+ * Native (JNI) implementation of DrumPadPlayer.trigger()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_trigger(JNIEnv* env, jobject, jint index) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_trigger(JNIEnv* env, jobject, jint index) {
     sDTPlayer.triggerDown(index);
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.trigger()
+ * Native (JNI) implementation of DrumPadPlayer.trigger()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_stopTrigger(JNIEnv* env, jobject, jint index) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_stopTrigger(JNIEnv* env, jobject, jint index) {
     sDTPlayer.triggerUp(index);
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.getOutputReset()
+ * Native (JNI) implementation of DrumPadPlayer.getOutputReset()
  */
-JNIEXPORT jboolean JNICALL Java_com_slaviboy_audio_DrumPlayer_getOutputReset(JNIEnv*, jobject) {
+JNIEXPORT jboolean JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getOutputReset(JNIEnv*, jobject) {
     return sDTPlayer.getOutputReset();
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.clearOutputReset()
+ * Native (JNI) implementation of DrumPadPlayer.clearOutputReset()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_clearOutputReset(JNIEnv*, jobject) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_clearOutputReset(JNIEnv*, jobject) {
     sDTPlayer.clearOutputReset();
 }
 
 /**
- * Native (JNI) implementation of DrumPlayer.restartStream()
+ * Native (JNI) implementation of DrumPadPlayer.restartStream()
  */
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_restartStream(JNIEnv*, jobject) {
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_restartStream(JNIEnv*, jobject) {
     sDTPlayer.resetAll();
     if (sDTPlayer.openStream() && sDTPlayer.startStream()){
         __android_log_print(ANDROID_LOG_INFO, TAG, "openStream successful");
@@ -127,22 +127,22 @@ JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_restartStream(JNIEnv*,
     }
 }
 
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_setPan(
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setPan(
         JNIEnv *env, jobject thiz, jint index, jfloat pan) {
     sDTPlayer.setPan(index, pan);
 }
 
-JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPlayer_getPan(
+JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getPan(
         JNIEnv *env, jobject thiz, jint  index) {
     return sDTPlayer.getPan(index);
 }
 
-JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPlayer_setGain(
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setGain(
         JNIEnv *env, jobject thiz, jint  index, jfloat gain) {
     sDTPlayer.setGain(index, gain);
 }
 
-JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPlayer_getGain(
+JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getGain(
         JNIEnv *env, jobject thiz, jint index) {
     return sDTPlayer.getGain(index);
 }

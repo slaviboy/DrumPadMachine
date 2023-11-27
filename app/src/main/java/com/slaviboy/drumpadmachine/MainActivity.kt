@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import com.slaviboy.audio.DrumPlayer
+import com.slaviboy.audio.DrumPadPlayer
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.global.allTrue
@@ -44,18 +44,18 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
 class MainActivity : ComponentActivity() {
 
-    private var mDrumPlayer = DrumPlayer()
+    private var mDrumPadPlayer = DrumPadPlayer()
 
     override fun onStart() {
         super.onStart()
-        mDrumPlayer.setupAudioStream()
-        mDrumPlayer.loadWavAssets(assets)
-        mDrumPlayer.startAudioStream()
+        mDrumPadPlayer.setupAudioStream()
+        mDrumPadPlayer.loadWavAssets(assets)
+        mDrumPadPlayer.startAudioStream()
     }
 
     override fun onStop() {
-        mDrumPlayer.teardownAudioStream()
-        mDrumPlayer.unloadWavAssets()
+        mDrumPadPlayer.teardownAudioStream()
+        mDrumPadPlayer.unloadWavAssets()
         super.onStop()
     }
 
@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .weight(1f),
                                     onMotionActionChanged = {
-                                        mDrumPlayer.trigger(DrumPlayer.HIHATOPEN)
+                                        mDrumPadPlayer.trigger(DrumPadPlayer.HIHATOPEN)
                                     }
                                 )
                                 if (j < 2) {

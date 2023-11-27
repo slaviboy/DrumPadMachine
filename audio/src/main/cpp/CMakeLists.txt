@@ -20,8 +20,7 @@ include_directories(
 )
 add_library(audio
         SHARED
-        audio.cpp
-        DrumPlayerJNI.cpp
+        DrumPadPlayerJNI.cpp
 )
 target_link_libraries(
         audio
