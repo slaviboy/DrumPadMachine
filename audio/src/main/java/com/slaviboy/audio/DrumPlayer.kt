@@ -67,14 +67,14 @@ class DrumPlayer {
 
     // asset-based samples
     fun loadWavAssets(assetMgr: AssetManager) {
-        loadWavAsset(assetMgr, "KickDrum.wav", BASSDRUM, PAN_BASSDRUM)
-        loadWavAsset(assetMgr, "SnareDrum.wav", SNAREDRUM, PAN_SNAREDRUM)
-        loadWavAsset(assetMgr, "CrashCymbal.wav", CRASHCYMBAL, PAN_CRASHCYMBAL)
-        loadWavAsset(assetMgr, "RideCymbal.wav", RIDECYMBAL, PAN_RIDECYMBAL)
-        loadWavAsset(assetMgr, "MidTom.wav", MIDTOM, PAN_MIDTOM)
-        loadWavAsset(assetMgr, "LowTom.wav", LOWTOM, PAN_LOWTOM)
-        loadWavAsset(assetMgr, "HiHat_Open.wav", HIHATOPEN, PAN_HIHATOPEN)
-        loadWavAsset(assetMgr, "HiHat_Closed.wav", HIHATCLOSED, PAN_HIHATCLOSED)
+        loadWavAsset(assetMgr, "01.wav", BASSDRUM, PAN_BASSDRUM)
+        loadWavAsset(assetMgr, "02.wav", SNAREDRUM, PAN_SNAREDRUM)
+        loadWavAsset(assetMgr, "03.wav", CRASHCYMBAL, PAN_CRASHCYMBAL)
+        loadWavAsset(assetMgr, "04.wav", RIDECYMBAL, PAN_RIDECYMBAL)
+        loadWavAsset(assetMgr, "05.wav", MIDTOM, PAN_MIDTOM)
+        loadWavAsset(assetMgr, "06.wav", LOWTOM, PAN_LOWTOM)
+        loadWavAsset(assetMgr, "07.wav", HIHATOPEN, PAN_HIHATOPEN)
+        loadWavAsset(assetMgr, "08.wav", HIHATCLOSED, PAN_HIHATCLOSED)
     }
 
     fun unloadWavAssets() {

@@ -46,6 +46,19 @@ class MainActivity : ComponentActivity() {
 
     private var mDrumPlayer = DrumPlayer()
 
+    override fun onStart() {
+        super.onStart()
+        mDrumPlayer.setupAudioStream()
+        mDrumPlayer.loadWavAssets(assets)
+        mDrumPlayer.startAudioStream()
+    }
+
+    override fun onStop() {
+        mDrumPlayer.teardownAudioStream()
+        mDrumPlayer.unloadWavAssets()
+        super.onStop()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //val a = NativeLib().stringFromJNI()
@@ -74,9 +87,12 @@ class MainActivity : ComponentActivity() {
                         ) {
                             for (j in 0 until 3) {
                                 Pad(
-                                    Pad(color = PadColor.Aqua, isActive = true),
+                                    pad = Pad(color = PadColor.Aqua, isActive = true),
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .weight(1f),
+                                    onMotionActionChanged = {
+                                        mDrumPlayer.trigger(DrumPlayer.HIHATOPEN)
+                                    }
                                 )
                                 if (j < 2) {
                                     Spacer(
@@ -118,7 +134,8 @@ data class Pad(
 @Composable
 fun Pad(
     pad: Pad,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMotionActionChanged: (Int) -> Unit
 ) {
     var showGlow by remember {
         mutableStateOf(false)
@@ -150,6 +167,7 @@ fun Pad(
             .wrapContentSize()
             .pointerInteropFilter {
                 motionEvent = it.action
+                onMotionActionChanged(it.action)
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
                         showGlow = true

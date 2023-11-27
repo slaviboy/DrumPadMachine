@@ -5,8 +5,8 @@ set(OBOE_DIR ../../../../oboe)
 set(PARSELIB_DIR ../../../../parselib)
 set(IOLIB_DIR ../../../../iolib)
 
-#include(${PARSELIB_DIR}/src/main/cpp/CMakeLists.txt)
-#include(${IOLIB_DIR}/src/main/cpp/CMakeLists.txt)
+include(${PARSELIB_DIR}/src/main/cpp/CMakeLists.txt)
+include(${IOLIB_DIR}/src/main/cpp/CMakeLists.txt)
 include(${OBOE_DIR}/src/main/cpp/CMakeLists.txt)
 
 include_directories(
@@ -21,11 +21,13 @@ include_directories(
 add_library(audio
         SHARED
         audio.cpp
-        #DrumPlayerJNI.cpp
+        DrumPlayerJNI.cpp
 )
 target_link_libraries(
         audio
         oboe
+        parselib
+        iolib
         log
 )
 

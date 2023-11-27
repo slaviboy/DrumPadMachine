@@ -15,10 +15,10 @@ include_directories(
 add_library(
         iolib
         STATIC
-        player/SampleSource.cpp
-        player/SampleBuffer.cpp
-        player/OneShotSampleSource.cpp
-        player/SimpleMultiPlayer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/SampleSource.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/SampleBuffer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/OneShotSampleSource.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/SimpleMultiPlayer.cpp
 )
 
 target_link_libraries(iolib log)

@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 3.4.1)
-project("parselib")
 
 set(parselib_sources
-        stream/FileInputStream.cpp
-        stream/InputStream.cpp
-        stream/MemInputStream.cpp
-        wav/AudioEncoding.cpp
-        wav/WavChunkHeader.cpp
-        wav/WavFmtChunkHeader.cpp
-        wav/WavRIFFChunkHeader.cpp
-        wav/WavStreamReader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/stream/FileInputStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/stream/InputStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/stream/MemInputStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/wav/AudioEncoding.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/wav/WavChunkHeader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/wav/WavFmtChunkHeader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/wav/WavRIFFChunkHeader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/wav/WavStreamReader.cpp
 )
-add_library(parselib SHARED ${parselib_sources})
+add_library(parselib ${parselib_sources})
 
 set(OBOE_DIR ../../../../oboe)
 
