@@ -11,7 +11,7 @@ class NativeLib {
     companion object {
         // Used to load the 'audio' library on application startup.
         init {
-            System.loadLibrary("audio")
+            //System.loadLibrary("audio")
         }
     }
 }

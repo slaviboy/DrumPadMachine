@@ -47,6 +47,10 @@ class DrumPlayer {
 
         // Logging Tag
         val TAG: String = "DrumPlayer"
+
+        init {
+            System.loadLibrary("audio")
+        }
     }
 
     fun setupAudioStream() {
