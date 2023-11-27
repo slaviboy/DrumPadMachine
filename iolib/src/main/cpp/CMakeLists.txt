@@ -12,13 +12,9 @@ include_directories(
         ${CMAKE_CURRENT_LIST_DIR}
         ../../../../shared)
 
-#target_include_directories(iolib
-#        PUBLIC player
-#)
-
 add_library(
         iolib
-        SHARED
+        STATIC
         player/SampleSource.cpp
         player/SampleBuffer.cpp
         player/OneShotSampleSource.cpp
@@ -27,4 +23,8 @@ add_library(
 target_link_libraries(
         iolib
         log
+)
+
+target_include_directories(iolib
+        PUBLIC player
 )

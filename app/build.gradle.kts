@@ -57,5 +57,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.slaviboy.percentage.units)
+    implementation(project(":oboe"))
+    implementation(project(":parselib"))
+    implementation(project(":iolib"))
     implementation(project(":audio"))
 }
