@@ -5,7 +5,6 @@ import android.view.MotionEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,7 +22,7 @@ fun Modifier.bounceClick(
     onClick: () -> Unit = {}
 ) = composed {
     var lastClickTime by remember {
-        mutableLongStateOf(0L)
+        mutableStateOf(0L)
     }
     var buttonState by remember { mutableStateOf(ButtonState.Idle) }
     val scale by animateFloatAsState(

@@ -1,6 +1,6 @@
 [versions]
-agp = "8.3.0-alpha14"
-kotlin = "1.9.0"
+agp = "8.1.0"
+kotlin = "1.8.10"
 coreKtx = "1.12.0"
 coreSplash = "1.0.1"
 junit = "4.13.2"
@@ -14,6 +14,9 @@ appcompat = "1.6.1"
 material = "1.10.0"
 viewmodelCompose = "2.6.2"
 raamcostaDestination = "1.9.55"
+retrofit = "2.9.0"
+gson = "2.10.1"
+hilt = "2.45"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +35,14 @@ material = { group = "com.google.android.material", name = "material", version.r
 ramcosta-destination-core = { group = "io.github.raamcosta.compose-destinations", name = "core", version.ref = "raamcostaDestination" }
 ramcosta-destination-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "raamcostaDestination" }
 ramcosta-destination-animations = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "raamcostaDestination" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+
+
+
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }

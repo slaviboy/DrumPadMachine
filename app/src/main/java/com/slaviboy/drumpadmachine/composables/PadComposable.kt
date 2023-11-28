@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,7 +35,7 @@ fun PadComposable(
         mutableStateOf(false)
     }
     var motionEvent by remember {
-        mutableIntStateOf(MotionEvent.ACTION_UP)
+        mutableStateOf(MotionEvent.ACTION_UP)
     }
     val alpha: Float by animateFloatAsState(
         targetValue = if (showGlow) 1f else 0f,

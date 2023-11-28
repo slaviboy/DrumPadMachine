@@ -11,7 +11,9 @@ import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.composables.NavGraphs
 import com.slaviboy.drumpadmachine.composables.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val drumPadViewModel: DrumPadViewModel by viewModels()
