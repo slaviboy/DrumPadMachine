@@ -1,6 +1,14 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
+}
+
+fun DependencyHandler.ksp(vararg list: Provider<MinimalExternalModuleDependency>) {
+    list.forEach { dependency ->
+        add("ksp", dependency)
+    }
 }
 
 android {
@@ -27,11 +35,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -47,6 +55,7 @@ android {
 }
 
 dependencies {
+    ksp(libs.ramcosta.destination.ksp)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
@@ -58,6 +67,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.slaviboy.percentage.units)
+    implementation(libs.ramcosta.destination.core)
+    implementation(libs.ramcosta.destination.animations)
     implementation(project(":oboe"))
     implementation(project(":parselib"))
     implementation(project(":iolib"))
