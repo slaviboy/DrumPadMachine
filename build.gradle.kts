@@ -141,6 +141,12 @@ fun PluginAware.setLibraryPlugins() {
     }
 }
 
+fun PluginAware.setLibraryJNIPlugins() {
+    apply {
+        plugin("com.android.library")
+    }
+}
+
 fun Project.setDependencies() {
     dependencies {
         kapt(*ApplicationDependencies.kapt)
@@ -239,6 +245,16 @@ subprojects {
                     setDefaultConfigJNILibraries()
                 }
                 setDependencies()
+                android.buildFeatures.buildConfig = true
+                android.buildFeatures.prefab = true
+            }
+
+            is DependencyType.LibraryJNI -> {
+                setLibraryJNIPlugins()
+                configure<LibraryExtension> {
+                    setup(name)
+                    setDefaultConfigJNILibraries()
+                }
                 android.buildFeatures.buildConfig = true
                 android.buildFeatures.prefab = true
             }

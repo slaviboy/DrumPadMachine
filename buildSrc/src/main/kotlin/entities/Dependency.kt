@@ -10,11 +10,16 @@ sealed class Dependency(
         override val name: String
     ) : Dependency(path, name, DependencyType.Library)
 
+    sealed class LibraryJNIDependency(
+        override val path: String,
+        override val name: String
+    ) : Dependency(path, name, DependencyType.LibraryJNI)
+
     object App : Dependency(":app", "app", DependencyType.Application)
     object Audio : LibraryDependency(":audio", "audio")
-    object IOLib : LibraryDependency(":iolib", "iolib")
-    object Oboe : LibraryDependency(":oboe", "oboe")
-    object ParseLib : LibraryDependency(":parselib", "parselib")
+    object Oboe : LibraryJNIDependency(":oboe", "oboe")
+    object IOLib : LibraryJNIDependency(":iolib", "iolib")
+    object ParseLib : LibraryJNIDependency(":parselib", "parselib")
 
     fun matches(project: org.gradle.api.Project): Boolean {
         return (project.path == path && project.name == name)

@@ -99,6 +99,9 @@ object ApplicationDependencies {
         daggerHilt
     )
 
+
+    val dependenciesLibraryJNI = arrayOf<String>()
+
     val kapt = arrayOf(
         daggerHiltCompiler
     )
