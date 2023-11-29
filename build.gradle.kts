@@ -144,6 +144,8 @@ fun PluginAware.setLibraryPlugins() {
 fun PluginAware.setLibraryJNIPlugins() {
     apply {
         plugin("com.android.library")
+        plugin("kotlin-kapt")
+        plugin("org.jetbrains.kotlin.android")
     }
 }
 
@@ -242,11 +244,9 @@ subprojects {
                 setLibraryPlugins()
                 configure<LibraryExtension> {
                     setup(name)
-                    setDefaultConfigJNILibraries()
                 }
                 setDependencies()
                 android.buildFeatures.buildConfig = true
-                android.buildFeatures.prefab = true
             }
 
             is DependencyType.LibraryJNI -> {

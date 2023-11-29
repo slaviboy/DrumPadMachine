@@ -99,8 +99,10 @@ object ApplicationDependencies {
         daggerHilt
     )
 
-
-    val dependenciesLibraryJNI = arrayOf<String>()
+    val dependenciesLibraryJNI = arrayOf(
+        kotlinStandardLib,
+        composeUIToolingPreview
+    )
 
     val kapt = arrayOf(
         daggerHiltCompiler
