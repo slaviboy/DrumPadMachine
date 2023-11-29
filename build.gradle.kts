@@ -110,9 +110,15 @@ fun BaseExtension.setBuildTypes() {
     }
 }
 
-fun BaseExtension.setup(name: String) {
+fun BaseExtension.setupApplication(name: String) {
     setDefaultConfig(name)
-    // setBuildTypes()
+    setBuildTypes()
+    setCompileOptions()
+    general()
+}
+
+fun BaseExtension.setupLibrary(name: String) {
+    setDefaultConfig(name)
     setCompileOptions()
     general()
 }
@@ -129,7 +135,6 @@ fun PluginAware.setApplicationPlugins() {
     setPlugins()
     apply {
         plugin("com.android.application")
-        // plugin("com.google.gms.google-services")
         plugin("com.google.firebase.crashlytics")
     }
 }
@@ -177,7 +182,7 @@ fun Project.setVariants() {
                 versionNameSuffix = "-dev"
                 dimension = "environment"
                 buildConfigField("String", "BUILD_VARIANT", "\"dev\"")
-                resValue("string", "app_name", "Postbank Dev")
+                resValue("string", "app_name", "DrumPadMachine Dev")
                 manifestPlaceholders(
                     mapOf(
                         "icon" to "@mipmap/ic_launcher_dev",
@@ -191,7 +196,7 @@ fun Project.setVariants() {
                 versionNameSuffix = "-beta"
                 dimension = "environment"
                 buildConfigField("String", "BUILD_VARIANT", "\"beta\"")
-                resValue("string", "app_name", "Postbank Beta")
+                resValue("string", "app_name", "DrumPadMachine Beta")
                 manifestPlaceholders(
                     mapOf(
                         "icon" to "@mipmap/ic_launcher_dev",
@@ -205,7 +210,7 @@ fun Project.setVariants() {
                 versionNameSuffix = ""
                 dimension = "environment"
                 buildConfigField("String", "BUILD_VARIANT", "\"prod\"")
-                resValue("string", "app_name", "Postbank")
+                resValue("string", "app_name", "DrumPadMachine")
                 manifestPlaceholders(
                     mapOf(
                         "icon" to "@mipmap/ic_launcher",
@@ -233,17 +238,17 @@ subprojects {
                             versionName = ApplicationConfiguration.versionName
                         }
                     }
-                    setup(ApplicationConfiguration.appName)
+                    setupApplication(ApplicationConfiguration.appName)
                 }
                 setDependencies()
                 setResDirs()
-                // setVariants()
+                setVariants()
             }
 
             is DependencyType.Library -> {
                 setLibraryPlugins()
                 configure<LibraryExtension> {
-                    setup(name)
+                    setupLibrary(name)
                 }
                 setDependencies()
                 android.buildFeatures.buildConfig = true
@@ -252,7 +257,7 @@ subprojects {
             is DependencyType.LibraryJNI -> {
                 setLibraryJNIPlugins()
                 configure<LibraryExtension> {
-                    setup(name)
+                    setupLibrary(name)
                     setDefaultConfigJNILibraries()
                 }
                 android.buildFeatures.buildConfig = true
