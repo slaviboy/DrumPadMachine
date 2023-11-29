@@ -8,6 +8,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -24,19 +25,26 @@ class NetworkModule {
     }
 
     @Provides
-    fun provideGsonFactory(): GsonConverterFactory {
+    fun provideGsonConverterFactory(): GsonConverterFactory {
         return GsonConverterFactory.create()
+    }
+
+    @Provides
+    fun provideScalarsConverterFactory(): ScalarsConverterFactory {
+        return ScalarsConverterFactory.create()
     }
 
     @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        gsonConverterFactory: GsonConverterFactory
+        gsonConverterFactory: GsonConverterFactory,
+        scalarsConverterFactory: ScalarsConverterFactory
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(gsonConverterFactory)
+            .addConverterFactory(scalarsConverterFactory)
             .build()
     }
 

@@ -17,7 +17,7 @@ class HomeViewModel @Inject constructor(
 
     fun downloadAudioZip() {
         viewModelScope.launch(Dispatchers.IO) {
-            downloadAudioZipUseCase.execute(context.cacheDir, 3).collect {
+            downloadAudioZipUseCase.execute(context.cacheDir, 10).collect {
                 val b = 3
             }
         }

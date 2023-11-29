@@ -4,7 +4,8 @@ import com.slaviboy.drumpadmachine.api.entities.SoundLibraries
 import com.slaviboy.drumpadmachine.api.services.ApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okhttp3.Response
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
 class ApiRepository @Inject constructor(
@@ -15,7 +16,7 @@ class ApiRepository @Inject constructor(
         emit(soundLibraries)
     }
 
-    suspend fun getAudioZipById(id: Int): Response {
+    suspend fun getAudioZipById(id: Int): Response<ResponseBody> {
         return apiService.getAudioZipById(id)
     }
 
