@@ -8,11 +8,7 @@ plugins {
 }
 
 dependencies {
-    implementationPlatform(*ApplicationDependencies.dependenciesPlatformApp)
     implementation(*ApplicationDependencies.dependenciesApp)
     ksp(*ApplicationDependencies.ksp)
-    project(":oboe")
-    project(":parselib")
-    project(":iolib")
-    project(":audio")
+    project(":oboe", ":parselib", ":iolib", ":audio")
 }

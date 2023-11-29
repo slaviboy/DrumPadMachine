@@ -20,35 +20,19 @@ object ApplicationDependencies {
     private const val raamcostaAnimationsCore = "io.github.raamcosta.compose-destinations:animations-core:${ApplicationDependencyVersions.raamcosta}"
     private const val datastorePreferences = "androidx.datastore:datastore-preferences:${ApplicationDependencyVersions.datastorePreferences}"
     private const val splashscreen = "androidx.core:core-splashscreen:${ApplicationDependencyVersions.splashscreen}"
-    private const val accompanistWebview = "com.google.accompanist:accompanist-webview:${ApplicationDependencyVersions.accompanistWebview}"
     private const val libphonenumber = "com.googlecode.libphonenumber:libphonenumber:${ApplicationDependencyVersions.libphonenumber}"
     private const val percentageUnits = "com.github.slaviboy:JetpackComposePercentageUnits:${ApplicationDependencyVersions.percentageUnits}"
-    private const val zxcvbn = "com.github.slaviboy:Zxcvbn:${ApplicationDependencyVersions.zxcvbn}"
-    private const val flags = "com.github.slaviboy:flags:${ApplicationDependencyVersions.flags}"
     private const val accompanistSystemuicontroller = "com.google.accompanist:accompanist-systemuicontroller:${ApplicationDependencyVersions.accompanistSystemuicontroller}"
-    private const val lottieAnimation = "com.airbnb.android:lottie-compose:${ApplicationDependencyVersions.lottieAnimation}"
-    private const val jodaMoney = "org.joda:joda-money:${ApplicationDependencyVersions.jodaMoney}"
     private const val retrofit = "com.squareup.retrofit2:retrofit:${ApplicationDependencyVersions.retrofit}"
     private const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:${ApplicationDependencyVersions.retrofit}"
     private const val retrofitScalarConverter = "com.squareup.retrofit2:converter-scalars:${ApplicationDependencyVersions.retrofit}"
     private const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${ApplicationDependencyVersions.loggingInterceptor}"
-    private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
     private const val appcompat = "androidx.appcompat:appcompat:${ApplicationDependencyVersions.appcompat}"
+    private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
     private const val timber = "com.jakewharton.timber:timber:${ApplicationDependencyVersions.timber}"
-
-    // Firebase
-    private const val firebaseBOM = "com.google.firebase:firebase-bom:${ApplicationDependencyVersions.firebaseBOM}"
-    private const val firebaseAnalytics = "com.google.firebase:firebase-analytics-ktx"
-    private const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics-ktx"
-    private const val firebaseDatabase = "com.google.firebase:firebase-database-ktx"
-    private const val firebaseConfig = "com.google.firebase:firebase-config-ktx"
 
     // Testing
     const val junit = "junit:junit:${ApplicationDependencyVersions.junit}"
-
-    val dependenciesPlatformApp = arrayOf(
-        firebaseBOM
-    )
 
     val dependenciesApp = arrayOf(
         kotlinStandardLib,
@@ -71,22 +55,12 @@ object ApplicationDependencies {
         splashscreen,
         libphonenumber,
         percentageUnits,
-        zxcvbn,
-        flags,
         accompanistSystemuicontroller,
-        lottieAnimation,
-        jodaMoney,
         retrofit,
         retrofitGsonConverter,
         retrofitScalarConverter,
         loggingInterceptor,
-        appcompat,
-        //firebaseAnalytics,
-        //firebaseCrashlytics,
-        //firebaseDatabase,
-        //firebaseConfig,
-        //timber
-        //glide
+        appcompat
     )
 
     val dependenciesLibrary = arrayOf(
