@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.viewmodels
+package com.slaviboy.drumpadmachine.screens.drumpad.viewmodels
 
 import android.content.res.AssetManager
 import androidx.lifecycle.ViewModel
@@ -24,7 +24,7 @@ class DrumPadViewModel @Inject constructor(
 
     fun downloadConfigs() {
         viewModelScope.launch {
-            repository.getConfigs().collect {
+            repository.getSoundLibraries().collect {
                 _dataState.value = it
             }
         }

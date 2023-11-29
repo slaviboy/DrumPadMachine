@@ -8,15 +8,18 @@ import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.slaviboy.composeunits.initSize
-import com.slaviboy.drumpadmachine.composables.NavGraphs
-import com.slaviboy.drumpadmachine.composables.destinations.DrumPadComposableDestination
-import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
+import com.slaviboy.drumpadmachine.screens.NavGraphs
+import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestination
+import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
+import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val drumPadViewModel: DrumPadViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     override fun onStart() {
         super.onStart()
@@ -39,6 +42,9 @@ class MainActivity : ComponentActivity() {
                 dependenciesContainerBuilder = {
                     dependency(DrumPadComposableDestination) {
                         drumPadViewModel
+                    }
+                    dependency(HomeComposableDestination) {
+                        homeViewModel
                     }
                 }
             )

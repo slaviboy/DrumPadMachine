@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.composables
+package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +20,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dw
 import com.slaviboy.drumpadmachine.data.Pad
 import com.slaviboy.drumpadmachine.enums.PadColor
+import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
-import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
 
-@RootNavGraph(start = true)
+@RootNavGraph(start = false)
 @Destination
 @Composable
 fun DrumPadComposable(

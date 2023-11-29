@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.composables
+package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
 import android.view.MotionEvent
 import androidx.compose.animation.core.FastOutLinearInEasing
