@@ -11,9 +11,8 @@ import javax.inject.Inject
 class ApiRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    fun getSoundLibraries(): Flow<SoundLibraries> = flow {
-        val soundLibraries = apiService.getSoundLibraries()
-        emit(soundLibraries)
+    suspend fun getSoundLibraries(): SoundLibraries {
+        return apiService.getSoundLibraries()
     }
 
     suspend fun getAudioZipById(id: Int): Response<ResponseBody> {

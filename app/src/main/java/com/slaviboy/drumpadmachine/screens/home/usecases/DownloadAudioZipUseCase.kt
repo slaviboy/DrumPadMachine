@@ -5,12 +5,11 @@ import com.slaviboy.drumpadmachine.api.results.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,51 +20,49 @@ class DownloadAudioZipUseCase @Inject constructor(
 ) {
     suspend fun execute(cacheDir: File, id: Int): Flow<Result<Unit>> = flow {
         val response = repository.getAudioZipById(id)
-        if (response.isSuccessful) {
-            val fullCacheDirPath = File(cacheDir, "audio/$id/")
-            if (fullCacheDirPath.isDirectory()) {
-                fullCacheDirPath.mkdirs()
-            }
-            val tempFile = File(fullCacheDirPath, "temp.zip")
-            try {
-                withContext(Dispatchers.IO) {
-                    tempFile.getParentFile()?.mkdirs()
-                    tempFile.createNewFile()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+        if (!response.isSuccessful) {
+            emit(Result.Error("Failed to download ZIP file"))
+        }
+        val path = File(cacheDir, "audio/$id/")
+        val tempFile = File(path, "temp.zip")
+        try {
+            tempFile.getParentFile()?.mkdirs()
+            tempFile.createNewFile()
             response.body()?.byteStream()?.use { inputStream ->
                 FileOutputStream(tempFile).use { outputStream ->
                     inputStream.copyTo(outputStream)
+                    extractZip(tempFile, path)
+                    tempFile.delete()
+                    emit(Result.Success(Unit))
                 }
             } ?: run {
                 emit(Result.Error("Empty response body"))
             }
-            extractZip(tempFile, fullCacheDirPath)
-            tempFile.delete()
-            emit(Result.Success(Unit))
-
-        } else {
-            emit(Result.Error("Failed to download ZIP file"))
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
-    private fun extractZip(zipFile: File, outputDir: File) {
-        ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-            var entry: ZipEntry? = zipInputStream.nextEntry
-            while (entry != null) {
-                val entryFile = File(outputDir, entry.name)
-                if (entry.isDirectory) {
-                    entryFile.mkdirs()
-                } else {
-                    FileOutputStream(entryFile).use { fileOutputStream ->
-                        zipInputStream.copyTo(fileOutputStream)
+    private fun extractZip(zipFile: File, outputDir: File): Boolean {
+        return try {
+            ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
+                var zipEntry = zipInputStream.nextEntry
+                while (zipEntry != null) {
+                    val entryFile = File(outputDir, zipEntry.name)
+                    if (zipEntry.isDirectory) {
+                        entryFile.mkdirs()
+                    } else {
+                        FileOutputStream(entryFile).use { fileOutputStream ->
+                            zipInputStream.copyTo(fileOutputStream)
+                        }
                     }
+                    zipInputStream.closeEntry()
+                    zipEntry = zipInputStream.nextEntry
                 }
-                zipInputStream.closeEntry()
-                entry = zipInputStream.nextEntry
             }
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }
