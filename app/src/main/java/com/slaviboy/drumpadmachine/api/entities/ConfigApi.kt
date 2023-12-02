@@ -1,6 +1,8 @@
 package com.slaviboy.drumpadmachine.api.entities
 
+import com.google.gson.annotations.SerializedName
+
 data class ConfigApi(
-    val categoriesApi: List<CategoryApi>,
-    val presetsApi: List<PresetApi>
+    @SerializedName("categories") val categoriesApi: List<CategoryApi>,
+    @SerializedName("presets") val presetsApi: List<PresetApi>
 )

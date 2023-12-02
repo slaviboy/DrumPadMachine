@@ -10,7 +10,7 @@ import com.slaviboy.drumpadmachine.data.room.converters.PresetConverter
 
 @Entity
 data class ConfigEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
 
     @TypeConverters(CategoryConverter::class)

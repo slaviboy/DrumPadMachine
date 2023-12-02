@@ -22,12 +22,12 @@ class GetAudioConfigUseCase @Inject constructor(
         emit(Result.Loading)
 
         // emit cached data
-        dao.getConfigById()?.let {
+        dao.getConfig()?.let {
             val config = Config(it.categories, it.presets)
             emit(Result.Success(config))
         }
 
-        // make API request, and cached locally
+        // make API request, and cache locally
         val configEntity = repository.getSoundConfig().let {
             ConfigEntity(
                 id = 0,

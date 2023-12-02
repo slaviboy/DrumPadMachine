@@ -14,6 +14,6 @@ interface ConfigDao {
     @Delete
     suspend fun deleteConfig(config: ConfigEntity)
 
-    @Query("SELECT * FROM ConfigEntity WHERE id = :id")
-    fun getConfigById(id: Int = 0): ConfigEntity?
+    @Query("SELECT * FROM ConfigEntity WHERE id = 0")
+    fun getConfig(): ConfigEntity?
 }
