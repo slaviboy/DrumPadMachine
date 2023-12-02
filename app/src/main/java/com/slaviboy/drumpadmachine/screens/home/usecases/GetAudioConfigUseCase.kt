@@ -2,6 +2,10 @@ package com.slaviboy.drumpadmachine.screens.home.usecases
 
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.data.entities.Category
+import com.slaviboy.drumpadmachine.data.entities.Config
+import com.slaviboy.drumpadmachine.data.entities.Filter
+import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.ConfigEntity
 import kotlinx.coroutines.flow.Flow
@@ -14,20 +18,34 @@ class GetAudioConfigUseCase @Inject constructor(
     private val repository: ApiRepository,
     private val dao: ConfigDao
 ) {
-    suspend fun execute(): Flow<Result<ConfigEntity>> = flow {
+    suspend fun execute(): Flow<Result<Config>> = flow {
         emit(Result.Loading)
 
-        dao.getConfigById().collect {
-            emit(Result.Success(it))
+        // emit cached data
+        dao.getConfigById()?.let {
+            val config = Config(it.categories, it.presets)
+            emit(Result.Success(config))
         }
-        val soundLibraries = repository.getSoundConfig().let {
+
+        // make API request, and cached locally
+        val configEntity = repository.getSoundConfig().let {
             ConfigEntity(
                 id = 0,
-                categoriesApi = it.categoriesApi,
-                presetsApi = it.presetsApi
+                categories = it.categoriesApi.map {
+                    Category(
+                        title = it.title,
+                        filter = Filter(it.filterApi.tags)
+                    )
+                },
+                presets = it.presetsApi.map {
+                    Preset(it.id, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
+                }
             )
         }
-        dao.upsertConfig(soundLibraries)
-        emit(Result.Success(soundLibraries))
+        dao.upsertConfig(configEntity)
+
+        // emit updated API data
+        val config = Config(configEntity.categories, configEntity.presets)
+        emit(Result.Success(config))
     }
 }

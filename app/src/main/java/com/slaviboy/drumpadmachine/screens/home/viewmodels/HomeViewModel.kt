@@ -3,11 +3,10 @@ package com.slaviboy.drumpadmachine.screens.home.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.slaviboy.drumpadmachine.api.entities.ConfigApi
 import com.slaviboy.drumpadmachine.api.results.Result
-import com.slaviboy.drumpadmachine.data.room.ConfigEntity
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetAudioConfigUseCase
+import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetAudioConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +21,7 @@ class HomeViewModel @Inject constructor(
     private val context: Context
 ) : ViewModel() {
 
-    private val _dataState = MutableStateFlow<ConfigEntity?>(null)
+    private val _dataState = MutableStateFlow<Config?>(null)
     val dataState = _dataState.asStateFlow()
 
     init {
