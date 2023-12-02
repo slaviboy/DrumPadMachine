@@ -3,8 +3,10 @@ package com.slaviboy.drumpadmachine.screens.home.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.slaviboy.drumpadmachine.api.entities.SoundLibraries
-import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioConfigUseCase
+import com.slaviboy.drumpadmachine.api.entities.ConfigApi
+import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.data.room.ConfigEntity
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetAudioConfigUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,19 +18,39 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val downloadAudioConfigUseCase: DownloadAudioConfigUseCase,
+    private val getAudioConfigUseCase: GetAudioConfigUseCase,
     private val context: Context
 ) : ViewModel() {
 
-    private val _dataState = MutableStateFlow<SoundLibraries?>(null)
+    private val _dataState = MutableStateFlow<ConfigEntity?>(null)
     val dataState = _dataState.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            getAudioConfigUseCase.execute().collect {
+                when (it) {
+                    is Result.Loading -> {
+
+                    }
+
+                    is Result.Success -> {
+                        _dataState.value = it.data
+                    }
+
+                    is Result.Error -> {
+
+                    }
+                }
+            }
+        }
+    }
 
     fun downloadAudioZip() {
         viewModelScope.launch(Dispatchers.IO) {
             downloadAudioZipUseCase.execute(context.cacheDir, 11).collect {
                 val b = 3
             }
-            downloadAudioConfigUseCase.execute().collect {
+            getAudioConfigUseCase.execute().collect {
                 val b = 3
             }
         }

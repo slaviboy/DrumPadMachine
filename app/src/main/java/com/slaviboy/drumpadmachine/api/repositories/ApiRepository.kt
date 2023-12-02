@@ -1,6 +1,6 @@
 package com.slaviboy.drumpadmachine.api.repositories
 
-import com.slaviboy.drumpadmachine.api.entities.SoundLibraries
+import com.slaviboy.drumpadmachine.api.entities.ConfigApi
 import com.slaviboy.drumpadmachine.api.services.ApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -11,8 +11,8 @@ import javax.inject.Inject
 class ApiRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getSoundLibraries(): SoundLibraries {
-        return apiService.getSoundLibraries()
+    suspend fun getSoundConfig(): ConfigApi {
+        return apiService.getSoundConfig()
     }
 
     suspend fun getAudioZipById(id: Int): Response<ResponseBody> {
