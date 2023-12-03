@@ -28,24 +28,29 @@ class GetAudioConfigUseCase @Inject constructor(
         }
 
         // make API request, and cache locally
-        val configEntity = repository.getSoundConfig().let {
-            ConfigEntity(
-                id = 0,
-                categories = it.categoriesApi.map {
-                    Category(
-                        title = it.title,
-                        filter = Filter(it.filterApi.tags)
-                    )
-                },
-                presets = it.presetsApi.map {
-                    Preset(it.id, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
-                }
-            )
-        }
-        dao.upsertConfig(configEntity)
+        try {
+            val configEntity = repository.getSoundConfig().let {
+                ConfigEntity(
+                    id = 0,
+                    categories = it.categoriesApi.map {
+                        Category(
+                            title = it.title,
+                            filter = Filter(it.filterApi.tags)
+                        )
+                    },
+                    presets = it.presetsApi.map {
+                        Preset(it.id, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
+                    }
+                )
+            }
+            dao.upsertConfig(configEntity)
 
-        // emit updated API data
-        val config = Config(configEntity.categories, configEntity.presets)
-        emit(Result.Success(config))
+            // emit updated API data
+            val config = Config(configEntity.categories, configEntity.presets)
+            emit(Result.Success(config))
+
+        } catch (e: Exception) {
+            emit(Result.Error("Network error!"))
+        }
     }
 }

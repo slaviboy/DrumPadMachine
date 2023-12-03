@@ -28,6 +28,7 @@ object ApplicationDependencyVersions {
     const val retrofit = "2.9.0"
     const val loggingInterceptor = "4.11.0"
     const val glide = "1.0.0-alpha.5"
+    const val coil = "2.0.0-rc01"
     const val appcompat = "1.6.1"
     const val timber = "5.0.1"
     const val room = "2.5.0"

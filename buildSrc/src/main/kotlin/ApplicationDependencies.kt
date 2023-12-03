@@ -28,10 +28,11 @@ object ApplicationDependencies {
     private const val retrofitScalarConverter = "com.squareup.retrofit2:converter-scalars:${ApplicationDependencyVersions.retrofit}"
     private const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${ApplicationDependencyVersions.loggingInterceptor}"
     private const val appcompat = "androidx.appcompat:appcompat:${ApplicationDependencyVersions.appcompat}"
-    private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
     private const val timber = "com.jakewharton.timber:timber:${ApplicationDependencyVersions.timber}"
     private const val room = "androidx.room:room-ktx:${ApplicationDependencyVersions.room}"
     private const val roomCompiler = "androidx.room:room-compiler:${ApplicationDependencyVersions.room}"
+    private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
+    private const val coil = "io.coil-kt:coil-compose:${ApplicationDependencyVersions.coil}"
 
     // Testing
     const val junit = "junit:junit:${ApplicationDependencyVersions.junit}"
@@ -63,7 +64,9 @@ object ApplicationDependencies {
         retrofitScalarConverter,
         loggingInterceptor,
         appcompat,
-        room
+        room,
+        glide,
+        coil
     )
 
     val dependenciesLibrary = arrayOf(
