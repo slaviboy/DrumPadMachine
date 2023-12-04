@@ -84,7 +84,11 @@ class HomeViewModel @Inject constructor(
                         }
 
                         viewModelScope.launch(Dispatchers.Main) {
-                            _categoriesMapState.value = hashMap
+                            // _categoriesMapState.value = hashMap
+                            _categoriesMapState.value = hashMapOf(
+                                "Test" to mutableListOf(presets!![0]),
+                                "WA" to mutableListOf(presets!![1], presets!![2], presets!![3], presets!![4], presets!![5])
+                            )
                         }
                     }
 

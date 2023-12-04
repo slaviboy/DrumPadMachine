@@ -33,6 +33,7 @@ object ApplicationDependencies {
     private const val roomCompiler = "androidx.room:room-compiler:${ApplicationDependencyVersions.room}"
     private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
     private const val coil = "io.coil-kt:coil-compose:${ApplicationDependencyVersions.coil}"
+    private const val kotlinInterpolator = "com.github.slaviboy:KotlinInterpolator:${ApplicationDependencyVersions.kotlinInterpolator}"
 
     // Testing
     const val junit = "junit:junit:${ApplicationDependencyVersions.junit}"
@@ -66,7 +67,8 @@ object ApplicationDependencies {
         appcompat,
         room,
         glide,
-        coil
+        coil,
+        //kotlinInterpolator
     )
 
     val dependenciesLibrary = arrayOf(

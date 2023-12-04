@@ -1,7 +1,11 @@
 package com.slaviboy.drumpadmachine.screens.home.composables
 
+import androidx.compose.animation.core.TargetBasedAnimation
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,18 +26,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -43,12 +61,39 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
+import com.slaviboy.drumpadmachine.extensions.click
 import com.slaviboy.drumpadmachine.modules.NetworkModule.Companion.BASE_URL
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+
+
+@Composable
+fun Dp.dpToPx() = with(LocalDensity.current) { this@dpToPx.toPx() }
+
+@Composable
+fun Float.pxToDp() = with(LocalDensity.current) { this@pxToDp.toDp() }
+
+fun Float.mapValue(fromY: Float, toY: Float): Float {
+    return (toY - fromY) * this + fromY
+}
+
+fun Float.mapValue(fromY: Dp, toY: Dp): Dp {
+    return (toY - fromY) * this + fromY
+}
+
+fun Float.accelerateValue(accelerationFactor: Float = 0.1f): Float {
+    val acceleratedValue = this - accelerationFactor * this
+    return acceleratedValue.coerceIn(0.0f, 1.0f)
+}
+
+fun Float.decelerateValue(decelerationFactor: Float = 0.7f): Float {
+    val deceleratedValue = this + (1 - this) * (1 - decelerationFactor)
+    return deceleratedValue.coerceIn(0.0f, 1.0f)
+}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @RootNavGraph(start = true)
@@ -69,7 +114,79 @@ fun HomeComposable(
                 )
             )
     ) {
-
+        val fromWidth by remember {
+            mutableStateOf(0.35.dw)
+        }
+        val fromHeight by remember {
+            mutableStateOf(0.35.dw)
+        }
+        val toWidth by remember {
+            mutableStateOf(0.76.dw)
+        }
+        val toHeight by remember {
+            mutableStateOf(0.33.dh)
+        }
+        var animatedWidth by remember {
+            mutableStateOf(0.35.dw)
+        }
+        var animatedHeight by remember {
+            mutableStateOf(0.35.dw)
+        }
+        var fromX by remember {
+            mutableFloatStateOf(0f)
+        }
+        var fromY by remember {
+            mutableFloatStateOf(0f)
+        }
+        var toX by remember {
+            mutableFloatStateOf(0f)
+        }
+        var toY by remember {
+            mutableFloatStateOf(0f)
+        }
+        var animatedX by remember {
+            mutableFloatStateOf(0f)
+        }
+        var animatedY by remember {
+            mutableFloatStateOf(0f)
+        }
+        var animationFlag by remember {
+            mutableStateOf<Boolean?>(null)
+        }
+        var isReversed by remember {
+            mutableStateOf(true)
+        }
+        var animatedValue by remember {
+            mutableFloatStateOf(0f)
+        }
+        var clickedPreset by remember {
+            mutableStateOf<Preset?>(null)
+        }
+        val animation = remember {
+            TargetBasedAnimation(
+                animationSpec = tween(400),
+                typeConverter = Float.VectorConverter,
+                initialValue = 0f,
+                targetValue = 1f
+            )
+        }
+        LaunchedEffect(animationFlag) {
+            animationFlag ?: return@LaunchedEffect
+            val startTime = withFrameNanos { it }
+            var playTime: Long
+            do {
+                playTime = withFrameNanos { it } - startTime
+                var value = animation.getValueFromNanos(playTime) // [0,1]
+                if (isReversed) {
+                    value = Math.abs(value - 1f)
+                }
+                animatedValue = value
+                animatedX = value.mapValue(fromX, toX)
+                animatedY = value.mapValue(fromY, toY)
+                animatedWidth = value.mapValue(fromWidth, toWidth)
+                animatedHeight = value.mapValue(fromHeight, toHeight)
+            } while (playTime <= animation.durationNanos)
+        }
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -117,15 +234,27 @@ fun HomeComposable(
                         .padding(horizontal = 0.03.dw)
                 ) {
                     presets.forEach {
-                        Column {
-                            /*GlideImage(
-                                model = "${BASE_URL}cover_icons/${it.id}.jpg",
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(0.35.dw)
-                                    .clip(RoundedCornerShape(0.04.dw)),
-                                transition = CrossFade
-                            )*/
+                        var a by remember {
+                            mutableFloatStateOf(0f)
+                        }
+                        var b by remember {
+                            mutableFloatStateOf(0f)
+                        }
+                        Column(
+                            modifier = Modifier
+                                .onGloballyPositioned {
+                                    val boundsInParent = it.boundsInWindow()
+                                    a = boundsInParent.topLeft.x
+                                    b = boundsInParent.topLeft.y
+                                }
+                                .bounceClick {
+                                    fromX = a
+                                    fromY = b
+                                    isReversed = false
+                                    animationFlag = !(animationFlag ?: true)
+                                    clickedPreset = it
+                                }
+                        ) {
                             Box(
                                 contentAlignment = Alignment.BottomEnd
                             ) {
@@ -186,6 +315,192 @@ fun HomeComposable(
                 )
             }
         }
+        if (animatedValue > 0f)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(animatedValue)
+                    //.alpha(if (animatedValue < 0.5f) 0f else animatedValue.decelerateValue())
+                    .background(Color(0x88000000))
+                    .click { }
+            ) {}
+
+        if (animatedValue > 0)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        alpha = animatedValue
+                    }
+                    .background(Color(0x88000000))
+                    .click { }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(0.76.dw)
+                        .height(0.51.dh)
+                        .background(Color.White, RoundedCornerShape(0.04.dw))
+                        .align(Alignment.Center)
+                        .onGloballyPositioned {
+                            val boundsInParent = it.boundsInWindow()
+                            toX = boundsInParent.topLeft.x
+                            toY = boundsInParent.topLeft.y
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(fromWidth)
+                            .height(fromHeight)
+                            .clip(RoundedCornerShape(topStart = 0.04.dw, topEnd = 0.04.dw))
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(0.18.dh)
+                            .align(Alignment.BottomCenter)
+                            .padding(
+                                horizontal = 0.03.dw,
+                                vertical = 0.03.dw
+                            ),
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .bounceClick {
+
+                                }
+                                .border(1.dp, Color(0xFFBFBFC0), RoundedCornerShape(0.02.dw))
+                                .padding(start = 0.045.dw),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .weight(1f)
+                            ) {
+                                Text(
+                                    text = "Get this sound for free",
+                                    color = Color(0xFF0A0A0F),
+                                    fontFamily = RobotoFont,
+                                    fontSize = 0.042.sw,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Watch a short video",
+                                    color = Color(0xFF78787B),
+                                    fontFamily = RobotoFont,
+                                    fontSize = 0.032.sw,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_arrow_right),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(0.12.dw)
+                                    .padding(0.03.dw)
+                            )
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .height(0.02.dw)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .bounceClick {
+
+                                }
+                                .background(Color(0xFFFFD112), RoundedCornerShape(0.02.dw))
+                                .padding(start = 0.045.dw),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .weight(1f)
+                            ) {
+                                Text(
+                                    text = "Unlock all sounds",
+                                    color = Color(0xFF0A0A0F),
+                                    fontFamily = RobotoFont,
+                                    fontSize = 0.042.sw,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Try for free",
+                                    color = Color(0xFF78787B),
+                                    fontFamily = RobotoFont,
+                                    fontSize = 0.032.sw,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_arrow_right),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(0.12.dw)
+                                    .padding(0.03.dw)
+                            )
+                        }
+                    }
+                }
+            }
+
+        if (animatedValue > 0)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .offset(
+                            x = animatedX.pxToDp(),
+                            y = animatedY.pxToDp()
+                        )
+                        .width(animatedWidth)
+                        .height(animatedHeight)
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.04.dw,
+                                topEnd = 0.04.dw,
+                                bottomStart = 0.04.dw * (1f - animatedValue),
+                                bottomEnd = 0.04.dw * (1f - animatedValue)
+                            )
+                        )
+                        .onGloballyPositioned {
+
+                        }
+                ) {
+                    GlideImage(
+                        model = "${BASE_URL}covers/${clickedPreset?.id}.jpg",
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        transition = CrossFade
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_close),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(0.07.dw)
+                            .align(Alignment.TopEnd)
+                            .offset(
+                                x = (-0.035).dw,
+                                y = (0.035).dw
+                            )
+                            .alpha(0.85f * animatedValue)
+                            .bounceClick {
+                                isReversed = true
+                                animationFlag = !(animationFlag ?: true)
+                            }
+                    )
+                }
+            }
 
         Row(
             modifier = Modifier
@@ -234,6 +549,8 @@ fun HomeComposable(
                 }
             }
         }
+
+
     }
 }
 
