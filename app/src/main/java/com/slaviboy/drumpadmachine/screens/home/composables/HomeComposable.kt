@@ -42,10 +42,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -234,22 +234,22 @@ fun HomeComposable(
                         .padding(horizontal = 0.03.dw)
                 ) {
                     presets.forEach {
-                        var a by remember {
+                        var x by remember {
                             mutableFloatStateOf(0f)
                         }
-                        var b by remember {
+                        var y by remember {
                             mutableFloatStateOf(0f)
                         }
                         Column(
                             modifier = Modifier
                                 .onGloballyPositioned {
-                                    val boundsInParent = it.boundsInWindow()
-                                    a = boundsInParent.topLeft.x
-                                    b = boundsInParent.topLeft.y
+                                    val position = it.positionInRoot()
+                                    x = position.x
+                                    y = position.y
                                 }
                                 .bounceClick {
-                                    fromX = a
-                                    fromY = b
+                                    fromX = x
+                                    fromY = y
                                     isReversed = false
                                     animationFlag = !(animationFlag ?: true)
                                     clickedPreset = it
@@ -277,13 +277,6 @@ fun HomeComposable(
                                         )
                                 )
                             }
-                            /*Image(
-                                painter = rememberAsyncImagePainter("${BASE_URL}cover_icons/${it.id}.jpg"),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(0.35.dw)
-                                    .clip(RoundedCornerShape(0.04.dw))
-                            )*/
                             Spacer(
                                 modifier = Modifier
                                     .height(0.02.dw)
@@ -342,9 +335,9 @@ fun HomeComposable(
                         .background(Color.White, RoundedCornerShape(0.04.dw))
                         .align(Alignment.Center)
                         .onGloballyPositioned {
-                            val boundsInParent = it.boundsInWindow()
-                            toX = boundsInParent.topLeft.x
-                            toY = boundsInParent.topLeft.y
+                            val position = it.positionInWindow()
+                            toX = position.x
+                            toY = position.y
                         }
                 ) {
                     Box(
