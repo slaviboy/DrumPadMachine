@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.MemoryCategory
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.slaviboy.composeunits.initSize
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Glide.get(this).setMemoryCategory(MemoryCategory.HIGH)
         installSplashScreen().apply {
             //setKeepOnScreenCondition { loginViewModel.isLoading }
         }

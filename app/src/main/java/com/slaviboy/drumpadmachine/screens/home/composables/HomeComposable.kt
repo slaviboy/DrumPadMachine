@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
@@ -69,7 +67,6 @@ import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
-
 
 @Composable
 fun Dp.dpToPx() = with(LocalDensity.current) { this@dpToPx.toPx() }
@@ -187,19 +184,21 @@ fun HomeComposable(
                 animatedHeight = value.mapValue(fromHeight, toHeight)
             } while (playTime <= animation.durationNanos)
         }
-        Column(
+        val categoryMaps = homeViewModel.categoriesMapState.value
+        LazyColumn(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .padding(bottom = 0.18.dw)
         ) {
-            TopBox()
-
-            Spacer(
-                modifier = Modifier
-                    .height(0.06.dw)
-            )
-            homeViewModel.categoriesMapState.value.forEach {
-                val categoryName = it.key
-                val presets = it.value
+            item {
+                TopBox()
+                Spacer(
+                    modifier = Modifier
+                        .height(0.06.dw)
+                )
+            }
+            items(categoryMaps.size) { i ->
+                val categoryName = categoryMaps.keys.elementAt(i)
+                val presets = categoryMaps[categoryName]!!
                 Row(
                     modifier = Modifier
                         .wrapContentHeight()
@@ -227,13 +226,13 @@ fun HomeComposable(
                     modifier = Modifier
                         .height(0.02.dw)
                 )
-                Row(
+                LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 0.03.dw)
                 ) {
-                    presets.forEach {
+                    items(presets.size) { j ->
+                        val preset = presets[j]
                         var x by remember {
                             mutableFloatStateOf(0f)
                         }
@@ -252,14 +251,14 @@ fun HomeComposable(
                                     fromY = y
                                     isReversed = false
                                     animationFlag = !(animationFlag ?: true)
-                                    clickedPreset = it
+                                    clickedPreset = preset
                                 }
                         ) {
                             Box(
                                 contentAlignment = Alignment.BottomEnd
                             ) {
                                 GlideImage(
-                                    model = "${BASE_URL}cover_icons/${it.id}.jpg",
+                                    model = "${BASE_URL}cover_icons/${preset.id}.jpg",
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(0.35.dw)
@@ -282,14 +281,14 @@ fun HomeComposable(
                                     .height(0.02.dw)
                             )
                             Text(
-                                text = it.name ?: "",
+                                text = preset.name ?: "",
                                 color = Color.White,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.035.sw,
                                 fontWeight = FontWeight.Normal
                             )
                             Text(
-                                text = it.author ?: "",
+                                text = preset.author ?: "",
                                 color = Color.White,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.023.sw,
@@ -308,6 +307,7 @@ fun HomeComposable(
                 )
             }
         }
+
         if (animatedValue > 0f)
             Box(
                 modifier = Modifier
