@@ -29,7 +29,8 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 @Composable
 fun DrumPadComposable(
     navigator: DestinationsNavigator,
-    drumPadViewModel: DrumPadViewModel
+    drumPadViewModel: DrumPadViewModel,
+    audioId: Int
 ) {
     Box(
         modifier = Modifier

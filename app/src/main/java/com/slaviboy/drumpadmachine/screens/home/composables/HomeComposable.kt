@@ -58,6 +58,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
@@ -67,6 +68,7 @@ import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.click
 import com.slaviboy.drumpadmachine.modules.NetworkModule.Companion.BASE_URL
+import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
@@ -101,6 +103,7 @@ fun Float.decelerateValue(decelerationFactor: Float = 0.7f): Float {
 @Destination
 @Composable
 fun HomeComposable(
+    navigator: DestinationsNavigator,
     homeViewModel: HomeViewModel,
     onError: (error: String) -> Unit = {}
 ) {
@@ -190,12 +193,23 @@ fun HomeComposable(
             } while (playTime <= animation.durationNanos)
         }
         val audioConfigState = homeViewModel.audioConfigState.value
+        val audioZipState = homeViewModel.audioZipState.value
+        val categoryMaps = homeViewModel.categoriesMapState.value
         LaunchedEffect(audioConfigState) {
             if (audioConfigState is Result.Error) {
                 onError(audioConfigState.errorMessage)
             }
         }
-        val categoryMaps = homeViewModel.categoriesMapState.value
+        LaunchedEffect(audioZipState) {
+            if (audioZipState is Result.Error) {
+                onError(audioZipState.errorMessage)
+            }
+            if (audioZipState is Result.Success) {
+                navigator.navigate(
+                    DrumPadComposableDestination(audioZipState.data)
+                )
+            }
+        }
         LazyColumn(
             modifier = Modifier
                 .padding(bottom = 0.18.dw)

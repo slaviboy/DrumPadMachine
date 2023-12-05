@@ -94,6 +94,9 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(HomeComposableDestination) {
                             HomeComposable(
+                                navigator = destinationsNavigator,
+                                //resultRecipient = resultRecipient(),
+                                //resultBackNavigator = resultBackNavigator,
                                 homeViewModel = homeViewModel,
                                 onError = {
                                     snackbarCoroutineScope.launch {

@@ -38,6 +38,9 @@ class HomeViewModel @Inject constructor(
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
+    private val _audioZipState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
+    val audioZipState: State<Result<Int>> = _audioZipState
+
     private val _menuItemsState: MutableState<List<MenuItem>> = mutableStateOf(
         listOf(
             MenuItem(
@@ -84,7 +87,6 @@ class HomeViewModel @Inject constructor(
                             }
                         }
                     }
-
                     viewModelScope.launch(Dispatchers.Main) {
                         _categoriesMapState.value = hashMap
                     }
@@ -93,26 +95,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getSoundForFree(id: Int?) {
-        id ?: return
+    fun getSoundForFree(audioId: Int?) {
+        audioId ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            downloadAudioZipUseCase.execute(context.cacheDir, id).collect {
-                when (it) {
-                    is Result.Initial -> {
-
-                    }
-
-                    is Result.Loading -> {
-
-                    }
-
-                    is Result.Success -> {
-
-                    }
-
-                    is Result.Error -> {
-
-                    }
+            downloadAudioZipUseCase.execute(context.cacheDir, audioId).collect {
+                viewModelScope.launch(Dispatchers.Main) {
+                    _audioZipState.value = it
                 }
             }
         }
