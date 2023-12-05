@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetAudioConfigUseCase
@@ -33,6 +34,9 @@ class HomeViewModel @Inject constructor(
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
     val categoriesMapState: State<HashMap<String, MutableList<Preset>>> = _categoriesMapState
+
+    private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
+    val audioConfigState: State<Result<Config>> = _audioConfigState
 
     private val _menuItemsState: MutableState<List<MenuItem>> = mutableStateOf(
         listOf(
@@ -58,34 +62,52 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             getAudioConfigUseCase.execute().collect {
+                viewModelScope.launch(Dispatchers.Main) {
+                    _audioConfigState.value = it
+                }
+                if (it is Result.Success) {
+                    val categories = it.data.categories
+                    val presets = it.data.presets
+                    val hashMap = HashMap<String, MutableList<Preset>>()
+                    categories?.forEach {
+                        val categoryName = it.title
+                        val categoryTags = it.filter.tags
+                        presets?.forEach {
+                            val presetTags = it.tags
+                            val containsAnyTag = presetTags?.any {
+                                it in categoryTags
+                            } ?: false
+                            if (containsAnyTag) {
+                                hashMap.getOrPut(categoryName) {
+                                    mutableListOf()
+                                }.add(it)
+                            }
+                        }
+                    }
+
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _categoriesMapState.value = hashMap
+                    }
+                }
+            }
+        }
+    }
+
+    fun getSoundForFree(id: Int?) {
+        id ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            downloadAudioZipUseCase.execute(context.cacheDir, id).collect {
                 when (it) {
+                    is Result.Initial -> {
+
+                    }
+
                     is Result.Loading -> {
 
                     }
 
                     is Result.Success -> {
-                        val categories = it.data.categories
-                        val presets = it.data.presets
-                        val hashMap = HashMap<String, MutableList<Preset>>()
-                        categories?.forEach {
-                            val categoryName = it.title
-                            val categoryTags = it.filter.tags
-                            presets?.forEach {
-                                val presetTags = it.tags
-                                val containsAnyTag = presetTags?.any {
-                                    it in categoryTags
-                                } ?: false
-                                if (containsAnyTag) {
-                                    hashMap.getOrPut(categoryName) {
-                                        mutableListOf()
-                                    }.add(it)
-                                }
-                            }
-                        }
 
-                        viewModelScope.launch(Dispatchers.Main) {
-                            _categoriesMapState.value = hashMap
-                        }
                     }
 
                     is Result.Error -> {
@@ -96,14 +118,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun downloadAudioZip() {
-        viewModelScope.launch(Dispatchers.IO) {
-            downloadAudioZipUseCase.execute(context.cacheDir, 11).collect {
-                val b = 3
-            }
-            getAudioConfigUseCase.execute().collect {
-                val b = 3
-            }
-        }
+    fun unlockAllSounds() {
+        TODO("Not yet implemented")
     }
 }

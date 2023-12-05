@@ -8,6 +8,7 @@ import com.slaviboy.drumpadmachine.data.entities.Filter
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.ConfigEntity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -20,6 +21,9 @@ class GetAudioConfigUseCase @Inject constructor(
 ) {
     suspend fun execute(): Flow<Result<Config>> = flow {
         emit(Result.Loading)
+
+        // for testing only remove!!!
+        delay(4000)
 
         // emit cached data
         dao.getConfig()?.let {
@@ -39,7 +43,7 @@ class GetAudioConfigUseCase @Inject constructor(
                         )
                     },
                     presets = it.presetsApi.map {
-                        Preset(it.id, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
+                        Preset(it.id.toIntOrNull() ?: 0, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
                     }
                 )
             }

@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -59,6 +62,7 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.click
@@ -97,7 +101,8 @@ fun Float.decelerateValue(decelerationFactor: Float = 0.7f): Float {
 @Destination
 @Composable
 fun HomeComposable(
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    onError: (error: String) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -183,6 +188,12 @@ fun HomeComposable(
                 animatedWidth = value.mapValue(fromWidth, toWidth)
                 animatedHeight = value.mapValue(fromHeight, toHeight)
             } while (playTime <= animation.durationNanos)
+        }
+        val audioConfigState = homeViewModel.audioConfigState.value
+        LaunchedEffect(audioConfigState) {
+            if (audioConfigState is Result.Error) {
+                onError(audioConfigState.errorMessage)
+            }
         }
         val categoryMaps = homeViewModel.categoriesMapState.value
         LazyColumn(
@@ -362,7 +373,7 @@ fun HomeComposable(
                                 .fillMaxWidth()
                                 .weight(1f)
                                 .bounceClick {
-
+                                    homeViewModel.getSoundForFree(clickedPreset?.id)
                                 }
                                 .border(1.dp, Color(0xFFBFBFC0), RoundedCornerShape(0.02.dw))
                                 .padding(start = 0.045.dw),
@@ -405,7 +416,7 @@ fun HomeComposable(
                                 .fillMaxWidth()
                                 .weight(1f)
                                 .bounceClick {
-
+                                    homeViewModel.unlockAllSounds()
                                 }
                                 .background(Color(0xFFFFD112), RoundedCornerShape(0.02.dw))
                                 .padding(start = 0.045.dw),
@@ -542,8 +553,38 @@ fun HomeComposable(
                 }
             }
         }
-
-
+        if (homeViewModel.audioConfigState.value is Result.Loading) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .wrapContentSize()
+                    .padding(
+                        top = 0.25.dh,
+                        bottom = 0.18.dw
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(0.15.dw),
+                    strokeWidth = 0.012.dw,
+                    strokeCap = StrokeCap.Round,
+                    color = Color(0xFF8F56BD),
+                    trackColor = Color.White,
+                )
+                Spacer(
+                    modifier = Modifier
+                        .height(0.02.dw)
+                )
+                Text(
+                    text = stringResource(id = R.string.loading).uppercase(),
+                    color = Color.White,
+                    fontFamily = RobotoFont,
+                    fontSize = 0.035.sw,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 package com.slaviboy.drumpadmachine.data.entities
 
 data class Preset(
-    val id: String,
+    val id: Int,
     val name: String?,
     val author: String?,
     val price: Int?,
