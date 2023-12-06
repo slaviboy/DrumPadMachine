@@ -2,6 +2,8 @@ package com.slaviboy.audio
 
 import android.content.res.AssetManager
 import android.util.Log
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 
 class DrumPadPlayer {
@@ -9,7 +11,8 @@ class DrumPadPlayer {
     companion object {
         // Sample attributes
         val NUM_PLAY_CHANNELS: Int = 2  // The number of channels in the player Stream.
-                                        // Stereo Playback, set to 1 for Mono playback
+
+        // Stereo Playback, set to 1 for Mono playback
         // Sample Buffer IDs
         val BASSDRUM: Int = 0
         val SNAREDRUM: Int = 1
@@ -50,8 +53,21 @@ class DrumPadPlayer {
         teardownAudioStreamNative()
     }
 
+    fun loadWavFile(filePath: String) {
+        val dataBytes = getByteArrayFromWavFile(filePath) ?: return
+        loadWavAssetNative(dataBytes, BASSDRUM, PAN_BASSDRUM)
+        loadWavAssetNative(dataBytes, SNAREDRUM, PAN_SNAREDRUM)
+        loadWavAssetNative(dataBytes, CRASHCYMBAL, PAN_CRASHCYMBAL)
+        loadWavAssetNative(dataBytes, RIDECYMBAL, PAN_RIDECYMBAL)
+        loadWavAssetNative(dataBytes, MIDTOM, PAN_MIDTOM)
+        loadWavAssetNative(dataBytes, LOWTOM, PAN_LOWTOM)
+        loadWavAssetNative(dataBytes, HIHATOPEN, PAN_HIHATOPEN)
+        loadWavAssetNative(dataBytes, HIHATCLOSED, PAN_HIHATCLOSED)
+    }
+
     // asset-based samples
     fun loadWavAssets(assetMgr: AssetManager) {
+        return
         loadWavAsset(assetMgr, "01.wav", BASSDRUM, PAN_BASSDRUM)
         loadWavAsset(assetMgr, "02.wav", SNAREDRUM, PAN_SNAREDRUM)
         loadWavAsset(assetMgr, "03.wav", CRASHCYMBAL, PAN_CRASHCYMBAL)
@@ -64,6 +80,25 @@ class DrumPadPlayer {
 
     fun unloadWavAssets() {
         unloadWavAssetsNative()
+    }
+
+    private fun getByteArrayFromWavFile(filePath: String): ByteArray? {
+        return try {
+            val file = File(filePath)
+            val inputStream = FileInputStream(file)
+            val byteBuffer = ByteArray(file.length().toInt())
+
+            // Read the entire file into the byte buffer
+            inputStream.read(byteBuffer)
+
+            // Close the input stream
+            inputStream.close()
+
+            byteBuffer
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun loadWavAsset(assetMgr: AssetManager, assetName: String, index: Int, pan: Float) {
@@ -96,7 +131,7 @@ class DrumPadPlayer {
     external fun setGain(index: Int, gain: Float)
     external fun getGain(index: Int): Float
 
-    external fun getOutputReset() : Boolean
+    external fun getOutputReset(): Boolean
     external fun clearOutputReset()
 
     external fun restartStream()

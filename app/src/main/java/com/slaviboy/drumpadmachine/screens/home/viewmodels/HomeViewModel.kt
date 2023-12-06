@@ -95,10 +95,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getSoundForFree(audioId: Int?) {
-        audioId ?: return
+    fun getSoundForFree(presetId: Int?) {
+        presetId ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            downloadAudioZipUseCase.execute(context.cacheDir, audioId).collect {
+            downloadAudioZipUseCase.execute(context.cacheDir, presetId).collect {
                 viewModelScope.launch(Dispatchers.Main) {
                     _audioZipState.value = it
                 }

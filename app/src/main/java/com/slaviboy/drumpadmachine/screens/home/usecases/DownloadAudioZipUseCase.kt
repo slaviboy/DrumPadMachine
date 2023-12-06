@@ -18,12 +18,12 @@ import javax.inject.Singleton
 class DownloadAudioZipUseCase @Inject constructor(
     private val repository: ApiRepository
 ) {
-    suspend fun execute(cacheDir: File, audioId: Int): Flow<Result<Int>> = flow {
-        val response = repository.getAudioZipById(audioId)
+    suspend fun execute(cacheDir: File, presetId: Int): Flow<Result<Int>> = flow {
+        val response = repository.getAudioZipById(presetId)
         if (!response.isSuccessful) {
             emit(Result.Error("Failed to download ZIP file"))
         }
-        val path = File(cacheDir, "audio/$audioId/")
+        val path = File(cacheDir, "audio/$presetId/")
         val tempFile = File(path, "temp.zip")
         try {
             tempFile.getParentFile()?.mkdirs()
@@ -33,7 +33,7 @@ class DownloadAudioZipUseCase @Inject constructor(
                     inputStream.copyTo(outputStream)
                     extractZip(tempFile, path)
                     tempFile.delete()
-                    emit(Result.Success(audioId))
+                    emit(Result.Success(presetId))
                 }
             } ?: run {
                 emit(Result.Error("Empty response body"))

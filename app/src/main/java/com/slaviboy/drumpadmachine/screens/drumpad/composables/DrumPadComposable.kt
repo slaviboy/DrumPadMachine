@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import com.ramcosta.composedestinations.annotation.Destination
@@ -30,8 +31,11 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 fun DrumPadComposable(
     navigator: DestinationsNavigator,
     drumPadViewModel: DrumPadViewModel,
-    audioId: Int
+    presetId: Int
 ) {
+    LaunchedEffect(presetId) {
+        drumPadViewModel.loadSounds(presetId)
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
