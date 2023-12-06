@@ -107,6 +107,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun unlockAllSounds() {
-        TODO("Not yet implemented")
+    }
+
+    fun setMenuItem(menuItem: MenuItem) {
+        val menuItemsList = _menuItemsState.value.toMutableList()
+        menuItemsList.forEachIndexed { i, item ->
+            if (item == menuItem) {
+                menuItemsList[i] = item.copy(isSelected = true)
+            } else {
+                menuItemsList[i] = item.copy(isSelected = false)
+            }
+        }
+        _menuItemsState.value = menuItemsList
     }
 }
