@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
@@ -111,7 +112,8 @@ fun HomePresetRow(
                         modifier = Modifier
                             .size(0.35.dw)
                             .clip(RoundedCornerShape(0.04.dw)),
-                        transition = CrossFade
+                        transition = CrossFade,
+                        failure = placeholder(R.drawable.ic_no_image)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.ic_play_button),

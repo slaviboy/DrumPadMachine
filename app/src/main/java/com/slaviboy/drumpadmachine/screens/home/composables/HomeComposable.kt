@@ -28,6 +28,7 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.composables.LoadingBox
 import com.slaviboy.drumpadmachine.composables.NavigationMenu
+import com.slaviboy.drumpadmachine.composables.NoItems
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
@@ -207,6 +208,16 @@ fun HomeComposable(
         )
         if (homeViewModel.audioConfigState.value is Result.Loading) {
             LoadingBox(
+                boxScope = this,
+                modifier = Modifier
+                    .padding(
+                        top = 0.25.dh,
+                        bottom = 0.18.dw
+                    )
+            )
+        }
+        if (homeViewModel.audioConfigState.value is Result.Error && categoryMaps.isEmpty()) {
+            NoItems(
                 boxScope = this,
                 modifier = Modifier
                     .padding(

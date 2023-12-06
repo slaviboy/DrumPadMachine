@@ -9,4 +9,6 @@
     <string name="get_preset_for_free_subtitle">Watch a short video</string>
     <string name="get_all_presets_title">Unlock all sounds</string>
     <string name="get_all_presets_subtitle">Try for free</string>
+    <string name="no_items">No items</string>
+    <string name="please_check_your_network">Please check your network</string>
 </resources>

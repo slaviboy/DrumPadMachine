@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
@@ -226,8 +227,17 @@ fun HomePresetDetails(
                 modifier = Modifier
                     .fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                transition = CrossFade
-            )
+                transition = CrossFade,
+                failure = placeholder(R.drawable.ic_no_image)
+            ) {
+                // if no internet try loading the cached lower quality cover-icon
+                it.clone()
+                    .thumbnail(
+                        it
+                            .load(NetworkModule.coverIconUrl(clickedPreset.id))
+                            .signature(it.signature)
+                    )
+            }
             Image(
                 painter = painterResource(id = R.drawable.ic_close),
                 contentDescription = null,
