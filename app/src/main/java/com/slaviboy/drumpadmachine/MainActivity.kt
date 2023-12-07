@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        drumPadViewModel.init(assets)
+        drumPadViewModel.init()
     }
 
     override fun onStop() {
