@@ -4,8 +4,12 @@ import android.content.Context
 import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.data.room.ConfigDao
+import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCaseImpl
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,11 +23,23 @@ object ViewModelModule {
 
     @Provides
     @ViewModelScoped
+    fun provideApplicationContext(@ApplicationContext context: Context): Context {
+        return context
+    }
+
+    @Provides
+    fun provideDispatchers(): Dispatchers {
+        return DefaultDispatchers()
+    }
+
+    @Provides
+    @ViewModelScoped
     fun provideDownloadAudioZipUseCase(
         repository: ApiRepository,
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        dispatchers: Dispatchers
     ): DownloadAudioZipUseCase {
-        return DownloadAudioZipUseCase(repository, context)
+        return DownloadAudioZipUseCaseImpl(repository, context, dispatchers)
     }
 
     @Provides
@@ -32,14 +48,9 @@ object ViewModelModule {
         repository: ApiRepository,
         dao: ConfigDao,
         gson: Gson,
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        dispatchers: Dispatchers
     ): GetPresetsConfigUseCase {
-        return GetPresetsConfigUseCase(repository, dao, gson, context)
-    }
-
-    @Provides
-    @ViewModelScoped
-    fun provideApplicationContext(@ApplicationContext context: Context): Context {
-        return context
+        return GetPresetsConfigUseCaseImpl(repository, dao, gson, context, dispatchers)
     }
 }

@@ -1,6 +1,5 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -11,17 +10,18 @@ import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getPresetsConfigUseCase: GetPresetsConfigUseCase
+    private val getPresetsConfigUseCase: GetPresetsConfigUseCase,
+    private val dispatchers: Dispatchers
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -55,9 +55,9 @@ class HomeViewModel @Inject constructor(
     val menuItemsState: State<List<MenuItem>> = _menuItemsState
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.io) {
             getPresetsConfigUseCase.execute(12).collect {
-                viewModelScope.launch(Dispatchers.Main) {
+                viewModelScope.launch(dispatchers.main) {
                     _audioConfigState.value = it
                 }
                 if (it is Result.Success) {
@@ -79,7 +79,7 @@ class HomeViewModel @Inject constructor(
                             }
                         }
                     }
-                    viewModelScope.launch(Dispatchers.Main) {
+                    viewModelScope.launch(dispatchers.main) {
                         _categoriesMapState.value = hashMap
                     }
                 }
@@ -89,9 +89,9 @@ class HomeViewModel @Inject constructor(
 
     fun getSoundForFree(presetId: Int?) {
         presetId ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatchers.io) {
             downloadAudioZipUseCase.execute(presetId).collect {
-                viewModelScope.launch(Dispatchers.Main) {
+                viewModelScope.launch(dispatchers.main) {
                     _audioZipState.value = it
                 }
             }

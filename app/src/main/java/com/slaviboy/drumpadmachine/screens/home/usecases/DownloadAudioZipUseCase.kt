@@ -3,8 +3,8 @@ package com.slaviboy.drumpadmachine.screens.home.usecases
 import android.content.Context
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -13,12 +13,18 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
+interface DownloadAudioZipUseCase {
+    suspend fun execute(presetId: Int): Flow<Result<Int>>
+}
+
 @Singleton
-class DownloadAudioZipUseCase @Inject constructor(
+class DownloadAudioZipUseCaseImpl @Inject constructor(
     private val repository: ApiRepository,
-    private val context: Context
-) {
-    suspend fun execute(presetId: Int): Flow<Result<Int>> = flow {
+    private val context: Context,
+    private val dispatchers: Dispatchers
+) : DownloadAudioZipUseCase {
+
+    override suspend fun execute(presetId: Int): Flow<Result<Int>> = flow {
         try {
             val response = repository.getAudioZipById(presetId)
             if (!response.isSuccessful) {
@@ -42,5 +48,5 @@ class DownloadAudioZipUseCase @Inject constructor(
         } catch (e: Exception) {
             emit(Result.Error("Network error!"))
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(dispatchers.io)
 }

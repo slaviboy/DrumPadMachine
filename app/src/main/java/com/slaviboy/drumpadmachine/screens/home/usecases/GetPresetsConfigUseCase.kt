@@ -11,8 +11,8 @@ import com.slaviboy.drumpadmachine.data.entities.Filter
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.ConfigEntity
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -21,14 +21,20 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
+interface GetPresetsConfigUseCase {
+    fun execute(version: Int): Flow<Result<Config>>
+}
+
 @Singleton
-class GetPresetsConfigUseCase @Inject constructor(
+class GetPresetsConfigUseCaseImpl @Inject constructor(
     private val repository: ApiRepository,
     private val dao: ConfigDao,
     private val gson: Gson,
-    private val context: Context
-) {
-    suspend fun execute(version: Int): Flow<Result<Config>> = flow {
+    private val context: Context,
+    private val dispatchers: Dispatchers
+) : GetPresetsConfigUseCase {
+
+    override fun execute(version: Int): Flow<Result<Config>> = flow {
         emit(Result.Loading)
 
         // emit cached data
@@ -97,5 +103,5 @@ class GetPresetsConfigUseCase @Inject constructor(
         } catch (e: Exception) {
             emit(Result.Error("Network error!"))
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(dispatchers.io)
 }
