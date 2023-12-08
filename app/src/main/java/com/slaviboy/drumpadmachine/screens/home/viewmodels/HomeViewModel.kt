@@ -1,8 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
 import android.content.Context
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -10,25 +8,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetAudioConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class MenuItem(
-    val isSelected: Boolean = false,
-    @DrawableRes val iconResId: Int,
-    @StringRes val titleResId: Int
-)
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getAudioConfigUseCase: GetAudioConfigUseCase,
+    private val getPresetsConfigUseCase: GetPresetsConfigUseCase,
     private val context: Context
 ) : ViewModel() {
 
@@ -64,7 +57,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getAudioConfigUseCase.execute().collect {
+            getPresetsConfigUseCase.execute().collect {
                 viewModelScope.launch(Dispatchers.Main) {
                     _audioConfigState.value = it
                 }

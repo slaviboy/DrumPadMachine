@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetAudioConfigUseCase @Inject constructor(
+class GetPresetsConfigUseCase @Inject constructor(
     private val repository: ApiRepository,
     private val dao: ConfigDao
 ) {

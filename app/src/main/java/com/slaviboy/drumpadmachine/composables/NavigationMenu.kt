@@ -21,8 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.extensions.bounceClick
-import com.slaviboy.drumpadmachine.screens.home.viewmodels.MenuItem
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 @Composable
