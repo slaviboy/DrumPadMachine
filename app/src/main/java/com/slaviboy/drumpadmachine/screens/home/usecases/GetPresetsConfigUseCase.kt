@@ -43,7 +43,17 @@ class GetPresetsConfigUseCase @Inject constructor(
                         )
                     },
                     presets = it.presetsApi.map {
-                        Preset(it.id.toIntOrNull() ?: 0, it.name, it.author, it.price, it.orderBy, it.timestamp, it.deleted, it.tags)
+                        val (_, presetApi) = it
+                        Preset(
+                            presetApi.id.toIntOrNull() ?: 0,
+                            presetApi.name,
+                            presetApi.author,
+                            presetApi.price,
+                            presetApi.orderBy,
+                            presetApi.timestamp,
+                            presetApi.deleted,
+                            presetApi.tags
+                        )
                     }
                 )
             }

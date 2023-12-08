@@ -9,8 +9,11 @@ import retrofit2.http.Streaming
 
 interface ApiService {
 
-    @GET("configs/configs.json")
+    @GET("configs/presets/v12/config.json")
     suspend fun getSoundConfig(): ConfigApi
+
+    @GET("configs/presets/v12/config_light.json")
+    suspend fun getSoundConfigLight(): ConfigApi
 
     @GET("audio/{id}.zip")
     @Streaming

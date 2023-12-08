@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class ConfigApi(
     @SerializedName("categories") val categoriesApi: List<CategoryApi>,
-    @SerializedName("presets") val presetsApi: List<PresetApi>
+    @SerializedName("presets") val presetsApi: LinkedHashMap<String, PresetApi>
 )
