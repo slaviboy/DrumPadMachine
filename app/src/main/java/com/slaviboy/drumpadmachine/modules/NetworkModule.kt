@@ -1,5 +1,6 @@
 package com.slaviboy.drumpadmachine.modules
 
+import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.services.ApiService
 import dagger.Module
 import dagger.Provides
@@ -40,6 +41,11 @@ class NetworkModule {
     @Provides
     fun provideScalarsConverterFactory(): ScalarsConverterFactory {
         return ScalarsConverterFactory.create()
+    }
+
+    @Provides
+    fun provideGson(): Gson {
+        return Gson()
     }
 
     @Provides

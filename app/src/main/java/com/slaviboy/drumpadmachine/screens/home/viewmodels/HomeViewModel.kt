@@ -21,8 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getPresetsConfigUseCase: GetPresetsConfigUseCase,
-    private val context: Context
+    private val getPresetsConfigUseCase: GetPresetsConfigUseCase
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -57,7 +56,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getPresetsConfigUseCase.execute().collect {
+            getPresetsConfigUseCase.execute(12).collect {
                 viewModelScope.launch(Dispatchers.Main) {
                     _audioConfigState.value = it
                 }
@@ -91,7 +90,7 @@ class HomeViewModel @Inject constructor(
     fun getSoundForFree(presetId: Int?) {
         presetId ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            downloadAudioZipUseCase.execute(context.cacheDir, presetId).collect {
+            downloadAudioZipUseCase.execute(presetId).collect {
                 viewModelScope.launch(Dispatchers.Main) {
                     _audioZipState.value = it
                 }

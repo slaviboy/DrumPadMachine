@@ -1,6 +1,5 @@
 package com.slaviboy.drumpadmachine.api.services
 
-import com.slaviboy.drumpadmachine.api.entities.ConfigApi
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
@@ -9,11 +8,8 @@ import retrofit2.http.Streaming
 
 interface ApiService {
 
-    @GET("configs/presets/v12/config.json")
-    suspend fun getSoundConfig(): ConfigApi
-
-    @GET("configs/presets/v12/config_light.json")
-    suspend fun getSoundConfigLight(): ConfigApi
+    @GET("configs/presets/v{version}/config.zip")
+    suspend fun getSoundConfigZip(@Path("version") version: Int): Response<ResponseBody>
 
     @GET("audio/{id}.zip")
     @Streaming
