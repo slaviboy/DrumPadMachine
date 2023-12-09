@@ -146,7 +146,8 @@ fun HomeComposable(
             }
             if (audioZipState is Result.Success) {
                 navigator.navigate(
-                    DrumPadComposableDestination(audioZipState.data)
+                    direction = DrumPadComposableDestination(audioZipState.data),
+                    onlyIfResumed = true
                 )
             }
         }
