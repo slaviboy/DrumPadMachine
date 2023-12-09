@@ -5,20 +5,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -40,61 +36,6 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.extensions.bounceClick
-
-@Composable
-fun SearchTextField2(
-    text: String,
-    modifier: Modifier,
-    onTextChange: (text: String) -> Unit
-) {
-    TextField(
-        modifier = modifier,
-        value = text,
-        onValueChange = onTextChange,
-        placeholder = {
-            Text(
-                text = stringResource(id = R.string.search),
-                fontSize = 0.04.sw
-            )
-        },
-        leadingIcon = {
-            Spacer(
-                modifier = Modifier
-                    .width(0.01.dw)
-                    .fillMaxHeight()
-            )
-        },
-        trailingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(0.09.dw)
-                    .padding(0.02.dw)
-                    .offset(x = -(0.03.dw))
-                    .bounceClick {
-
-                    },
-                colorFilter = ColorFilter.tint(Color.White)
-            )
-        },
-        shape = CircleShape,
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            disabledTextColor = Color.Transparent,
-            focusedContainerColor = Color(0xFF26273B),
-            unfocusedContainerColor = Color(0xFF26273B),
-            disabledContainerColor = Color(0xFF26273B),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        ),
-        textStyle = TextStyle(
-            fontSize = 0.04.sw
-        )
-    )
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
