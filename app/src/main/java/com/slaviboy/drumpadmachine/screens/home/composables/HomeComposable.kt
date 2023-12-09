@@ -7,8 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +31,7 @@ import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.composables.LoadingBox
 import com.slaviboy.drumpadmachine.composables.NavigationMenu
 import com.slaviboy.drumpadmachine.composables.NoItems
+import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
@@ -131,7 +134,7 @@ fun HomeComposable(
         }
         val audioConfigState = homeViewModel.audioConfigState.value
         val audioZipState = homeViewModel.audioZipState.value
-        val categoryMaps = homeViewModel.categoriesMapState.value
+        val categoryMaps = homeViewModel.filteredCategoriesMapState.value
         LaunchedEffect(audioConfigState) {
             if (audioConfigState is Result.Error) {
                 onError(audioConfigState.errorMessage)
@@ -155,7 +158,24 @@ fun HomeComposable(
                 TopBox()
                 Spacer(
                     modifier = Modifier
-                        .height(0.06.dw)
+                        .height(0.05.dw)
+                )
+                SearchTextField(
+                    text = homeViewModel.searchTextState.value,
+                    onTextChange = {
+                        homeViewModel.changeText(it)
+                    },
+                    onSearchButtonClick = {
+                        homeViewModel.search()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 0.04.dw)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .height(0.04.dw)
                 )
             }
             items(categoryMaps.size) { i ->

@@ -27,6 +27,9 @@ class HomeViewModel @Inject constructor(
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
     val categoriesMapState: State<HashMap<String, MutableList<Preset>>> = _categoriesMapState
 
+    private val _filteredCategoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
+    val filteredCategoriesMapState: State<HashMap<String, MutableList<Preset>>> = _filteredCategoriesMapState
+
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
@@ -54,34 +57,15 @@ class HomeViewModel @Inject constructor(
     )
     val menuItemsState: State<List<MenuItem>> = _menuItemsState
 
+    private val _searchTextState: MutableState<String> = mutableStateOf("")
+    val searchTextState: State<String> = _searchTextState
+
     init {
-        viewModelScope.launch(dispatchers.io) {
+        viewModelScope.launch(dispatchers.main) {
             getPresetsConfigUseCase.execute(12).collect {
-                viewModelScope.launch(dispatchers.main) {
-                    _audioConfigState.value = it
-                }
+                _audioConfigState.value = it
                 if (it is Result.Success) {
-                    val categories = it.data.categories
-                    val presets = it.data.presets
-                    val hashMap = HashMap<String, MutableList<Preset>>()
-                    categories?.forEach {
-                        val categoryName = it.title
-                        val categoryTags = it.filter.tags
-                        presets?.forEach {
-                            val presetTags = it.tags
-                            val containsAnyTag = presetTags?.any {
-                                it in categoryTags
-                            } ?: false
-                            if (containsAnyTag) {
-                                hashMap.getOrPut(categoryName) {
-                                    mutableListOf()
-                                }.add(it)
-                            }
-                        }
-                    }
-                    viewModelScope.launch(dispatchers.main) {
-                        _categoriesMapState.value = hashMap
-                    }
+                    setConfig(it.data)
                 }
             }
         }
@@ -111,5 +95,62 @@ class HomeViewModel @Inject constructor(
             }
         }
         _menuItemsState.value = menuItemsList
+    }
+
+    fun changeText(text: String) {
+        _searchTextState.value = text
+        search()
+    }
+
+    fun search() = viewModelScope.launch {
+        if (_searchTextState.value.isNullOrEmpty()) {
+            _filteredCategoriesMapState.value = _categoriesMapState.value
+            return@launch
+        }
+        val hashMap = HashMap<String, MutableList<Preset>>()
+        _categoriesMapState.value.forEach {
+            val (key, value) = it
+            value.forEach {
+                if (nameContainsString(it.name, _searchTextState.value)) {
+                    hashMap.getOrPut(key) {
+                        mutableListOf()
+                    }.add(it)
+                }
+            }
+        }
+        _filteredCategoriesMapState.value = hashMap
+    }
+
+    private fun nameContainsString(name: String, text: String): Boolean {
+        val nameSplitBySpaceContains = name.split(" ").any {
+            it.contains(text, true)
+        }
+        val nameSplitByDashContains = name.split("-").any {
+            it.contains(text, true)
+        }
+        return nameSplitBySpaceContains || nameSplitByDashContains
+    }
+
+    private fun setConfig(config: Config) = viewModelScope.launch {
+        val categories = config.categories
+        val presets = config.presets
+        val hashMap = HashMap<String, MutableList<Preset>>()
+        categories?.forEach {
+            val categoryName = it.title
+            val categoryTags = it.filter.tags
+            presets?.forEach {
+                val presetTags = it.tags
+                val containsAnyTag = presetTags?.any {
+                    it in categoryTags
+                } ?: false
+                if (containsAnyTag) {
+                    hashMap.getOrPut(categoryName) {
+                        mutableListOf()
+                    }.add(it)
+                }
+            }
+        }
+        _categoriesMapState.value = hashMap
+        search()
     }
 }

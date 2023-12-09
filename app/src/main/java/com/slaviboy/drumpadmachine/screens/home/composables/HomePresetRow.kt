@@ -56,7 +56,7 @@ fun HomePresetRow(
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(horizontal = 0.03.dw),
+            .padding(horizontal = 0.04.dw),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -64,7 +64,7 @@ fun HomePresetRow(
             text = categoryName,
             color = Color.White,
             fontFamily = RobotoFont,
-            fontSize = 0.055.sw,
+            fontSize = 0.06.sw,
             fontWeight = FontWeight.Black
         )
         Text(
@@ -93,7 +93,7 @@ fun HomePresetRow(
             }
             Column(
                 modifier = Modifier
-                    .offset(x = 0.03.dw)
+                    .offset(x = 0.04.dw)
                     .onGloballyPositioned {
                         val position = it.positionInRoot()
                         x = position.x

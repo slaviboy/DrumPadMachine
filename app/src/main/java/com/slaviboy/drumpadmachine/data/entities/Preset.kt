@@ -2,7 +2,7 @@ package com.slaviboy.drumpadmachine.data.entities
 
 data class Preset(
     val id: Int,
-    val name: String?,
+    val name: String ,
     val author: String?,
     val price: Int?,
     val orderBy: String?,
