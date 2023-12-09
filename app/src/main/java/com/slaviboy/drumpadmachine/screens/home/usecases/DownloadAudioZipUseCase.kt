@@ -26,12 +26,17 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
 
     override suspend fun execute(presetId: Int): Flow<Result<Int>> = flow {
         try {
+            val path = File(context.cacheDir, "audio/$presetId/")
+            val listFile = path.listFiles() ?: arrayOf()
+            if (listFile.size == 24) {
+                emit(Result.Success(presetId))
+                return@flow
+            }
             val response = repository.getAudioZipById(presetId)
             if (!response.isSuccessful) {
                 emit(Result.Error("Failed to download ZIP file"))
                 return@flow
             }
-            val path = File(context.cacheDir, "audio/$presetId/")
             val tempFile = File(path, "temp_audio.zip")
             tempFile.getParentFile()?.mkdirs()
             tempFile.createNewFile()

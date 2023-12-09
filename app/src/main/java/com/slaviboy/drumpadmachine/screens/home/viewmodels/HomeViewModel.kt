@@ -10,7 +10,6 @@ import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
-import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
@@ -24,8 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getPresetsConfigUseCase: GetPresetsConfigUseCase,
-    private val dispatchers: Dispatchers
+    private val getPresetsConfigUseCase: GetPresetsConfigUseCase
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -34,7 +32,6 @@ class HomeViewModel @Inject constructor(
 
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
-
 
     private val navigationEventChannel = Channel<NavigationEvent>()
     val navigationEventFlow = navigationEventChannel.receiveAsFlow()
@@ -67,19 +64,7 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        viewModelScope.launch {
-            getPresetsConfigUseCase.execute(12).collect {
-                _audioConfigState.value = it
-                if (it is Result.Success) {
-                    setConfig(it.data)
-                }
-                if (it is Result.Error) {
-                    errorEventChannel.send(
-                        ErrorEvent.ErrorWithMessage(it.errorMessage)
-                    )
-                }
-            }
-        }
+        init()
     }
 
     fun getSoundForFree(presetId: Int?) {
@@ -121,7 +106,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun search() = viewModelScope.launch {
-        if (_searchTextState.value.isNullOrEmpty()) {
+        if (_searchTextState.value.isEmpty()) {
             _filteredCategoriesMapState.value = _categoriesMapState.value
             return@launch
         }
@@ -137,6 +122,20 @@ class HomeViewModel @Inject constructor(
             }
         }
         _filteredCategoriesMapState.value = hashMap
+    }
+
+    private fun init() = viewModelScope.launch {
+        getPresetsConfigUseCase.execute(PRESETS_VERSION).collect {
+            _audioConfigState.value = it
+            if (it is Result.Success) {
+                setConfig(it.data)
+            }
+            if (it is Result.Error) {
+                errorEventChannel.send(
+                    ErrorEvent.ErrorWithMessage(it.errorMessage)
+                )
+            }
+        }
     }
 
     private fun nameContainsString(name: String, text: String): Boolean {
@@ -170,5 +169,9 @@ class HomeViewModel @Inject constructor(
         }
         _categoriesMapState.value = hashMap
         search()
+    }
+
+    companion object {
+        const val PRESETS_VERSION = 12
     }
 }
