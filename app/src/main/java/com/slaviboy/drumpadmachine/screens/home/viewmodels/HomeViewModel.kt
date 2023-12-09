@@ -11,9 +11,13 @@ import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
+import com.slaviboy.drumpadmachine.events.ErrorEvent
+import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,16 +29,18 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
-    val categoriesMapState: State<HashMap<String, MutableList<Preset>>> = _categoriesMapState
-
     private val _filteredCategoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
     val filteredCategoriesMapState: State<HashMap<String, MutableList<Preset>>> = _filteredCategoriesMapState
 
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
-    private val _audioZipState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
-    val audioZipState: State<Result<Int>> = _audioZipState
+
+    private val navigationEventChannel = Channel<NavigationEvent>()
+    val navigationEventFlow = navigationEventChannel.receiveAsFlow()
+
+    private val errorEventChannel = Channel<ErrorEvent>()
+    val errorEventFlow = errorEventChannel.receiveAsFlow()
 
     private val _menuItemsState: MutableState<List<MenuItem>> = mutableStateOf(
         listOf(
@@ -61,11 +67,16 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        viewModelScope.launch(dispatchers.main) {
+        viewModelScope.launch {
             getPresetsConfigUseCase.execute(12).collect {
                 _audioConfigState.value = it
                 if (it is Result.Success) {
                     setConfig(it.data)
+                }
+                if (it is Result.Error) {
+                    errorEventChannel.send(
+                        ErrorEvent.ErrorWithMessage(it.errorMessage)
+                    )
                 }
             }
         }
@@ -73,10 +84,17 @@ class HomeViewModel @Inject constructor(
 
     fun getSoundForFree(presetId: Int?) {
         presetId ?: return
-        viewModelScope.launch(dispatchers.io) {
+        viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
-                viewModelScope.launch(dispatchers.main) {
-                    _audioZipState.value = it
+                if (it is Result.Success) {
+                    navigationEventChannel.send(
+                        NavigationEvent.NavigateToDrumPadScreen(presetId)
+                    )
+                }
+                if (it is Result.Error) {
+                    errorEventChannel.send(
+                        ErrorEvent.ErrorWithMessage(it.errorMessage)
+                    )
                 }
             }
         }

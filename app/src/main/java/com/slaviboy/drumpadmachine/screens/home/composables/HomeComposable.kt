@@ -33,6 +33,9 @@ import com.slaviboy.drumpadmachine.composables.NavigationMenu
 import com.slaviboy.drumpadmachine.composables.NoItems
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.events.ErrorEvent
+import com.slaviboy.drumpadmachine.events.NavigationEvent
+import com.slaviboy.drumpadmachine.extensions.ObserveAsEvents
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
@@ -132,22 +135,16 @@ fun HomeComposable(
                 animatedHeight = value.mapValue(fromHeight, toHeight)
             } while (playTime <= animation.durationNanos)
         }
-        val audioConfigState = homeViewModel.audioConfigState.value
-        val audioZipState = homeViewModel.audioZipState.value
         val categoryMaps = homeViewModel.filteredCategoriesMapState.value
-        LaunchedEffect(audioConfigState) {
-            if (audioConfigState is Result.Error) {
-                onError(audioConfigState.errorMessage)
+        homeViewModel.errorEventFlow.ObserveAsEvents {
+            if (it is ErrorEvent.ErrorWithMessage) {
+                onError(it.message)
             }
         }
-        LaunchedEffect(audioZipState) {
-            if (audioZipState is Result.Error) {
-                onError(audioZipState.errorMessage)
-            }
-            if (audioZipState is Result.Success) {
+        homeViewModel.navigationEventFlow.ObserveAsEvents {
+            if (it is NavigationEvent.NavigateToDrumPadScreen) {
                 navigator.navigate(
-                    direction = DrumPadComposableDestination(audioZipState.data),
-                    onlyIfResumed = true
+                    direction = DrumPadComposableDestination(it.presetId)
                 )
             }
         }
