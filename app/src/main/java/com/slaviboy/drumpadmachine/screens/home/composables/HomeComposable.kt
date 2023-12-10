@@ -38,6 +38,7 @@ import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.ObserveAsEvents
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.PresetsComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
@@ -182,12 +183,19 @@ fun HomeComposable(
                     lazyItemScope = this,
                     categoryName = categoryName,
                     presets = categoryMaps[categoryName],
-                    onClick = { x, y, preset ->
+                    onPresetClick = { x, y, preset ->
                         fromX = x
                         fromY = y
                         isReversed = false
                         animationFlag = !(animationFlag ?: true)
                         clickedPreset = preset
+                    },
+                    onSeeAllClick = {
+                        navigator.navigate(
+                            direction = PresetsComposableDestination(
+                                categoryName = "ugghj"
+                            )
+                        )
                     }
                 )
             }

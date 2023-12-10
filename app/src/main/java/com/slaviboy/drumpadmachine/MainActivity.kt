@@ -29,9 +29,12 @@ import com.slaviboy.drumpadmachine.extensions.hideSystemBars
 import com.slaviboy.drumpadmachine.screens.NavGraphs
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.PresetsComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.screens.home.composables.HomeComposable
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
+import com.slaviboy.drumpadmachine.screens.presets.composables.PresetsComposable
+import com.slaviboy.drumpadmachine.screens.presets.viewmodels.PresetsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -40,6 +43,7 @@ class MainActivity : ComponentActivity() {
 
     private val drumPadViewModel: DrumPadViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
+    private val presetsViewModel: PresetsViewModel by viewModels()
 
     override fun onStart() {
         super.onStart()
@@ -60,9 +64,21 @@ class MainActivity : ComponentActivity() {
         hideSystemBars()
         initSize()
         setContent {
+
             val navController = rememberNavController()
             val scaffoldState = remember { SnackbarHostState() }
             val snackbarCoroutineScope = rememberCoroutineScope()
+
+            val onError: (error: String) -> Unit = {
+                snackbarCoroutineScope.launch {
+                    scaffoldState.showSnackbar(
+                        message = it,
+                        actionLabel = "Close",
+                        duration = SnackbarDuration.Long
+                    )
+                }
+            }
+
             Scaffold(
                 snackbarHost = {
                     Box(
@@ -95,18 +111,16 @@ class MainActivity : ComponentActivity() {
                         composable(HomeComposableDestination) {
                             HomeComposable(
                                 navigator = destinationsNavigator,
-                                //resultRecipient = resultRecipient(),
-                                //resultBackNavigator = resultBackNavigator,
                                 homeViewModel = homeViewModel,
-                                onError = {
-                                    snackbarCoroutineScope.launch {
-                                        scaffoldState.showSnackbar(
-                                            message = it,
-                                            actionLabel = "Close",
-                                            duration = SnackbarDuration.Long
-                                        )
-                                    }
-                                }
+                                onError = onError
+                            )
+                        }
+                        composable(PresetsComposableDestination) {
+                            PresetsComposable(
+                                navigator = destinationsNavigator,
+                                presetsViewModel = presetsViewModel,
+                                onError = onError,
+                                categoryName = navArgs.categoryName
                             )
                         }
                     }

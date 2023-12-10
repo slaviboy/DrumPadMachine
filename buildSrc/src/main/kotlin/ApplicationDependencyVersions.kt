@@ -15,7 +15,7 @@ object ApplicationDependencyVersions {
     const val composeMaterial3 = "1.1.1"
     const val composeUI = "1.4.3"
     const val gson = "2.10.1"
-    const val raamcosta = "1.8.36-beta"
+    const val raamcosta = "1.9.55"
     const val datastorePreferences = "1.0.0"
     const val zxcvbn = "0.0.1"
     const val flags = "9adc1be772"

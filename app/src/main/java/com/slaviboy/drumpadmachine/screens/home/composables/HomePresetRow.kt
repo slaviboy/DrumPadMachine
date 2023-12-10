@@ -49,7 +49,8 @@ fun HomePresetRow(
     lazyItemScope: LazyItemScope,
     categoryName: String,
     presets: List<Preset>?,
-    onClick: (x: Float, y: Float, preset: Preset) -> Unit
+    onPresetClick: (x: Float, y: Float, preset: Preset) -> Unit,
+    onSeeAllClick: (categoryName: String) -> Unit
 ) = with(lazyItemScope) {
     presets ?: return@with
     Row(
@@ -72,7 +73,11 @@ fun HomePresetRow(
             color = Color.White,
             fontFamily = RobotoFont,
             fontSize = 0.032.sw,
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            modifier = Modifier
+                .bounceClick {
+                    onSeeAllClick(categoryName)
+                }
         )
     }
     Spacer(
@@ -100,7 +105,7 @@ fun HomePresetRow(
                         y = position.y
                     }
                     .bounceClick {
-                        onClick(x, y, preset)
+                        onPresetClick(x, y, preset)
                     }
             ) {
                 Box(

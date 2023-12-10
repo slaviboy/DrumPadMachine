@@ -12,6 +12,7 @@ import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
+import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -114,7 +115,7 @@ class HomeViewModel @Inject constructor(
         _categoriesMapState.value.forEach {
             val (key, value) = it
             value.forEach {
-                if (nameContainsString(it.name, _searchTextState.value)) {
+                if (it.name.containsString(_searchTextState.value)) {
                     hashMap.getOrPut(key) {
                         mutableListOf()
                     }.add(it)
@@ -136,16 +137,6 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    private fun nameContainsString(name: String, text: String): Boolean {
-        val nameSplitBySpaceContains = name.split(" ").any {
-            it.contains(text, true)
-        }
-        val nameSplitByDashContains = name.split("-").any {
-            it.contains(text, true)
-        }
-        return nameSplitBySpaceContains || nameSplitByDashContains
     }
 
     private fun setConfig(config: Config) = viewModelScope.launch {
