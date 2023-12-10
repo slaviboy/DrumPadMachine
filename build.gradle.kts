@@ -136,6 +136,7 @@ fun PluginAware.setApplicationPlugins() {
     apply {
         plugin("com.android.application")
         plugin("com.google.firebase.crashlytics")
+        plugin("kotlin-parcelize")
     }
 }
 

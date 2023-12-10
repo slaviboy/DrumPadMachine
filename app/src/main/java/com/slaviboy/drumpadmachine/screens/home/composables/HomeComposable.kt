@@ -170,7 +170,7 @@ fun HomeComposable(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(horizontal = 0.04.dw)
+                        .padding(horizontal = 0.03.dw)
                 )
                 Spacer(
                     modifier = Modifier
@@ -193,7 +193,7 @@ fun HomeComposable(
                     onSeeAllClick = {
                         navigator.navigate(
                             direction = PresetsComposableDestination(
-                                categoryName = "ugghj"
+                                presets = homeViewModel.filteredCategoriesMapState.value[it]?.toTypedArray() ?: arrayOf()
                             )
                         )
                     }

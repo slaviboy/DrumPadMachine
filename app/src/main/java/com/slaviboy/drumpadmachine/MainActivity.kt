@@ -120,7 +120,7 @@ class MainActivity : ComponentActivity() {
                                 navigator = destinationsNavigator,
                                 presetsViewModel = presetsViewModel,
                                 onError = onError,
-                                categoryName = navArgs.categoryName
+                                presets = navArgs.presets
                             )
                         }
                     }
