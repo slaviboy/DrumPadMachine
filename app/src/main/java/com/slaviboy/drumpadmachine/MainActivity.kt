@@ -1,210 +1,131 @@
 package com.slaviboy.drumpadmachine
 
 import android.os.Bundle
-import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.DrawableRes
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.slaviboy.audio.DrumPadPlayer
-import com.slaviboy.composeunits.dw
+import androidx.compose.ui.graphics.Color
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.MemoryCategory
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.manualcomposablecalls.composable
+import com.ramcosta.composedestinations.navigation.dependency
 import com.slaviboy.composeunits.initSize
-import com.slaviboy.drumpadmachine.global.allTrue
-import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
-import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
-import com.slaviboy.drumpadmachine.viewmodels.DrumPadViewModel
+import com.slaviboy.drumpadmachine.extensions.hideSystemBars
+import com.slaviboy.drumpadmachine.screens.NavGraphs
+import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.PresetsComposableDestination
+import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
+import com.slaviboy.drumpadmachine.screens.home.composables.HomeComposable
+import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
+import com.slaviboy.drumpadmachine.screens.presets.composables.PresetsComposable
+import com.slaviboy.drumpadmachine.screens.presets.viewmodels.PresetsViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val viewModel: DrumPadViewModel by viewModels()
+    private val drumPadViewModel: DrumPadViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
+    private val presetsViewModel: PresetsViewModel by viewModels()
 
     override fun onStart() {
         super.onStart()
-        viewModel.init(assets)
+        drumPadViewModel.init()
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel.terminate()
+        drumPadViewModel.terminate()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //val a = NativeLib().stringFromJNI()
+        Glide.get(this).setMemoryCategory(MemoryCategory.HIGH)
+        installSplashScreen().apply {
+            //setKeepOnScreenCondition { loginViewModel.isLoading }
+        }
+        hideSystemBars()
         initSize()
         setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            listOf(
-                                backgroundGradientTop,
-                                backgroundGradientBottom
-                            )
-                        )
+
+            val navController = rememberNavController()
+            val scaffoldState = remember { SnackbarHostState() }
+            val snackbarCoroutineScope = rememberCoroutineScope()
+
+            val onError: (error: String) -> Unit = {
+                snackbarCoroutineScope.launch {
+                    scaffoldState.showSnackbar(
+                        message = it,
+                        actionLabel = "Close",
+                        duration = SnackbarDuration.Long
                     )
-            ) {
-                Column {
-                    for (i in 0 until 5) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 0.05.dw),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            for (j in 0 until 3) {
-                                Pad(
-                                    pad = Pad(color = PadColor.Aqua, isActive = true),
-                                    modifier = Modifier
-                                        .weight(1f),
-                                    onMotionActionChanged = {
-                                        viewModel.playSound(
-                                            row = j,
-                                            column = i
-                                        )
-                                    }
-                                )
-                                if (j < 2) {
-                                    Spacer(
-                                        modifier = Modifier
-                                            .width(0.03.dw)
-                                    )
-                                }
+                }
+            }
+
+            Scaffold(
+                snackbarHost = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        SnackbarHost(scaffoldState) { data ->
+                            Snackbar(
+                                actionColor = Color.White,
+                                contentColor = Color.White,
+                                containerColor = Color(0xFFF11F67),
+                                snackbarData = data
+                            )
+                        }
+                    }
+                },
+                content = {
+                    DestinationsNavHost(
+                        modifier = Modifier
+                            .padding(it),
+                        navController = navController,
+                        navGraph = NavGraphs.root,
+                        dependenciesContainerBuilder = {
+                            dependency(DrumPadComposableDestination) {
+                                drumPadViewModel
                             }
                         }
-                        if (i < 4) {
-                            Spacer(
-                                modifier = Modifier
-                                    .height(0.03.dw)
+                    ) {
+                        composable(HomeComposableDestination) {
+                            HomeComposable(
+                                navigator = destinationsNavigator,
+                                homeViewModel = homeViewModel,
+                                onError = onError
+                            )
+                        }
+                        composable(PresetsComposableDestination) {
+                            PresetsComposable(
+                                navigator = destinationsNavigator,
+                                presetsViewModel = presetsViewModel,
+                                onError = onError,
+                                presets = navArgs.presets
                             )
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-enum class PadColor(@DrawableRes val value: Int) {
-    Red(R.drawable.ic_rect_red),
-    Green(R.drawable.ic_rect_green),
-    Blue(R.drawable.ic_rect_blue),
-    Pink(R.drawable.ic_rect_pink),
-    Orange(R.drawable.ic_rect_orange),
-    Purple(R.drawable.ic_rect_purple),
-    Aqua(R.drawable.ic_rect_aqua)
-}
-
-data class Pad(
-    val color: PadColor,
-    val isActive: Boolean
-)
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun Pad(
-    pad: Pad,
-    modifier: Modifier = Modifier,
-    onMotionActionChanged: (Int) -> Unit
-) {
-    var showGlow by remember {
-        mutableStateOf(false)
-    }
-    var motionEvent by remember {
-        mutableIntStateOf(MotionEvent.ACTION_UP)
-    }
-    val alpha: Float by animateFloatAsState(
-        targetValue = if (showGlow) 1f else 0f,
-        label = "",
-        animationSpec = tween(
-            durationMillis = 250,
-            easing = FastOutLinearInEasing
-        ),
-        finishedListener = {
-            val fingerIsNotDown = allTrue(
-                motionEvent != MotionEvent.ACTION_DOWN,
-                motionEvent != MotionEvent.ACTION_POINTER_DOWN
             )
-            val fingerIsNotMoving = (motionEvent != MotionEvent.ACTION_MOVE)
-            val isGlowShown = (it == 1f)
-            if (isGlowShown && fingerIsNotDown && fingerIsNotMoving) {
-                showGlow = false
-            }
         }
-    )
-    Box(
-        modifier = modifier
-            .wrapContentSize()
-            .pointerInteropFilter {
-                motionEvent = it.action
-                onMotionActionChanged(it.action)
-                when (it.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        showGlow = true
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        val isGlowShown = (alpha == 1f)
-                        if (isGlowShown) {
-                            showGlow = false
-                        }
-                    }
-
-                    MotionEvent.ACTION_MOVE -> {}
-
-                    else -> false
-                }
-                true
-            }
-    ) {
-        Image(
-            painter = painterResource(id = pad.color.value),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_rect_glow),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .alpha(alpha)
-        )
     }
 }

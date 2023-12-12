@@ -1,0 +1,314 @@
+package com.slaviboy.drumpadmachine.screens.drumpad.composables
+
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import com.bumptech.glide.integration.compose.CrossFade
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.slaviboy.composeunits.dw
+import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.data.Pad
+import com.slaviboy.drumpadmachine.enums.PadColor
+import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
+import com.slaviboy.drumpadmachine.ui.RobotoFont
+import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
+import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@RootNavGraph(start = false)
+@Destination
+@Composable
+fun DrumPadComposable(
+    navigator: DestinationsNavigator,
+    drumPadViewModel: DrumPadViewModel,
+    presetId: Int
+) {
+    LaunchedEffect(presetId) {
+        drumPadViewModel.loadSounds(presetId)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        backgroundGradientTop,
+                        backgroundGradientBottom
+                    )
+                )
+            )
+    ) {
+        Column {
+            Spacer(
+                modifier = Modifier
+                    .height(0.07.dw)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_left),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(0.07.dw)
+                    .offset(x = 0.04.dw),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(0.05.dw)
+            )
+            Row(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                GlideImage(
+                    model = NetworkModule.coverIconUrl(presetId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.14.dw)
+                        .clip(RoundedCornerShape(0.02.dw)),
+                    transition = CrossFade,
+                    failure = placeholder(R.drawable.ic_no_image)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .width(0.02.dw)
+                )
+                Column(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                ) {
+                    Text(
+                        text = "TITLE",
+                        color = Color.White,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.07.sw,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(horizontal = 0.01.dw)
+                    )
+                    Text(
+                        text = "Artist name",
+                        color = Color.LightGray,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.035.sw,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(horizontal = 0.01.dw)
+                    )
+                }
+                Spacer(
+                    modifier = Modifier
+                        .width(0.07.dw)
+                )
+                StarsRating(
+                    rating = Rating(5, 2),
+                    modifier = Modifier
+                        .size(0.068.dw)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .height(0.07.dw)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ImageButtonWithTest(
+                    iconResId = R.drawable.ic_metronome,
+                    textResId = R.string.tempo
+                )
+                ImageButtonWithTest(
+                    iconResId = R.drawable.ic_record,
+                    textResId = R.string.record
+                )
+                ImageButtonWithTest(
+                    iconResId = R.drawable.ic_side,
+                    textResId = R.string.side
+                )
+                ImageButtonWithTest(
+                    iconResId = R.drawable.ic_lessons,
+                    textResId = R.string.lessons
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .height(0.08.dw)
+            )
+            for (i in 0 until drumPadViewModel.row) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 0.02.dw),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    for (j in 0 until drumPadViewModel.column) {
+                        PadComposable(
+                            pad = Pad(color = PadColor.Orange, isActive = true),
+                            modifier = Modifier
+                                .weight(1f),
+                            onMotionActionChanged = {
+                                drumPadViewModel.playSound(
+                                    row = j,
+                                    column = i
+                                )
+                            }
+                        )
+                        if (j < drumPadViewModel.column - 1) {
+                            Spacer(
+                                modifier = Modifier
+                                    .width(0.01.dw)
+                            )
+                        }
+                    }
+                }
+                if (i < drumPadViewModel.row - 1) {
+                    Spacer(
+                        modifier = Modifier
+                            .height(0.01.dw)
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .weight(1f)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_github),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.1.dw),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .width(0.05.dw)
+                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.rected_by),
+                        color = Color.Gray,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.028.sw,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(horizontal = 0.01.dw)
+                    )
+                    Text(
+                        text = "Slaviboy",
+                        color = Color.White,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.038.sw,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(horizontal = 0.01.dw)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ImageButtonWithTest(
+    modifier: Modifier = Modifier,
+    @DrawableRes iconResId: Int,
+    @StringRes textResId: Int
+) {
+    Column(
+        modifier = modifier
+            .wrapContentWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = iconResId),
+            contentDescription = null,
+            modifier = Modifier
+                .size(0.08.dw),
+            colorFilter = ColorFilter.tint(Color.Gray)
+        )
+        Text(
+            text = stringResource(id = textResId).uppercase(),
+            color = Color.Gray,
+            fontFamily = RobotoFont,
+            fontSize = 0.035.sw,
+            fontWeight = FontWeight.Normal
+        )
+    }
+}
+
+data class Rating(
+    val maxStart: Int = 5,
+    val stars: Int = 2
+)
+
+@Composable
+fun StarsRating(
+    rating: Rating,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = Modifier
+    ) {
+        for (i in 0 until rating.maxStart) {
+            val color = if (i < rating.stars) {
+                Color(0xFFFFA34B)
+            } else {
+                Color(0xFF262636)
+            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_star),
+                contentDescription = null,
+                modifier = modifier,
+                colorFilter = ColorFilter.tint(color)
+            )
+        }
+    }
+}

@@ -1,11 +1,13 @@
 package com.slaviboy.drumpadmachine.extensions
 
+import android.annotation.SuppressLint
 import android.os.SystemClock
 import android.view.MotionEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,7 +25,7 @@ fun Modifier.bounceClick(
     onClick: () -> Unit = {}
 ) = composed {
     var lastClickTime by remember {
-        mutableLongStateOf(0L)
+        mutableStateOf(0L)
     }
     var buttonState by remember { mutableStateOf(ButtonState.Idle) }
     val scale by animateFloatAsState(
@@ -60,4 +62,23 @@ fun Modifier.bounceClick(
             }
             true
         }
+}
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+fun Modifier.click(
+    debounceTime: Long = 600L,
+    onClick: () -> Unit
+): Modifier = composed {
+    var lastClickTime by remember {
+        mutableStateOf(0L)
+    }
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }
+    ) {
+        if (SystemClock.elapsedRealtime() - lastClickTime > debounceTime) {
+            onClick()
+            lastClickTime = SystemClock.elapsedRealtime()
+        }
+    }
 }
