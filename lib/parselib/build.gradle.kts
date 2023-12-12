@@ -1,4 +1,4 @@
 dependencies {
     implementation(*ApplicationDependencies.dependenciesLibraryJNI)
-    project(":oboe")
+    project(":lib:oboe")
 }

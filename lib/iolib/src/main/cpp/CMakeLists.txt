@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-set(OBOE_DIR ../../../../oboe)
-set(PARSELIB_DIR ../../../../parselib)
+set(OBOE_DIR ../../../../lib/oboe)
+set(PARSELIB_DIR ../../../../lib/parselib)
 
 set(iolib_sources
         ${CMAKE_CURRENT_LIST_DIR}/player/SampleSource.cpp

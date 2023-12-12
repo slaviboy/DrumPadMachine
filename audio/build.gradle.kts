@@ -1,4 +1,4 @@
 dependencies {
     implementation(*ApplicationDependencies.dependenciesLibraryJNI)
-    project(":oboe", ":parselib", ":iolib")
+    project(":lib:oboe", ":lib:parselib", ":lib:iolib")
 }

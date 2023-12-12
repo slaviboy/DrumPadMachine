@@ -17,9 +17,9 @@ sealed class Dependency(
 
     object App : Dependency(":app", "app", DependencyType.Application)
     object Audio : LibraryJNIDependency(":audio", "audio")
-    object Oboe : LibraryJNIDependency(":oboe", "oboe")
-    object IOLib : LibraryJNIDependency(":iolib", "iolib")
-    object ParseLib : LibraryJNIDependency(":parselib", "parselib")
+    object Oboe : LibraryJNIDependency(":lib:oboe", "oboe")
+    object IOLib : LibraryJNIDependency(":lib:iolib", "iolib")
+    object ParseLib : LibraryJNIDependency(":lib:parselib", "parselib")
 
     fun matches(project: org.gradle.api.Project): Boolean {
         return (project.path == path && project.name == name)

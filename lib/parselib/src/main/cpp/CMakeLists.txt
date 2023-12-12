@@ -12,7 +12,7 @@ set(parselib_sources
 )
 add_library(parselib ${parselib_sources})
 
-set(OBOE_DIR ../../../../oboe)
+set(OBOE_DIR ../../../../lib/oboe)
 
 include_directories(
         ${OBOE_DIR}/src/main/cpp/src

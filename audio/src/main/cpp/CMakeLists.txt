@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.4.1)
 project("audio")
 
-set(OBOE_DIR ../../../../oboe)
-set(PARSELIB_DIR ../../../../parselib)
-set(IOLIB_DIR ../../../../iolib)
+set(OBOE_DIR ../../../../lib/oboe)
+set(PARSELIB_DIR ../../../../lib/parselib)
+set(IOLIB_DIR ../../../../lib/iolib)
 
 include(${PARSELIB_DIR}/src/main/cpp/CMakeLists.txt)
 include(${IOLIB_DIR}/src/main/cpp/CMakeLists.txt)
