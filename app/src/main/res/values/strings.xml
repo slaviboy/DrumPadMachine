@@ -12,4 +12,9 @@
     <string name="no_items">No items</string>
     <string name="please_check_your_network">Please check your network</string>
     <string name="search">Search</string>
+    <string name="tempo">Tempo</string>
+    <string name="record">Record</string>
+    <string name="side">Side</string>
+    <string name="lessons">Lessons</string>
+    <string name="rected_by">Recreated by:</string>
 </resources>
