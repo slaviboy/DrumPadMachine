@@ -177,26 +177,26 @@ fun DrumPadComposable(
                 modifier = Modifier
                     .height(0.08.dw)
             )
-            for (i in 0 until drumPadViewModel.row) {
+            for (i in 0 until drumPadViewModel.numberOfRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 0.02.dw),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    for (j in 0 until drumPadViewModel.column) {
+                    for (j in 0 until drumPadViewModel.numberOfColumns) {
                         PadComposable(
                             pad = Pad(color = PadColor.Orange, isActive = true),
                             modifier = Modifier
                                 .weight(1f),
                             onMotionActionChanged = {
                                 drumPadViewModel.playSound(
-                                    row = j,
-                                    column = i
+                                    row = i,
+                                    column = j
                                 )
                             }
                         )
-                        if (j < drumPadViewModel.column - 1) {
+                        if (j < drumPadViewModel.numberOfColumns - 1) {
                             Spacer(
                                 modifier = Modifier
                                     .width(0.01.dw)
@@ -204,7 +204,7 @@ fun DrumPadComposable(
                         }
                     }
                 }
-                if (i < drumPadViewModel.row - 1) {
+                if (i < drumPadViewModel.numberOfRows - 1) {
                     Spacer(
                         modifier = Modifier
                             .height(0.01.dw)
@@ -227,7 +227,7 @@ fun DrumPadComposable(
                 )
                 Spacer(
                     modifier = Modifier
-                        .width(0.05.dw)
+                        .width(0.01.dw)
                 )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally

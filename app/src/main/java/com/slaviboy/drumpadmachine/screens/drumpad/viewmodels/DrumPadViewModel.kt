@@ -17,10 +17,10 @@ class DrumPadViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var drumPadPlayer = DrumPadPlayer()
-    private var page = 1
+    private var page = 0 // 0,1
 
-    val row = NUMBER_OF_ROWS
-    val column = NUMBER_OF_COLUMNS
+    val numberOfRows = NUMBER_OF_ROWS
+    val numberOfColumns = NUMBER_OF_COLUMNS
 
     fun init() = viewModelScope.launch {
         drumPadPlayer.apply {
@@ -42,7 +42,8 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun loadSounds(presetId: Int) = viewModelScope.launch {
-        drumPadPlayer.apply {
+        terminate()
+        drumPadPlayer = DrumPadPlayer(numberOfRows, numberOfColumns).apply {
             setupAudioStream()
             loadWavFile("${context.cacheDir}/audio/$presetId")
             startAudioStream()

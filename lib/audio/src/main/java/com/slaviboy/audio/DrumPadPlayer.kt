@@ -6,8 +6,8 @@ import java.io.FileInputStream
 import java.io.IOException
 
 class DrumPadPlayer(
-    private val row: Int = 4,
-    private val column: Int = 3
+    private val numberOfRows: Int = 4,
+    private val numberOfColumns: Int = 3
 ) {
     companion object {
         const val NUM_PLAY_CHANNELS: Int = 2  // The number of channels in the player Stream.
@@ -61,7 +61,7 @@ class DrumPadPlayer(
     }
 
     fun trigger(page: Int, row: Int, column: Int) {
-        val i = (page * (this.column + 1) * (this.row + 1)) + row * (this.column + 1) + (column + 1)
+        val i = (page * numberOfColumns * numberOfRows) + row * numberOfColumns + column
         trigger(i)
     }
 
