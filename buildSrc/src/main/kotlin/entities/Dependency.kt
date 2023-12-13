@@ -16,7 +16,7 @@ sealed class Dependency(
     ) : Dependency(path, name, DependencyType.LibraryJNI)
 
     object App : Dependency(":app", "app", DependencyType.Application)
-    object Audio : LibraryJNIDependency(":audio", "audio")
+    object Audio : LibraryJNIDependency(":lib:audio", "audio")
     object Oboe : LibraryJNIDependency(":lib:oboe", "oboe")
     object IOLib : LibraryJNIDependency(":lib:iolib", "iolib")
     object ParseLib : LibraryJNIDependency(":lib:parselib", "parselib")

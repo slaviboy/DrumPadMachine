@@ -12,11 +12,9 @@ set(parselib_sources
 )
 add_library(parselib ${parselib_sources})
 
-set(OBOE_DIR ../../../../lib/oboe)
-
 include_directories(
-        ${OBOE_DIR}/src/main/cpp/src
-        ${OBOE_DIR}/src/main/cpp/include/oboe
+        ../../../../oboe/src/main/cpp/src
+        ../../../../oboe/src/main/cpp/include/oboe
         ${CMAKE_CURRENT_LIST_DIR}
         ../../../../shared)
 

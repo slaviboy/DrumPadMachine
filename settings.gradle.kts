@@ -21,8 +21,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "DrumPadMachine"
-include(":app")
-include(":audio")
-include(":lib:oboe")
-include(":lib:iolib")
-include(":lib:parselib")
+include(
+    ":app",
+    ":lib:audio",
+    ":lib:oboe",
+    ":lib:iolib",
+    ":lib:parselib"
+)
