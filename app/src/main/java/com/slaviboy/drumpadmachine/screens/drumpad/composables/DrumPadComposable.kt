@@ -43,6 +43,7 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.data.Pad
 import com.slaviboy.drumpadmachine.enums.PadColor
+import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
@@ -84,7 +85,10 @@ fun DrumPadComposable(
                 contentDescription = null,
                 modifier = Modifier
                     .size(0.07.dw)
-                    .offset(x = 0.04.dw),
+                    .offset(x = 0.04.dw)
+                    .bounceClick {
+                        navigator.navigateUp()
+                    },
                 colorFilter = ColorFilter.tint(Color.White)
             )
             Spacer(
@@ -158,19 +162,31 @@ fun DrumPadComposable(
             ) {
                 ImageButtonWithTest(
                     iconResId = R.drawable.ic_metronome,
-                    textResId = R.string.tempo
+                    textResId = R.string.tempo,
+                    onClick = {
+
+                    }
                 )
                 ImageButtonWithTest(
                     iconResId = R.drawable.ic_record,
-                    textResId = R.string.record
+                    textResId = R.string.record,
+                    onClick = {
+
+                    }
                 )
                 ImageButtonWithTest(
                     iconResId = R.drawable.ic_side,
-                    textResId = R.string.side
+                    textResId = R.string.side,
+                    onClick = {
+                        drumPadViewModel.movePage()
+                    }
                 )
                 ImageButtonWithTest(
                     iconResId = R.drawable.ic_lessons,
-                    textResId = R.string.lessons
+                    textResId = R.string.lessons,
+                    onClick = {
+
+                    }
                 )
             }
             Spacer(
@@ -217,6 +233,9 @@ fun DrumPadComposable(
                     .wrapContentHeight()
                     .weight(1f)
                     .align(Alignment.CenterHorizontally)
+                    .bounceClick {
+
+                    }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_github),
@@ -260,11 +279,13 @@ fun DrumPadComposable(
 fun ImageButtonWithTest(
     modifier: Modifier = Modifier,
     @DrawableRes iconResId: Int,
-    @StringRes textResId: Int
+    @StringRes textResId: Int,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = modifier
-            .wrapContentWidth(),
+            .wrapContentWidth()
+            .bounceClick(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

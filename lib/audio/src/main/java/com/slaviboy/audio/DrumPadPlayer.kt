@@ -69,8 +69,9 @@ class DrumPadPlayer(
         return try {
             val file = File(filePath)
             val inputStream = FileInputStream(file)
-            val byteBuffer = ByteArray(file.length().toInt())
-            inputStream.read(byteBuffer)
+            val dataLen = file.length().toInt()
+            val byteBuffer = ByteArray(dataLen)
+            inputStream.read(byteBuffer, 0, dataLen)
             inputStream.close()
             byteBuffer
         } catch (e: IOException) {
