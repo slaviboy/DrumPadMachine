@@ -10,5 +10,10 @@ plugins {
 dependencies {
     implementation(*ApplicationDependencies.dependenciesApp)
     ksp(*ApplicationDependencies.ksp)
-    project(":oboe", ":parselib", ":iolib", ":audio")
+    project(
+        ":lib:oboe",
+        ":lib:parselib",
+        ":lib:iolib",
+        ":lib:audio"
+    )
 }

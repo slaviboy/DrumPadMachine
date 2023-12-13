@@ -225,7 +225,7 @@ fun Project.setVariants() {
 
 subprojects {
     subProjects.find {
-        println("subproject- $path - $name")
+        println("subproject- ${it.path} - ${it.name}  --- ${getNamespace(it.name)} --- ${it.matches(this)}")
         it.matches(this)
     }?.let {
         when (it.type) {
@@ -249,7 +249,7 @@ subprojects {
             is DependencyType.Library -> {
                 setLibraryPlugins()
                 configure<LibraryExtension> {
-                    setupLibrary(name)
+                    setupLibrary(it.name)
                 }
                 setDependencies()
                 android.buildFeatures.buildConfig = true
@@ -258,7 +258,7 @@ subprojects {
             is DependencyType.LibraryJNI -> {
                 setLibraryJNIPlugins()
                 configure<LibraryExtension> {
-                    setupLibrary(name)
+                    setupLibrary(it.name)
                     setDefaultConfigJNILibraries()
                 }
                 android.buildFeatures.buildConfig = true
