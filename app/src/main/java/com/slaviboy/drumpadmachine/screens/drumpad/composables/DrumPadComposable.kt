@@ -1,6 +1,5 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
-import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -215,13 +214,11 @@ fun DrumPadComposable(
                             pad = Pad(color = PadColor.Orange, isActive = true),
                             modifier = Modifier
                                 .weight(1f),
-                            onMotionActionChanged = {
-                                if (it == MotionEvent.ACTION_DOWN) {
-                                    drumPadViewModel.playSound(
-                                        row = i,
-                                        column = j
-                                    )
-                                }
+                            onTouchDownEvent = {
+                                drumPadViewModel.playSound(
+                                    row = i,
+                                    column = j
+                                )
                             }
                         )
                         if (j < drumPadViewModel.numberOfColumns - 1) {
