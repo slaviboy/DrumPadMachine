@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,6 +70,7 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Destination
 @Composable
 fun PresetsComposable(
@@ -76,6 +79,7 @@ fun PresetsComposable(
     presets: Array<Preset>,
     onError: (error: String) -> Unit
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(presets) {
         presetsViewModel.initPresets(presets)
     }
@@ -261,6 +265,7 @@ fun PresetsComposable(
                         subtitleTextSize = 0.03.sw,
                         coverSize = 0.41.dw,
                         onPresetClick = { x, y, preset ->
+                            keyboardController?.hide()
                             fromX = x
                             fromY = y
                             isReversed = false
@@ -275,6 +280,7 @@ fun PresetsComposable(
                             subtitleTextSize = 0.03.sw,
                             coverSize = 0.41.dw,
                             onPresetClick = { x, y, preset ->
+                                keyboardController?.hide()
                                 fromX = x
                                 fromY = y
                                 isReversed = false

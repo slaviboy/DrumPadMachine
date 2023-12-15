@@ -20,8 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -43,6 +45,7 @@ import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
+@OptIn(ExperimentalComposeUiApi::class)
 @RootNavGraph(start = true)
 @Destination
 @Composable
@@ -51,6 +54,7 @@ fun HomeComposable(
     homeViewModel: HomeViewModel,
     onError: (error: String) -> Unit = {}
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -184,6 +188,7 @@ fun HomeComposable(
                     categoryName = categoryName,
                     presets = categoryMaps[categoryName],
                     onPresetClick = { x, y, preset ->
+                        keyboardController?.hide()
                         fromX = x
                         fromY = y
                         isReversed = false
@@ -191,6 +196,7 @@ fun HomeComposable(
                         clickedPreset = preset
                     },
                     onSeeAllClick = {
+                        keyboardController?.hide()
                         navigator.navigate(
                             direction = PresetsComposableDestination(
                                 presets = homeViewModel.filteredCategoriesMapState.value[it]?.toTypedArray() ?: arrayOf()
