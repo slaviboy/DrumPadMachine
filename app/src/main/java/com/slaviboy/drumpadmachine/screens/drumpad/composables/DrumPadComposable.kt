@@ -100,10 +100,9 @@ fun DrumPadComposable(
             )
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .wrapContentWidth()
                     .wrapContentHeight()
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 0.06.dw),
+                    .align(Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
@@ -119,15 +118,12 @@ fun DrumPadComposable(
                     modifier = Modifier
                         .width(0.02.dw)
                 )
-                Column(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                ) {
+                Column {
                     Text(
                         text = preset.name,
                         color = Color.White,
                         fontFamily = RobotoFont,
-                        fontSize = 0.07.sw,
+                        fontSize = 0.06.sw,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(horizontal = 0.01.dw),
@@ -138,7 +134,7 @@ fun DrumPadComposable(
                         text = preset.author ?: "",
                         color = Color.LightGray,
                         fontFamily = RobotoFont,
-                        fontSize = 0.035.sw,
+                        fontSize = 0.032.sw,
                         fontWeight = FontWeight.Normal,
                         modifier = Modifier
                             .padding(horizontal = 0.01.dw),
@@ -148,13 +144,15 @@ fun DrumPadComposable(
                 }
                 Spacer(
                     modifier = Modifier
-                        .width(0.07.dw)
+                        .width(0.04.dw)
                 )
-                StarsRating(
-                    rating = Rating(5, 2),
-                    modifier = Modifier
-                        .size(0.068.dw)
-                )
+                if (preset.name.length < 6) {
+                    StarsRating(
+                        rating = Rating(5, 2),
+                        modifier = Modifier
+                            .size(0.068.dw)
+                    )
+                }
             }
             Spacer(
                 modifier = Modifier
