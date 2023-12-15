@@ -1,5 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
+import android.view.MotionEvent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -42,6 +44,7 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.data.Pad
+import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
@@ -57,10 +60,10 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 fun DrumPadComposable(
     navigator: DestinationsNavigator,
     drumPadViewModel: DrumPadViewModel,
-    presetId: Int
+    preset: Preset
 ) {
-    LaunchedEffect(presetId) {
-        drumPadViewModel.loadSounds(presetId)
+    LaunchedEffect(preset) {
+        drumPadViewModel.loadSounds(preset)
     }
     Box(
         modifier = Modifier
@@ -97,13 +100,14 @@ fun DrumPadComposable(
             )
             Row(
                 modifier = Modifier
-                    .wrapContentWidth()
+                    .fillMaxWidth()
                     .wrapContentHeight()
-                    .align(Alignment.CenterHorizontally),
+                    .align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 0.06.dw),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    model = NetworkModule.coverIconUrl(presetId),
+                    model = NetworkModule.coverIconUrl(preset.id),
                     contentDescription = null,
                     modifier = Modifier
                         .size(0.14.dw)
@@ -120,22 +124,26 @@ fun DrumPadComposable(
                         .wrapContentWidth()
                 ) {
                     Text(
-                        text = "TITLE",
+                        text = preset.name,
                         color = Color.White,
                         fontFamily = RobotoFont,
                         fontSize = 0.07.sw,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .padding(horizontal = 0.01.dw)
+                            .padding(horizontal = 0.01.dw),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Artist name",
+                        text = preset.author ?: "",
                         color = Color.LightGray,
                         fontFamily = RobotoFont,
                         fontSize = 0.035.sw,
                         fontWeight = FontWeight.Normal,
                         modifier = Modifier
-                            .padding(horizontal = 0.01.dw)
+                            .padding(horizontal = 0.01.dw),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Spacer(
@@ -175,7 +183,11 @@ fun DrumPadComposable(
                     }
                 )
                 ImageButtonWithTest(
-                    iconResId = R.drawable.ic_side,
+                    iconResId = if (drumPadViewModel.page.value == 0) {
+                        R.drawable.ic_side_a
+                    } else {
+                        R.drawable.ic_side_b
+                    },
                     textResId = R.string.side,
                     onClick = {
                         drumPadViewModel.movePage()
@@ -206,10 +218,12 @@ fun DrumPadComposable(
                             modifier = Modifier
                                 .weight(1f),
                             onMotionActionChanged = {
-                                drumPadViewModel.playSound(
-                                    row = i,
-                                    column = j
-                                )
+                                if (it == MotionEvent.ACTION_DOWN) {
+                                    drumPadViewModel.playSound(
+                                        row = i,
+                                        column = j
+                                    )
+                                }
                             }
                         )
                         if (j < drumPadViewModel.numberOfColumns - 1) {

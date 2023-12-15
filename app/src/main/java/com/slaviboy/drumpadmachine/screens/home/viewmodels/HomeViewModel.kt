@@ -73,9 +73,16 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
                 if (it is Result.Success) {
-                    navigationEventChannel.send(
-                        NavigationEvent.NavigateToDrumPadScreen(presetId)
-                    )
+                    val preset = getPresetById(presetId)
+                    if (preset != null) {
+                        navigationEventChannel.send(
+                            NavigationEvent.NavigateToDrumPadScreen(preset)
+                        )
+                    } else {
+                        errorEventChannel.send(
+                            ErrorEvent.ErrorWithMessage("Unable to find Preset!")
+                        )
+                    }
                 }
                 if (it is Result.Error) {
                     errorEventChannel.send(
@@ -160,6 +167,12 @@ class HomeViewModel @Inject constructor(
         }
         _categoriesMapState.value = hashMap
         search()
+    }
+
+    private fun getPresetById(presetId: Int): Preset? {
+        return _categoriesMapState.value.firstNotNullOfOrNull {
+            it.value.firstOrNull { it.id == presetId }
+        }
     }
 
     companion object {

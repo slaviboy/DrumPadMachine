@@ -145,7 +145,7 @@ fun HomeComposable(
         homeViewModel.navigationEventFlow.ObserveAsEvents {
             if (it is NavigationEvent.NavigateToDrumPadScreen) {
                 navigator.navigate(
-                    direction = DrumPadComposableDestination(it.presetId)
+                    direction = DrumPadComposableDestination(it.preset)
                 )
             }
         }

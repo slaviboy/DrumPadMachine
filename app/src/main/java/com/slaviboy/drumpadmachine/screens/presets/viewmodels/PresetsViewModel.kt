@@ -64,9 +64,16 @@ class PresetsViewModel @Inject constructor(
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
                 if (it is Result.Success) {
-                    navigationEventChannel.send(
-                        NavigationEvent.NavigateToDrumPadScreen(presetId)
-                    )
+                    val preset = getPresetById(presetId)
+                    if (preset != null) {
+                        navigationEventChannel.send(
+                            NavigationEvent.NavigateToDrumPadScreen(preset = preset)
+                        )
+                    } else {
+                        errorEventChannel.send(
+                            ErrorEvent.ErrorWithMessage("Unable to find Preset!")
+                        )
+                    }
                 }
                 if (it is Result.Error) {
                     errorEventChannel.send(
@@ -78,5 +85,9 @@ class PresetsViewModel @Inject constructor(
     }
 
     fun unlockAllSounds() {
+    }
+
+    private fun getPresetById(presetId: Int): Preset? {
+        return _presetsState.value.firstOrNull { it.id == presetId }
     }
 }

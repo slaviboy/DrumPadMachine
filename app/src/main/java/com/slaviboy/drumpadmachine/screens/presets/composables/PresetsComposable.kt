@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.bumptech.glide.integration.compose.CrossFade
@@ -171,14 +172,13 @@ fun PresetsComposable(
         presetsViewModel.navigationEventFlow.ObserveAsEvents {
             if (it is NavigationEvent.NavigateToDrumPadScreen) {
                 navigator.navigate(
-                    direction = DrumPadComposableDestination(it.presetId)
+                    direction = DrumPadComposableDestination(
+                        preset = it.preset
+                    )
                 )
             }
         }
-        LazyColumn(
-            modifier = Modifier
-                .padding(bottom = 0.18.dw)
-        ) {
+        LazyColumn {
             item {
                 Column(
                     modifier = Modifier
@@ -187,24 +187,27 @@ fun PresetsComposable(
                 ) {
                     Spacer(
                         modifier = Modifier
-                            .height(0.06.dw)
+                            .height(0.08.dw)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.ic_arrow_left),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(0.07.dw),
+                            .size(0.07.dw)
+                            .bounceClick {
+                                navigator.navigateUp()
+                            },
                         colorFilter = ColorFilter.tint(Color.White)
                     )
                     Spacer(
                         modifier = Modifier
-                            .height(0.03.dw)
+                            .height(0.05.dw)
                     )
                     Text(
                         text = "SOUND PACKS",
                         color = Color.White,
                         fontFamily = RobotoFont,
-                        fontSize = 0.06.sw,
+                        fontSize = 0.07.sw,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(horizontal = 0.01.dw)
@@ -217,14 +220,14 @@ fun PresetsComposable(
                         text = "Search for your favorite sound pack",
                         color = Color.LightGray,
                         fontFamily = RobotoFont,
-                        fontSize = 0.03.sw,
+                        fontSize = 0.032.sw,
                         fontWeight = FontWeight.Normal,
                         modifier = Modifier
                             .padding(horizontal = 0.01.dw)
                     )
                     Spacer(
                         modifier = Modifier
-                            .height(0.05.dw)
+                            .height(0.06.dw)
                     )
                     SearchTextField(
                         text = presetsViewModel.searchTextState.value,
@@ -240,7 +243,7 @@ fun PresetsComposable(
                     )
                     Spacer(
                         modifier = Modifier
-                            .height(0.07.dw)
+                            .height(0.08.dw)
                     )
                 }
             }
@@ -250,7 +253,7 @@ fun PresetsComposable(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     PresetCard(
                         preset = list[it * 2],
@@ -278,6 +281,11 @@ fun PresetsComposable(
                                 animationFlag = !(animationFlag ?: true)
                                 clickedPreset = preset
                             }
+                        )
+                    } else {
+                        Spacer(
+                            modifier = Modifier
+                                .size(0.41.dw)
                         )
                     }
                 }
@@ -322,6 +330,7 @@ fun PresetCard(
     titleTextSize: TextUnit,
     subtitleTextSize: TextUnit,
     coverSize: Dp,
+    modifier: Modifier = Modifier,
     onPresetClick: (x: Float, y: Float, preset: Preset) -> Unit
 ) {
     var x by remember {
@@ -331,8 +340,8 @@ fun PresetCard(
         mutableFloatStateOf(0f)
     }
     Column(
-        modifier = Modifier
-            .offset(x = 0.04.dw)
+        modifier = modifier
+            .width(coverSize)
             .onGloballyPositioned {
                 val position = it.positionInRoot()
                 x = position.x
@@ -374,18 +383,18 @@ fun PresetCard(
             color = Color.White,
             fontFamily = RobotoFont,
             fontSize = titleTextSize,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Text(
             text = preset.author ?: "",
             color = Color.LightGray,
             fontFamily = RobotoFont,
             fontSize = subtitleTextSize,
-            fontWeight = FontWeight.Normal
+            fontWeight = FontWeight.Normal,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
-    Spacer(
-        modifier = Modifier
-            .width(0.04.dw)
-    )
 }

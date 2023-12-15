@@ -1,14 +1,17 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.viewmodels
 
 import android.content.Context
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.audio.DrumPadPlayer
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
+import com.slaviboy.drumpadmachine.data.entities.Preset
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +22,9 @@ class DrumPadViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var drumPadPlayer: DrumPadPlayer? = null
-    private var page = 0 // 0,1
+
+    private val _page: MutableState<Int> = mutableIntStateOf(0)
+    val page: State<Int> = _page // 0,1
 
     val numberOfRows = NUMBER_OF_ROWS
     val numberOfColumns = NUMBER_OF_COLUMNS
@@ -41,21 +46,25 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun playSound(row: Int, column: Int) = viewModelScope.launch {
-        drumPadPlayer?.trigger(page, row, column)
+        drumPadPlayer?.trigger(page.value, row, column)
     }
 
-    fun loadSounds(presetId: Int) = viewModelScope.launch {
+    fun loadSounds(preset: Preset) = viewModelScope.launch {
         terminate()
         awaitFrame()
         drumPadPlayer = DrumPadPlayer(numberOfRows, numberOfColumns).apply {
             setupAudioStream()
-            loadWavFile("${context.cacheDir}/audio/$presetId")
+            loadWavFile("${context.cacheDir}/audio/${preset.id}")
             startAudioStream()
         }
     }
 
     fun movePage() {
-        page = if (page == 0) 1 else 0
+        _page.value = if (page.value == 0) {
+            1
+        } else {
+            0
+        }
     }
 
     companion object {
