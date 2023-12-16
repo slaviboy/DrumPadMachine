@@ -5,10 +5,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DrumPadPlayer(
-    private val numberOfRows: Int = 4,
-    private val numberOfColumns: Int = 3
-) {
+class DrumPadPlayer {
     companion object {
         const val NUM_PLAY_CHANNELS: Int = 2  // The number of channels in the player Stream.
 
@@ -31,13 +28,21 @@ class DrumPadPlayer(
 
     fun loadWavFile(
         dirPath: String,
+        filenames: List<String>,
         pans: List<Float>? = null // [-1,1]
     ) {
         val directory = File(dirPath)
-        val files = directory.listFiles() ?: return
-        for (i in files.indices) {
-            val dataBytes = getByteArrayFromWavFile(files[i].absolutePath) ?: return
-            loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+        if (filenames.isEmpty()) {
+            val files = directory.listFiles() ?: return
+            for (i in files.indices) {
+                val dataBytes = getByteArrayFromWavFile(files[i].absolutePath) ?: return
+                loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+            }
+        } else {
+            filenames.forEachIndexed { i, filename ->
+                val dataBytes = getByteArrayFromWavFile("$directory/$filename") ?: return
+                loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+            }
         }
     }
 
@@ -58,11 +63,6 @@ class DrumPadPlayer(
 
     fun unloadWavAssets() {
         unloadWavAssetsNative()
-    }
-
-    fun trigger(page: Int, row: Int, column: Int) {
-        val i = (page * numberOfColumns * numberOfRows) + row * numberOfColumns + column
-        trigger(i)
     }
 
     private fun getByteArrayFromWavFile(filePath: String): ByteArray? {

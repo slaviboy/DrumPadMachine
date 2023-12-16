@@ -14,13 +14,4 @@ interface ApiService {
     @GET("audio/{id}.zip")
     @Streaming
     suspend fun getAudioZipById(@Path("id") id: Int): Response<ResponseBody>
-
-    @GET("covers/{id}")
-    suspend fun getCoverById(@Path("id") id: Int): Any
-
-    @GET("cover_icons/{id}")
-    suspend fun getCoverIconById(@Path("id") id: Int): Any
-
-    @GET("audio_previews/{id}")
-    suspend fun getAudioPreviewById(@Path("id") id: Int): Any
 }

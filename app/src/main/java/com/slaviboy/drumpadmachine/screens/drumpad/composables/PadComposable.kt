@@ -21,13 +21,13 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.slaviboy.drumpadmachine.R
-import com.slaviboy.drumpadmachine.data.Pad
+import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.global.allTrue
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PadComposable(
-    pad: Pad,
+    padColor: PadColor,
     modifier: Modifier = Modifier,
     onTouchDownEvent: (Int) -> Unit
 ) {
@@ -82,7 +82,7 @@ fun PadComposable(
             }
     ) {
         Image(
-            painter = painterResource(id = pad.color.value),
+            painter = painterResource(id = padColor.value),
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
             modifier = Modifier

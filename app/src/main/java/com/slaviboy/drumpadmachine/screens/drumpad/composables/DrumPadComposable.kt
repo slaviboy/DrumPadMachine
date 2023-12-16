@@ -42,9 +42,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
-import com.slaviboy.drumpadmachine.data.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
-import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
@@ -211,7 +209,10 @@ fun DrumPadComposable(
                 ) {
                     for (j in 0 until drumPadViewModel.numberOfColumns) {
                         PadComposable(
-                            pad = Pad(color = PadColor.Orange, isActive = true),
+                            padColor = drumPadViewModel.getPadColor(
+                                row = i,
+                                column = j
+                            ),
                             modifier = Modifier
                                 .weight(1f),
                             onTouchDownEvent = {

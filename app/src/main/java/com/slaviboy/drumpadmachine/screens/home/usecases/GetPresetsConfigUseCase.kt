@@ -20,6 +20,7 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.slaviboy.drumpadmachine.data.entities.File as FileDb
 
 interface GetPresetsConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
@@ -78,14 +79,26 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                             presets = it.presetsApi.map {
                                 val (_, presetApi) = it
                                 Preset(
-                                    presetApi.id.toIntOrNull() ?: 0,
-                                    presetApi.name,
-                                    presetApi.author,
-                                    presetApi.price,
-                                    presetApi.orderBy,
-                                    presetApi.timestamp,
-                                    presetApi.deleted,
-                                    presetApi.tags
+                                    id = presetApi.id.toIntOrNull() ?: 0,
+                                    name = presetApi.name,
+                                    author = presetApi.author,
+                                    price = presetApi.price,
+                                    orderBy = presetApi.orderBy,
+                                    timestamp = presetApi.timestamp,
+                                    deleted = presetApi.deleted,
+                                    hasInfo = presetApi.hasInfo,
+                                    tempo = presetApi.tempo,
+                                    tags = presetApi.tags,
+                                    files = presetApi.files.map {
+                                        val (_, fileApi) = it
+                                        FileDb(
+                                            looped = fileApi.looped,
+                                            filename = fileApi.filename,
+                                            choke = fileApi.choke,
+                                            color = fileApi.color,
+                                            stopOnRelease = fileApi.stopOnRelease
+                                        )
+                                    }
                                 )
                             }
                         )
