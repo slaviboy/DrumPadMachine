@@ -168,8 +168,8 @@ fun HomeComposable(
                     onTextChange = {
                         homeViewModel.changeText(it)
                     },
-                    onSearchButtonClick = {
-                        homeViewModel.search()
+                    onClearText = {
+                        homeViewModel.changeText("")
                     },
                     modifier = Modifier
                         .fillMaxWidth()

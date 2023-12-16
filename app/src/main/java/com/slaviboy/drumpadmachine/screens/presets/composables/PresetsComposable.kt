@@ -238,8 +238,8 @@ fun PresetsComposable(
                         onTextChange = {
                             presetsViewModel.changeText(it)
                         },
-                        onSearchButtonClick = {
-                            presetsViewModel.search()
+                        onClearText = {
+                            presetsViewModel.changeText("")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
