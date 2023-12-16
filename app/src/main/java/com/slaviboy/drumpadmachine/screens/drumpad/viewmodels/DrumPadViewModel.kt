@@ -82,13 +82,14 @@ class DrumPadViewModel @Inject constructor(
 
     fun getPadColor(row: Int, column: Int): PadColor {
         val index = getIndex(row, column)
-        val color = _preset.value?.files?.getOrNull(index)?.color ?: return PadColor.Orange
+        val color = _preset.value?.files?.getOrNull(index)?.color ?: return PadColor.None
         return when (color) {
             "red" -> PadColor.Red
             "blue" -> PadColor.Blue
             "green" -> PadColor.Green
             "purple" -> PadColor.Purple
-            else -> PadColor.Orange
+            "yellow" -> PadColor.Orange
+            else -> PadColor.None
         }
     }
 

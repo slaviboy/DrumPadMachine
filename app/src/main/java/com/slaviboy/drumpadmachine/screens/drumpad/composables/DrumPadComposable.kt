@@ -1,5 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -62,6 +63,10 @@ fun DrumPadComposable(
     LaunchedEffect(preset) {
         drumPadViewModel.loadSounds(preset)
     }
+    BackHandler {
+        drumPadViewModel.terminate()
+        navigator.navigateUp()
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,6 +92,7 @@ fun DrumPadComposable(
                     .size(0.07.dw)
                     .offset(x = 0.04.dw)
                     .bounceClick {
+                        drumPadViewModel.terminate()
                         navigator.navigateUp()
                     },
                 colorFilter = ColorFilter.tint(Color.White)

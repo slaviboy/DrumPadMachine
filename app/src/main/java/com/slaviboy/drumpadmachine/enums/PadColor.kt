@@ -10,5 +10,6 @@ enum class PadColor(@DrawableRes val value: Int) {
     Pink(R.drawable.ic_rect_pink),
     Orange(R.drawable.ic_rect_orange),
     Purple(R.drawable.ic_rect_purple),
-    Aqua(R.drawable.ic_rect_aqua)
+    Aqua(R.drawable.ic_rect_aqua),
+    None(R.drawable.ic_rect_none);
 }
