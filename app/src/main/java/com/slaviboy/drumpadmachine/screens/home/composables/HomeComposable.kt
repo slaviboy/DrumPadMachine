@@ -199,7 +199,8 @@ fun HomeComposable(
                         keyboardController?.hide()
                         navigator.navigate(
                             direction = PresetsComposableDestination(
-                                presets = homeViewModel.filteredCategoriesMapState.value[it]?.toTypedArray() ?: arrayOf()
+                                name = categoryName,
+                                presets = categoryMaps[it]?.toTypedArray() ?: arrayOf()
                             )
                         )
                     }

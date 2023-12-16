@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,6 +76,7 @@ import kotlin.math.roundToInt
 fun PresetsComposable(
     navigator: DestinationsNavigator,
     presetsViewModel: PresetsViewModel,
+    name: String,
     presets: Array<Preset>,
     onError: (error: String) -> Unit
 ) {
@@ -182,75 +183,78 @@ fun PresetsComposable(
                 )
             }
         }
-        LazyColumn {
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 0.04.dw)
-                ) {
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.08.dw)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_arrow_left),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(0.07.dw)
-                            .bounceClick {
-                                navigator.navigateUp()
-                            },
-                        colorFilter = ColorFilter.tint(Color.White)
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.05.dw)
-                    )
-                    Text(
-                        text = "SOUND PACKS",
-                        color = Color.White,
-                        fontFamily = RobotoFont,
-                        fontSize = 0.07.sw,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(horizontal = 0.01.dw)
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.02.dw)
-                    )
-                    Text(
-                        text = "Search for your favorite sound pack",
-                        color = Color.LightGray,
-                        fontFamily = RobotoFont,
-                        fontSize = 0.032.sw,
-                        fontWeight = FontWeight.Normal,
-                        modifier = Modifier
-                            .padding(horizontal = 0.01.dw)
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.06.dw)
-                    )
-                    SearchTextField(
-                        text = presetsViewModel.searchTextState.value,
-                        onTextChange = {
-                            presetsViewModel.changeText(it)
-                        },
-                        onClearText = {
-                            presetsViewModel.changeText("")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.08.dw)
-                    )
-                }
-            }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.04.dw)
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .height(0.08.dw)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_left),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(0.07.dw)
+                    .bounceClick {
+                        navigator.navigateUp()
+                    },
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(0.05.dw)
+            )
+            Text(
+                text = name,
+                color = Color.White,
+                fontFamily = RobotoFont,
+                fontSize = 0.07.sw,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(horizontal = 0.01.dw)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(0.02.dw)
+            )
+            Text(
+                text = "Search for your favorite sound pack",
+                color = Color.LightGray,
+                fontFamily = RobotoFont,
+                fontSize = 0.034.sw,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .padding(horizontal = 0.01.dw)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(0.06.dw)
+            )
+            SearchTextField(
+                text = presetsViewModel.searchTextState.value,
+                onTextChange = {
+                    presetsViewModel.changeText(it)
+                },
+                onClearText = {
+                    presetsViewModel.changeText("")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(0.12.dw)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(0.08.dw)
+            )
+        }
+        val listState = rememberLazyListState()
+        LazyColumn(
+            modifier = Modifier
+                .offset(y = 0.61.dw),
+            state = listState
+        ) {
             val list = presetsViewModel.filteredPresetsState.value
             val size = (list.size / 2.0).roundToInt()
             items(size) {

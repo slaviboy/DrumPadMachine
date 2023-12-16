@@ -127,7 +127,7 @@ fun DrumPadComposable(
                         text = preset.name,
                         color = Color.White,
                         fontFamily = RobotoFont,
-                        fontSize = 0.06.sw,
+                        fontSize = 0.063.sw,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(horizontal = 0.01.dw),

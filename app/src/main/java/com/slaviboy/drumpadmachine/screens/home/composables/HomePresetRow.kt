@@ -64,7 +64,7 @@ fun HomePresetRow(
     }
     Spacer(
         modifier = Modifier
-            .height(0.02.dw)
+            .height(0.04.dw)
     )
     LazyRow(
         modifier = Modifier

@@ -71,24 +71,20 @@ fun HomePresetDetails(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .alpha(animatedValue)
-            .background(Color(0x88000000))
-            .click { }
-    ) {}
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
             .graphicsLayer {
                 alpha = animatedValue
             }
-            .background(Color(0x88000000))
+            .background(Color(0xC3000000))
             .click { }
     ) {
         Box(
             modifier = Modifier
                 .width(0.76.dw)
                 .height(0.51.dh)
-                .background(Color.White, RoundedCornerShape(0.04.dw))
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(0.043.dw)
+                )
                 .align(Alignment.Center)
                 .onGloballyPositioned {
                     val position = it.positionInWindow()

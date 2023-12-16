@@ -106,6 +106,7 @@ class MainActivity : ComponentActivity() {
                                 navigator = destinationsNavigator,
                                 presetsViewModel = hiltViewModel<PresetsViewModel>(),
                                 onError = onError,
+                                name = navArgs.name,
                                 presets = navArgs.presets
                             )
                         }
