@@ -115,7 +115,8 @@ fun DrumPadComposable(
                         .size(0.14.dw)
                         .clip(RoundedCornerShape(0.02.dw)),
                     transition = CrossFade,
-                    failure = placeholder(R.drawable.ic_no_image)
+                    failure = placeholder(R.drawable.ic_no_image),
+                    loading = placeholder(R.drawable.ic_default_image)
                 )
                 Spacer(
                     modifier = Modifier
@@ -149,13 +150,6 @@ fun DrumPadComposable(
                     modifier = Modifier
                         .width(0.04.dw)
                 )
-                if (preset.name.length < 6) {
-                    StarsRating(
-                        rating = Rating(5, 2),
-                        modifier = Modifier
-                            .size(0.068.dw)
-                    )
-                }
             }
             Spacer(
                 modifier = Modifier
@@ -318,34 +312,5 @@ fun ImageButtonWithTest(
             fontSize = 0.035.sw,
             fontWeight = FontWeight.Normal
         )
-    }
-}
-
-data class Rating(
-    val maxStart: Int = 5,
-    val stars: Int = 2
-)
-
-@Composable
-fun StarsRating(
-    rating: Rating,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = Modifier
-    ) {
-        for (i in 0 until rating.maxStart) {
-            val color = if (i < rating.stars) {
-                Color(0xFFFFA34B)
-            } else {
-                Color(0xFF262636)
-            }
-            Image(
-                painter = painterResource(id = R.drawable.ic_star),
-                contentDescription = null,
-                modifier = modifier,
-                colorFilter = ColorFilter.tint(color)
-            )
-        }
     }
 }
