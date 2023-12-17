@@ -140,8 +140,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun setNoItemEvent() {
-        val isEmpty = filteredCategoriesMapState.value.isEmpty()
-        _noItemsState.value = if (audioConfigState.value is Result.Error && isEmpty) {
+        val isEmpty = _filteredCategoriesMapState.value.isEmpty()
+        _noItemsState.value = if (_audioConfigState.value is Result.Error && isEmpty) {
             BaseItem(
                 iconResId = R.drawable.ic_no_internet,
                 titleResId = R.string.no_items,
