@@ -49,7 +49,6 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
-import com.slaviboy.drumpadmachine.composables.TopBar
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
@@ -165,14 +164,11 @@ fun PresetsComposable(
             )
         }
     }
-    var topBarOffsetDp by remember {
-        mutableStateOf(0.dw)
-    }
     ScrollableContainer(
         minHeight = 0.36.dw,
         maxHeight = 0.53.dw,
         topBar = { height, minHeight, maxHeight ->
-            TopBar(
+            PresetsTopBar(
                 title = name,
                 subtitle = "Search for your favorite sound pack",
                 height = height,
@@ -194,7 +190,6 @@ fun PresetsComposable(
         },
         contentHorizontalAlignment = Alignment.CenterHorizontally
     ) { _, topBarOffset ->
-        topBarOffsetDp = topBarOffset
         item {
             Spacer(
                 modifier = Modifier

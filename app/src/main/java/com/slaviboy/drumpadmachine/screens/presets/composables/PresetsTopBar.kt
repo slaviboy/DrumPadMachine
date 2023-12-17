@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.composables
+package com.slaviboy.drumpadmachine.screens.presets.composables
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -31,13 +31,14 @@ import com.slaviboy.composeunits.DpToPx
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
 @Composable
-fun TopBar(
+fun PresetsTopBar(
     height: Dp,
     minHeight: Dp? = null,
     maxHeight: Dp? = null,

@@ -21,9 +21,11 @@ import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 @Composable
-fun TopBox() {
+fun TopBox(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(0.25.dh)
             .background(

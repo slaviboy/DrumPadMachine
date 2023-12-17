@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.data.MenuItem
@@ -34,7 +35,7 @@ fun NavigationMenu(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(0.18.dw)
+            .height(0.075.dh)
             .background(
                 Color(0xFF19182C)
             )
@@ -65,10 +66,10 @@ fun NavigationMenu(
                     colorFilter = ColorFilter.tint(color)
                 )
                 Text(
-                    text = stringResource(id = it.titleResId),
+                    text = stringResource(id = it.titleResId).uppercase(),
                     color = color,
                     fontFamily = RobotoFont,
-                    fontSize = 0.02.sw,
+                    fontSize = 0.024.sw,
                     fontWeight = FontWeight.Normal
                 )
             }
