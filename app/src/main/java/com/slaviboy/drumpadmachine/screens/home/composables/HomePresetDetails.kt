@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -60,6 +62,7 @@ fun HomePresetDetails(
     animatedHeight: Dp,
     animatedX: Float,
     animatedY: Float,
+    minHeight: Dp = 0.36.dw,
     clickedPreset: Preset?,
     onGloballyPositioned: (x: Float, y: Float) -> Unit,
     onGetPresetForFree: (presetId: Int) -> Unit,
@@ -196,6 +199,11 @@ fun HomePresetDetails(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .drawWithContent {
+                clipRect(top = minHeight.toPx()) {
+                    this@drawWithContent.drawContent()
+                }
+            }
     ) {
         Box(
             modifier = Modifier

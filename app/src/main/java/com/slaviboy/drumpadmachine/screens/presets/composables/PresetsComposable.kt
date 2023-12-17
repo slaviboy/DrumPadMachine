@@ -165,14 +165,16 @@ fun PresetsComposable(
             )
         }
     }
-
+    var topBarOffsetDp by remember {
+        mutableStateOf(0.dw)
+    }
     ScrollableContainer(
         minHeight = 0.36.dw,
         maxHeight = 0.53.dw,
         topBar = { height, minHeight, maxHeight ->
             TopBar(
-                titleResId = R.string.search,
-                subtitleResId = R.string.lessons,
+                title = name,
+                subtitle = "Search for your favorite sound pack",
                 height = height,
                 minHeight = minHeight,
                 maxHeight = maxHeight,
@@ -192,6 +194,7 @@ fun PresetsComposable(
         },
         contentHorizontalAlignment = Alignment.CenterHorizontally
     ) { _, topBarOffset ->
+        topBarOffsetDp = topBarOffset
         item {
             Spacer(
                 modifier = Modifier
@@ -249,9 +252,6 @@ fun PresetsComposable(
         }
     }
 
-    // name
-    // "Search for your favorite sound pack",
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -265,6 +265,7 @@ fun PresetsComposable(
             animatedHeight = animatedHeight,
             animatedX = animatedX,
             animatedY = animatedY,
+            minHeight = 0.36.dw,
             clickedPreset = clickedPreset,
             onGloballyPositioned = { x, y ->
                 toX = x

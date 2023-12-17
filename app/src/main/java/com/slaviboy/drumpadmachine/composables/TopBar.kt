@@ -1,7 +1,6 @@
 package com.slaviboy.drumpadmachine.composables
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,10 +15,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,13 +23,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import com.slaviboy.composeunits.DpToPx
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
@@ -49,8 +41,8 @@ fun TopBar(
     height: Dp,
     minHeight: Dp? = null,
     maxHeight: Dp? = null,
-    @StringRes titleResId: Int,
-    @StringRes subtitleResId: Int,
+    title: String,
+    subtitle: String,
     @DrawableRes leftIconResId: Int? = null,
     @DrawableRes rightIconResId: Int? = null,
     text: String,
@@ -131,25 +123,35 @@ fun TopBar(
                 )
             }
         }
-        var titleSize by remember {
-            mutableStateOf(IntSize.Zero)
-        }
         Text(
             modifier = Modifier
-                .align(Alignment.TopStart)
+                .align(Alignment.TopCenter)
                 .offset(
-                    x = ((1.dw - 0.08.dw - titleSize.width.pxToDp()) / 2f) * (1f - fact),
-                    y = 0.08.dh * fact.factMultiplyBy(0.62f)
+                    y = 0.029.dh
                 )
-                .onGloballyPositioned { coordinates ->
-                    titleSize = coordinates.size
-                },
-            text = stringResource(id = titleResId),
+                .alpha(1f - fact.factMultiplyBy(2f)),
+            text = title,
             fontSize = 0.075.sw * fontFact,
             fontWeight = FontWeight.Bold,
             fontFamily = RobotoFont,
             color = Color.White
         )
+        val titleAlpha = fact.factMultiplyBy(2.5f)
+        if (titleAlpha > 0) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(
+                        y = 0.08.dh * fact.factMultiplyBy(0.62f)
+                    )
+                    .alpha(titleAlpha),
+                text = title,
+                fontSize = 0.075.sw,
+                fontWeight = FontWeight.Bold,
+                fontFamily = RobotoFont,
+                color = Color.White
+            )
+        }
         val descriptionAlpha = fact.factMultiplyBy(2f)
         if (descriptionAlpha > 0) {
             Text(
@@ -159,8 +161,8 @@ fun TopBar(
                         y = 0.128.dh * fact.factMultiplyBy(0.72f)
                     )
                     .alpha(descriptionAlpha),
-                text = stringResource(id = subtitleResId),
-                fontSize = 0.035.sw,
+                text = subtitle,
+                fontSize = 0.038.sw,
                 fontWeight = FontWeight.Normal,
                 fontFamily = RobotoFont,
                 color = Color.LightGray
