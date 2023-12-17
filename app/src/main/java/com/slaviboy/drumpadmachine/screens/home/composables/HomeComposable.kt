@@ -125,7 +125,7 @@ fun HomeComposable(
             animatedHeight = value.mapValue(fromHeight, toHeight)
         } while (playTime <= animation.durationNanos)
     }
-    val categoryMaps = homeViewModel.filteredCategoriesMapState.value
+    val filteredCategories = homeViewModel.filteredCategoriesMapState.value
     homeViewModel.errorEventFlow.ObserveAsEvents {
         if (it is ErrorEvent.ErrorWithMessage) {
             onError(it.message)
@@ -138,28 +138,26 @@ fun HomeComposable(
             )
         }
     }
+    var topBarHeight by remember {
+        mutableStateOf(0.dw)
+    }
     ScrollableContainer(
         minHeight = 0.165.dh,
         maxHeight = 0.35.dh,
         topBar = { height, minHeight, maxHeight ->
+            topBarHeight = height - 0.055.dh
             HomeTopBar(
                 title = stringResource(id = R.string.sound_packs).uppercase(),
-                subtitle = "Search for your favorite sound pack",
                 height = height,
                 minHeight = minHeight,
                 maxHeight = maxHeight,
-                leftIconResId = R.drawable.ic_arrow_left,
-                text = homeViewModel.searchTextState.value,
-                onTextChange = {
+                searchText = homeViewModel.searchTextState.value,
+                onSearchTextChange = {
                     homeViewModel.changeText(it)
                 },
-                onClearText = {
+                onClearSearchText = {
                     homeViewModel.changeText("")
-                },
-                onLeftButtonClicked = {
-                    navigator.navigateUp()
-                },
-                onRightButtonClicked = { }
+                }
             )
         },
         contentHorizontalAlignment = Alignment.CenterHorizontally
@@ -170,12 +168,12 @@ fun HomeComposable(
                     .height(topBarOffset)
             )
         }
-        items(categoryMaps.size) { i ->
-            val categoryName = categoryMaps.keys.elementAt(i)
+        items(filteredCategories.size) { i ->
+            val categoryName = filteredCategories.keys.elementAt(i)
             HomePresetRow(
                 lazyItemScope = this,
                 categoryName = categoryName,
-                presets = categoryMaps[categoryName],
+                presets = filteredCategories[categoryName],
                 onPresetClick = { x, y, preset ->
                     keyboardController?.hide()
                     fromX = x
@@ -189,7 +187,7 @@ fun HomeComposable(
                     navigator.navigate(
                         direction = PresetsComposableDestination(
                             name = categoryName,
-                            presets = categoryMaps[it]?.toTypedArray() ?: arrayOf()
+                            presets = filteredCategories[it]?.toTypedArray() ?: arrayOf()
                         )
                     )
                 }
@@ -243,19 +241,22 @@ fun HomeComposable(
                 boxScope = this,
                 modifier = Modifier
                     .padding(
-                        top = 0.25.dh,
-                        bottom = 0.18.dw
+                        top = topBarHeight,
+                        bottom = 0.075.dh
                     )
             )
         }
-        if (homeViewModel.audioConfigState.value is Result.Error && categoryMaps.isEmpty()) {
+        homeViewModel.noItemsState.value?.let {
             NoItems(
                 boxScope = this,
                 modifier = Modifier
                     .padding(
-                        top = 0.25.dh,
-                        bottom = 0.18.dw
-                    )
+                        top = topBarHeight,
+                        bottom = 0.075.dh
+                    ),
+                iconResId = it.iconResId,
+                titleResId = R.string.no_items,
+                subtitleResId = R.string.please_check_your_network
             )
         }
     }

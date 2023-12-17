@@ -1,6 +1,5 @@
 package com.slaviboy.drumpadmachine.screens.home.composables
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,14 +32,9 @@ fun HomeTopBar(
     minHeight: Dp? = null,
     maxHeight: Dp? = null,
     title: String,
-    subtitle: String,
-    @DrawableRes leftIconResId: Int? = null,
-    @DrawableRes rightIconResId: Int? = null,
-    text: String,
-    onTextChange: (text: String) -> Unit = {},
-    onClearText: () -> Unit = {},
-    onLeftButtonClicked: () -> Unit = {},
-    onRightButtonClicked: () -> Unit = {}
+    searchText: String,
+    onSearchTextChange: (text: String) -> Unit = {},
+    onClearSearchText: () -> Unit = {}
 ) {
     val fact = if (minHeight != null && maxHeight != null) {
         (height - minHeight) / (maxHeight - minHeight)
@@ -82,9 +76,9 @@ fun HomeTopBar(
             color = Color.White
         )
         SearchTextField(
-            text = text,
-            onTextChange = onTextChange,
-            onClearText = onClearText,
+            text = searchText,
+            onTextChange = onSearchTextChange,
+            onClearText = onClearSearchText,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(0.055.dh)

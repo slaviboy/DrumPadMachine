@@ -1,5 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.home.composables
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.presets.composables.PresetCard
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomePresetRow(
     lazyItemScope: LazyItemScope,
@@ -80,6 +82,7 @@ fun HomePresetRow(
                 onPresetClick = onPresetClick,
                 modifier = Modifier
                     .offset(x = 0.04.dw)
+                    .animateItemPlacement()
             )
             Spacer(
                 modifier = Modifier

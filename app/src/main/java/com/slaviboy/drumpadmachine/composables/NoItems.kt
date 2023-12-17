@@ -1,5 +1,7 @@
 package com.slaviboy.drumpadmachine.composables
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -20,12 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
-import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 @Composable
 fun NoItems(
     boxScope: BoxScope,
+    @DrawableRes iconResId: Int,
+    @StringRes titleResId: Int,
+    @StringRes subtitleResId: Int,
     modifier: Modifier
 ) = with(boxScope) {
     Column(
@@ -39,7 +43,7 @@ fun NoItems(
                 .width(0.15.dw)
                 .wrapContentHeight(),
             painter = painterResource(
-                id = R.drawable.ic_no_internet
+                id = iconResId
             ),
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
@@ -50,14 +54,14 @@ fun NoItems(
                 .height(0.02.dw)
         )
         Text(
-            text = stringResource(id = R.string.no_items),
+            text = stringResource(id = titleResId),
             color = Color.White,
             fontFamily = RobotoFont,
             fontSize = 0.05.sw,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = stringResource(id = R.string.please_check_your_network),
+            text = stringResource(id = subtitleResId),
             color = Color.White,
             fontFamily = RobotoFont,
             fontSize = 0.035.sw,

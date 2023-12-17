@@ -1,5 +1,7 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +42,9 @@ class HomeViewModel @Inject constructor(
     private val errorEventChannel = Channel<ErrorEvent>()
     val errorEventFlow = errorEventChannel.receiveAsFlow()
 
+    private val _noItemsState: MutableState<BaseItem?> = mutableStateOf(null)
+    val noItemsState: State<BaseItem?> = _noItemsState
+
     private val _menuItemsState: MutableState<List<MenuItem>> = mutableStateOf(
         listOf(
             MenuItem(
@@ -65,7 +70,7 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        init()
+        getPresets()
     }
 
     fun getSoundForFree(presetId: Int?) {
@@ -113,9 +118,10 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
-    fun search() = viewModelScope.launch {
+    private fun search() = viewModelScope.launch {
         if (_searchTextState.value.isEmpty()) {
             _filteredCategoriesMapState.value = _categoriesMapState.value
+            setNoItemEvent()
             return@launch
         }
         val hashMap = HashMap<String, MutableList<Preset>>()
@@ -130,11 +136,32 @@ class HomeViewModel @Inject constructor(
             }
         }
         _filteredCategoriesMapState.value = hashMap
+        setNoItemEvent()
     }
 
-    private fun init() = viewModelScope.launch {
+    private fun setNoItemEvent() {
+        val isEmpty = filteredCategoriesMapState.value.isEmpty()
+        _noItemsState.value = if (audioConfigState.value is Result.Error && isEmpty) {
+            BaseItem(
+                iconResId = R.drawable.ic_no_internet,
+                titleResId = R.string.no_items,
+                subtitleResId = R.string.please_check_your_network
+            )
+        } else if (audioConfigState.value is Result.Success && isEmpty) {
+            BaseItem(
+                iconResId = R.drawable.ic_audio,
+                titleResId = R.string.no_items,
+                subtitleResId = R.string.there_are_no_items_found
+            )
+        } else {
+            null
+        }
+    }
+
+    private fun getPresets() = viewModelScope.launch {
         getPresetsConfigUseCase.execute(PRESETS_VERSION).collect {
             _audioConfigState.value = it
+            setNoItemEvent()
             if (it is Result.Success) {
                 setConfig(it.data)
             }
@@ -179,3 +206,9 @@ class HomeViewModel @Inject constructor(
         const val PRESETS_VERSION = 12
     }
 }
+
+data class BaseItem(
+    @DrawableRes val iconResId: Int,
+    @StringRes val titleResId: Int,
+    @StringRes val subtitleResId: Int
+)
