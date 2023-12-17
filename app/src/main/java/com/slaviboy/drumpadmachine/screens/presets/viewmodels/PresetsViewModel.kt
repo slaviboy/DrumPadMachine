@@ -81,6 +81,7 @@ class PresetsViewModel @Inject constructor(
     private fun search() = viewModelScope.launch {
         if (_searchTextState.value.isEmpty()) {
             _filteredPresetsState.value = _presetsState.value
+            setNoItemEvent()
             return@launch
         }
         val list = mutableListOf<Preset>()

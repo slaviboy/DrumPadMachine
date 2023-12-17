@@ -271,8 +271,8 @@ fun PresetsComposable(
                         bottom = 0.075.dh
                     ),
                 iconResId = it.iconResId,
-                titleResId = R.string.no_items,
-                subtitleResId = R.string.please_check_your_network
+                titleResId = it.titleResId,
+                subtitleResId = it.subtitleResId
             )
         }
     }
