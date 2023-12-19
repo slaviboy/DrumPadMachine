@@ -40,6 +40,13 @@ class PresetsViewModel @Inject constructor(
     private val _noItemsState: MutableState<BaseItem?> = mutableStateOf(null)
     val noItemsState: State<BaseItem?> = _noItemsState
 
+    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Int>> = _presetIdState
+
+    init {
+        _presetIdState.value = Result.Initial
+    }
+
     fun changeText(text: String) {
         _searchTextState.value = text
         search()
@@ -54,6 +61,7 @@ class PresetsViewModel @Inject constructor(
         presetId ?: return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
+                _presetIdState.value = it
                 if (it is Result.Success) {
                     val preset = getPresetById(presetId)
                     if (preset != null) {
@@ -66,7 +74,7 @@ class PresetsViewModel @Inject constructor(
                         )
                     }
                 }
-                if (it is Result.Error) {
+                if (it is Result.Fail) {
                     errorEventChannel.send(
                         ErrorEvent.ErrorWithMessage(it.errorMessage)
                     )

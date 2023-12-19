@@ -30,6 +30,7 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.composables.NoItems
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.data.entities.Preset
@@ -246,6 +247,7 @@ fun PresetsComposable(
             animatedY = animatedY,
             minHeight = 0.36.dw,
             clickedPreset = clickedPreset,
+            isLoading = (presetsViewModel.presetIdState.value is Result.Loading),
             onGloballyPositioned = { x, y ->
                 toX = x
                 toY = y

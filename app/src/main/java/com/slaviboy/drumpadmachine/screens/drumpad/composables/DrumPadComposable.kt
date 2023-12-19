@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +61,7 @@ fun DrumPadComposable(
     drumPadViewModel: DrumPadViewModel,
     preset: Preset
 ) {
+    val uriHandler = LocalUriHandler.current
     LaunchedEffect(preset) {
         drumPadViewModel.loadSounds(preset)
     }
@@ -237,14 +239,13 @@ fun DrumPadComposable(
                     )
                 }
             }
-
             Row(
                 modifier = Modifier
                     .wrapContentHeight()
                     .weight(1f)
                     .align(Alignment.CenterHorizontally)
                     .bounceClick {
-
+                        uriHandler.openUri("https://github.com/slaviboy")
                     }
             ) {
                 Image(

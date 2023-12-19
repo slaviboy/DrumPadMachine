@@ -48,7 +48,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
         try {
             val response = repository.getSoundConfigZip(version)
             if (!response.isSuccessful) {
-                emit(Result.Error("Failed to download ZIP file"))
+                emit(Result.Fail("Failed to download ZIP file"))
                 return@flow
             }
             val path = File(context.cacheDir, "config/presets/v$version/")
@@ -110,11 +110,11 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                     emit(Result.Success(config))
                 }
             } ?: run {
-                emit(Result.Error("Empty response body"))
+                emit(Result.Fail("Empty response body"))
             }
 
         } catch (e: Exception) {
-            emit(Result.Error("Network error!"))
+            emit(Result.Fail("Network error!"))
         }
     }.flowOn(dispatchers.io)
 }

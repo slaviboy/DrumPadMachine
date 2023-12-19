@@ -36,6 +36,9 @@ class HomeViewModel @Inject constructor(
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
+    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Int>> = _presetIdState
+
     private val navigationEventChannel = Channel<NavigationEvent>()
     val navigationEventFlow = navigationEventChannel.receiveAsFlow()
 
@@ -75,8 +78,10 @@ class HomeViewModel @Inject constructor(
 
     fun getSoundForFree(presetId: Int?) {
         presetId ?: return
+        if (_presetIdState.value.isLoadingOrSuccess()) return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
+                _presetIdState.value = it
                 if (it is Result.Success) {
                     val preset = getPresetById(presetId)
                     if (preset != null) {
@@ -89,7 +94,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-                if (it is Result.Error) {
+                if (it is Result.Fail) {
                     errorEventChannel.send(
                         ErrorEvent.ErrorWithMessage(it.errorMessage)
                     )
@@ -141,7 +146,7 @@ class HomeViewModel @Inject constructor(
 
     private fun setNoItemEvent() {
         val isEmpty = _filteredCategoriesMapState.value.isEmpty()
-        _noItemsState.value = if (_audioConfigState.value is Result.Error && isEmpty) {
+        _noItemsState.value = if (_audioConfigState.value is Result.Fail && isEmpty) {
             BaseItem(
                 iconResId = R.drawable.ic_no_internet,
                 titleResId = R.string.no_items,
@@ -165,7 +170,7 @@ class HomeViewModel @Inject constructor(
             if (it is Result.Success) {
                 setConfig(it.data)
             }
-            if (it is Result.Error) {
+            if (it is Result.Fail) {
                 errorEventChannel.send(
                     ErrorEvent.ErrorWithMessage(it.errorMessage)
                 )
@@ -200,6 +205,10 @@ class HomeViewModel @Inject constructor(
         return _categoriesMapState.value.firstNotNullOfOrNull {
             it.value.firstOrNull { it.id == presetId }
         }
+    }
+
+    fun resetPresetIdState() {
+        _presetIdState.value = Result.Initial
     }
 
     companion object {

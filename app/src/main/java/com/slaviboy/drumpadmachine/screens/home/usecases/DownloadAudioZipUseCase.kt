@@ -25,6 +25,7 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
 ) : DownloadAudioZipUseCase {
 
     override suspend fun execute(presetId: Int): Flow<Result<Int>> = flow {
+        emit(Result.Loading)
         try {
             val path = File(context.cacheDir, "audio/$presetId/")
             val listFile = path.listFiles() ?: arrayOf()
@@ -34,7 +35,7 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
             }
             val response = repository.getAudioZipById(presetId)
             if (!response.isSuccessful) {
-                emit(Result.Error("Failed to download ZIP file"))
+                emit(Result.Fail("Failed to download ZIP file"))
                 return@flow
             }
             val tempFile = File(path, "temp_audio.zip")
@@ -48,10 +49,10 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
                     emit(Result.Success(presetId))
                 }
             } ?: run {
-                emit(Result.Error("Empty response body"))
+                emit(Result.Fail("Empty response body"))
             }
         } catch (e: Exception) {
-            emit(Result.Error("Network error!"))
+            emit(Result.Fail("Network error!"))
         }
     }.flowOn(dispatchers.io)
 }

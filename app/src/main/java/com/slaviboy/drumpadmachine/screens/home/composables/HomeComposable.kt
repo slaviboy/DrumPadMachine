@@ -136,6 +136,7 @@ fun HomeComposable(
             navigator.navigate(
                 direction = DrumPadComposableDestination(it.preset)
             )
+            homeViewModel.resetPresetIdState()
         }
     }
     var topBarHeight by remember {
@@ -214,6 +215,7 @@ fun HomeComposable(
             animatedX = animatedX,
             animatedY = animatedY,
             clickedPreset = clickedPreset,
+            isLoading = (homeViewModel.presetIdState.value is Result.Loading),
             onGloballyPositioned = { x, y ->
                 toX = x
                 toY = y
