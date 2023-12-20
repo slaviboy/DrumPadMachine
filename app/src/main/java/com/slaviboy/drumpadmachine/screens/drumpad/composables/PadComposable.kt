@@ -60,9 +60,9 @@ fun PadComposable(
         modifier = modifier
             .wrapContentSize()
             .pointerInteropFilter {
-                motionEvent = it.action
-                onTouchEvent(it.action)
-                when (it.action and MotionEvent.ACTION_MASK) {
+                motionEvent = (it.action and MotionEvent.ACTION_MASK)
+                onTouchEvent(motionEvent)
+                when (motionEvent) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                         showGlow = true
                     }
