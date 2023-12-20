@@ -29,7 +29,7 @@ import com.slaviboy.drumpadmachine.global.allTrue
 fun PadComposable(
     padColor: PadColor,
     modifier: Modifier = Modifier,
-    onTouchDownEvent: (Int) -> Unit
+    onTouchEvent: (Int) -> Unit
 ) {
     var showGlow by remember {
         mutableStateOf(false)
@@ -61,10 +61,10 @@ fun PadComposable(
             .wrapContentSize()
             .pointerInteropFilter {
                 motionEvent = it.action
+                onTouchEvent(it.action)
                 when (it.action and MotionEvent.ACTION_MASK) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                         showGlow = true
-                        onTouchDownEvent(it.action)
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {

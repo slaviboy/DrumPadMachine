@@ -217,8 +217,9 @@ fun DrumPadComposable(
                             ),
                             modifier = Modifier
                                 .weight(1f),
-                            onTouchDownEvent = {
-                                drumPadViewModel.playSound(
+                            onTouchEvent = {
+                                drumPadViewModel.onTouchEvent(
+                                    motionEvent = it,
                                     row = i,
                                     column = j
                                 )
