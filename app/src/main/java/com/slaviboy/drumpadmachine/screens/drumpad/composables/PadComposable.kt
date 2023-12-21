@@ -1,5 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
+import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -17,8 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.enums.PadColor
@@ -29,12 +33,13 @@ import com.slaviboy.drumpadmachine.global.allTrue
 fun PadComposable(
     padColor: PadColor,
     modifier: Modifier = Modifier,
-    onTouchEvent: (Int) -> Unit
+    onPositionInParentChange: (Rect) -> Unit,
+    onTouchEvent: (MotionEvent) -> Unit
 ) {
     var showGlow by remember {
         mutableStateOf(false)
     }
-    var motionEvent by remember {
+    var action by remember {
         mutableStateOf(MotionEvent.ACTION_UP)
     }
     val alpha: Float by animateFloatAsState(
@@ -46,10 +51,10 @@ fun PadComposable(
         ),
         finishedListener = {
             val fingerIsNotDown = allTrue(
-                motionEvent != MotionEvent.ACTION_DOWN,
-                motionEvent != MotionEvent.ACTION_POINTER_DOWN
+                action != MotionEvent.ACTION_DOWN,
+                action != MotionEvent.ACTION_POINTER_DOWN
             )
-            val fingerIsNotMoving = (motionEvent != MotionEvent.ACTION_MOVE)
+            val fingerIsNotMoving = (action != MotionEvent.ACTION_MOVE)
             val isGlowShown = (it == 1f)
             if (isGlowShown && fingerIsNotDown && fingerIsNotMoving) {
                 showGlow = false
@@ -59,11 +64,15 @@ fun PadComposable(
     Box(
         modifier = modifier
             .wrapContentSize()
+            .onGloballyPositioned {
+                onPositionInParentChange(it.boundsInRoot())
+            }
             .pointerInteropFilter {
-                motionEvent = (it.action and MotionEvent.ACTION_MASK)
-                onTouchEvent(motionEvent)
-                when (motionEvent) {
+                onTouchEvent(it)
+                action = it.actionMasked
+                when (action) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+                        Log.i("jojo", "$- ${it.pointerCount}")
                         showGlow = true
                     }
 
@@ -75,8 +84,7 @@ fun PadComposable(
                     }
 
                     MotionEvent.ACTION_MOVE -> {}
-
-                    else -> false
+                    else -> {}
                 }
                 true
             }

@@ -217,9 +217,16 @@ fun DrumPadComposable(
                             ),
                             modifier = Modifier
                                 .weight(1f),
+                            onPositionInParentChange = {
+                                drumPadViewModel.onPositionInParentChange(
+                                    rect = it,
+                                    row = i,
+                                    column = j
+                                )
+                            },
                             onTouchEvent = {
                                 drumPadViewModel.onTouchEvent(
-                                    motionEvent = it,
+                                    event = it,
                                     row = i,
                                     column = j
                                 )
