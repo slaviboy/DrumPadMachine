@@ -30,6 +30,7 @@ fun PadComposable(
     padColor: PadColor,
     showGlow: Boolean,
     modifier: Modifier = Modifier,
+    glowDuration: Int = 150,
     onPositionInParentChange: (Rect) -> Unit
 ) {
     var showGlowInner by remember {
@@ -39,13 +40,13 @@ fun PadComposable(
         targetValue = if (showGlowInner) 1f else 0f,
         label = "",
         animationSpec = tween(
-            durationMillis = 250,
+            durationMillis = glowDuration,
             easing = LinearEasing
         )
     )
     LaunchedEffect(showGlow) {
         val delayMs = if (!showGlow && alpha < 1f) {
-            250L
+            glowDuration.toLong()
         } else {
             0L
         }
