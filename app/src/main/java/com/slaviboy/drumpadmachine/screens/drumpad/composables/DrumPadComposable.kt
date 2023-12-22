@@ -24,11 +24,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +56,7 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph(start = false)
 @Destination
 @Composable
@@ -202,49 +206,53 @@ fun DrumPadComposable(
                 modifier = Modifier
                     .height(0.08.dw)
             )
-            for (i in 0 until drumPadViewModel.numberOfRows) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 0.02.dw),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    for (j in 0 until drumPadViewModel.numberOfColumns) {
-                        PadComposable(
-                            padColor = drumPadViewModel.getPadColor(
-                                row = i,
-                                column = j
-                            ),
-                            modifier = Modifier
-                                .weight(1f),
-                            onPositionInParentChange = {
-                                drumPadViewModel.onPositionInParentChange(
-                                    rect = it,
+            Column(
+                modifier = Modifier
+                    .pointerInteropFilter {
+                        drumPadViewModel.onTouchEvent(it)
+                        true
+                    }
+                    .onGloballyPositioned {
+                        drumPadViewModel.setContainerBound(it.boundsInRoot())
+                    }
+            ) {
+                for (i in 0 until drumPadViewModel.numberOfRows) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.02.dw),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        for (j in 0 until drumPadViewModel.numberOfColumns) {
+                            PadComposable(
+                                padColor = drumPadViewModel.getPadColor(
                                     row = i,
                                     column = j
-                                )
-                            },
-                            onTouchEvent = {
-                                drumPadViewModel.onTouchEvent(
-                                    event = it,
-                                    row = i,
-                                    column = j
+                                ),
+                                modifier = Modifier
+                                    .weight(1f),
+                                onPositionInParentChange = {
+                                    drumPadViewModel.onPositionInParentChange(
+                                        rect = it,
+                                        row = i,
+                                        column = j
+                                    )
+                                }
+                            )
+                            if (j < drumPadViewModel.numberOfColumns - 1) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .width(0.01.dw)
                                 )
                             }
-                        )
-                        if (j < drumPadViewModel.numberOfColumns - 1) {
-                            Spacer(
-                                modifier = Modifier
-                                    .width(0.01.dw)
-                            )
                         }
                     }
-                }
-                if (i < drumPadViewModel.numberOfRows - 1) {
-                    Spacer(
-                        modifier = Modifier
-                            .height(0.01.dw)
-                    )
+                    if (i < drumPadViewModel.numberOfRows - 1) {
+                        Spacer(
+                            modifier = Modifier
+                                .height(0.01.dw)
+                        )
+                    }
                 }
             }
             Row(

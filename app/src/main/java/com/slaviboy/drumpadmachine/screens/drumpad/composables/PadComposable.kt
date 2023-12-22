@@ -1,6 +1,5 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
-import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -15,11 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -28,13 +25,11 @@ import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.global.allTrue
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PadComposable(
     padColor: PadColor,
     modifier: Modifier = Modifier,
-    onPositionInParentChange: (Rect) -> Unit,
-    onTouchEvent: (MotionEvent) -> Unit
+    onPositionInParentChange: (Rect) -> Unit
 ) {
     var showGlow by remember {
         mutableStateOf(false)
@@ -66,27 +61,6 @@ fun PadComposable(
             .wrapContentSize()
             .onGloballyPositioned {
                 onPositionInParentChange(it.boundsInRoot())
-            }
-            .pointerInteropFilter {
-                onTouchEvent(it)
-                action = it.actionMasked
-                when (action) {
-                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                        Log.i("jojo", "$- ${it.pointerCount}")
-                        showGlow = true
-                    }
-
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                        val isGlowShown = (alpha == 1f)
-                        if (isGlowShown) {
-                            showGlow = false
-                        }
-                    }
-
-                    MotionEvent.ACTION_MOVE -> {}
-                    else -> {}
-                }
-                true
             }
     ) {
         Image(

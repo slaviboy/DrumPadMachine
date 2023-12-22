@@ -1,7 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.viewmodels
 
 import android.content.Context
-import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -70,7 +69,7 @@ class DrumPadViewModel @Inject constructor(
             startAudioStream()
         }
         val filesSize = preset.files?.size ?: 0
-        rects = MutableList(filesSize) { Rect.Zero }
+        bounds = MutableList(filesSize) { Rect.Zero }
     }
 
     fun movePage() {
@@ -94,39 +93,70 @@ class DrumPadViewModel @Inject constructor(
         }
     }
 
-    private var rects: MutableList<Rect> = MutableList(24) { Rect.Zero }
+    private var containerBound: Rect = Rect.Zero
+    private var bounds: MutableList<Rect> = MutableList(24) { Rect.Zero }
     private var isMoved: MutableList<Int> = MutableList(10) { -1 }
 
-    fun onTouchEvent(event: MotionEvent, row: Int, column: Int) {
-        val index = getIndex(row, column)
-        val currentFile = getFileAtIndex(index) ?: return
+    fun onTouchEvent(event: MotionEvent) {//= viewModelScope.launch {
         val action = event.actionMasked
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
-            playSoundAtIndex(index)
-            isMoved[event.pointerCount - 1] = index
-            Log.i("jojo", "$index")
-        }
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
-            if (currentFile.stopOnRelease == "1") {
-                drumPadPlayer?.stopTrigger(index)
+            val (x, y) = getPositionForFinger(event, event.actionIndex)
+            val index = findMatchItemIndex(x, y)
+            if (index != -1) {
+                playSoundAtIndex(index)
+                isMoved[event.actionIndex] = index
             }
-            isMoved[event.pointerCount - 1] = -1
-        }
-        if (action == MotionEvent.ACTION_MOVE) {
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_CANCEL) {
+            val (x, y) = getPositionForFinger(event, event.actionIndex)
+            val index = findMatchItemIndex(x, y)
+            if (index != -1) {
+                val currentFile = getFileAtIndex(index) ?: return//@launch
+                if (currentFile.stopOnRelease == "1") {
+                    drumPadPlayer?.stopTrigger(index)
+                }
+            }
+            isMoved[event.actionIndex] = -1
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            /*val isMovedFiltered = mutableListOf<Int>()
+            val isMovedIndex = mutableListOf<Int>()
+            isMoved.forEachIndexed { i, value ->
+                if (value != -1) {
+                    isMovedFiltered.add(value)
+                    isMovedIndex.add(i)
+                }
+            }
+            if (isMovedFiltered.size != event.pointerCount) {
+                return//@launch
+            }*/
             for (j in 0 until event.pointerCount) {
-                val mActivePointerId = event.getPointerId(j)
-                val (x, y) = event.findPointerIndex(mActivePointerId).let { pointerIndex ->
-                    Pair((event.getX(pointerIndex) + rects[index].left), (event.getY(pointerIndex) + rects[index].top))
-                }
-                rects.forEachIndexed { i, rect ->
-                    if (rect.contains(Offset(x, y)) && isIndexInPage(i) && isMoved[j] != i) {
-                        Log.i("jojo", "$i ---  ${isMoved[j]}")
-                        playSoundAtIndex(i)
-                        isMoved[j] = i
-                    }
+                val (x, y) = getPositionForFinger(event, j)
+                val index = findMatchItemIndex(x, y)
+                if (index != -1 && isMoved[j] != index) {
+                    playSoundAtIndex(index)
+                    isMoved[j] = index
+                } else if (index == -1) {
+                    isMoved[j] = -1
                 }
             }
+        } else {
+            val b = 3
         }
+    }
+
+    private fun getPositionForFinger(event: MotionEvent, fingerIndex: Int): Pair<Float, Float> {
+        val mActivePointerId = event.getPointerId(fingerIndex)
+        return event.findPointerIndex(mActivePointerId).let { pointerIndex ->
+            event.getX(pointerIndex) + containerBound.left to event.getY(pointerIndex) + containerBound.top
+        }
+    }
+
+    private fun findMatchItemIndex(x: Float, y: Float): Int {
+        bounds.forEachIndexed { i, rect ->
+            if (rect.contains(Offset(x, y)) && isIndexInPage(i)) {
+                return i
+            }
+        }
+        return -1
     }
 
     private fun getFileAtIndex(index: Int): File? {
@@ -161,7 +191,11 @@ class DrumPadViewModel @Inject constructor(
         column: Int
     ) {
         val index = getIndex(row, column)
-        rects[index] = rect
+        bounds[index] = rect
+    }
+
+    fun setContainerBound(bound: Rect) {
+        containerBound = bound
     }
 
     companion object {
