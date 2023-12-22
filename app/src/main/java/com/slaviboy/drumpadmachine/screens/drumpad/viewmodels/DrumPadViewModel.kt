@@ -95,51 +95,45 @@ class DrumPadViewModel @Inject constructor(
 
     private var containerBound: Rect = Rect.Zero
     private var bounds: MutableList<Rect> = MutableList(24) { Rect.Zero }
-    private var isMoved: MutableList<Int> = MutableList(10) { -1 }
+    private var isMoved: MutableList<Boolean> = MutableList(24) { false }
 
-    fun onTouchEvent(event: MotionEvent) {//= viewModelScope.launch {
+    fun onTouchEvent(event: MotionEvent) = viewModelScope.launch {
         val action = event.actionMasked
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             val (x, y) = getPositionForFinger(event, event.actionIndex)
             val index = findMatchItemIndex(x, y)
             if (index != -1) {
                 playSoundAtIndex(index)
-                isMoved[event.actionIndex] = index
+                isMoved[index] = true
             }
         } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_CANCEL) {
             val (x, y) = getPositionForFinger(event, event.actionIndex)
             val index = findMatchItemIndex(x, y)
             if (index != -1) {
-                val currentFile = getFileAtIndex(index) ?: return//@launch
+                val currentFile = getFileAtIndex(index) ?: return@launch
                 if (currentFile.stopOnRelease == "1") {
                     drumPadPlayer?.stopTrigger(index)
                 }
+                isMoved[index] = false
             }
-            isMoved[event.actionIndex] = -1
         } else if (action == MotionEvent.ACTION_MOVE) {
-            /*val isMovedFiltered = mutableListOf<Int>()
-            val isMovedIndex = mutableListOf<Int>()
-            isMoved.forEachIndexed { i, value ->
-                if (value != -1) {
-                    isMovedFiltered.add(value)
-                    isMovedIndex.add(i)
-                }
-            }
-            if (isMovedFiltered.size != event.pointerCount) {
-                return//@launch
-            }*/
+            val matchIndices = mutableListOf<Int>()
             for (j in 0 until event.pointerCount) {
                 val (x, y) = getPositionForFinger(event, j)
                 val index = findMatchItemIndex(x, y)
-                if (index != -1 && isMoved[j] != index) {
+                if (index != -1) {
+                    matchIndices.add(index)
+                }
+                if (index != -1 && !isMoved[index]) {
                     playSoundAtIndex(index)
-                    isMoved[j] = index
-                } else if (index == -1) {
-                    isMoved[j] = -1
+                    isMoved[index] = true
                 }
             }
-        } else {
-            val b = 3
+            isMoved.forEachIndexed { index, _ ->
+                if (!matchIndices.contains(index)) {
+                    isMoved[index] = false
+                }
+            }
         }
     }
 
