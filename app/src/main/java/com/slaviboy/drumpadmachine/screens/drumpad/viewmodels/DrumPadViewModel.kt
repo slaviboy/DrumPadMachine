@@ -95,9 +95,10 @@ class DrumPadViewModel @Inject constructor(
 
     private var containerBound: Rect = Rect.Zero
     private var bounds: MutableList<Rect> = MutableList(24) { Rect.Zero }
-    private var isMoved: MutableList<Boolean> = MutableList(24) { false }
+    var isMoved: MutableState<List<Boolean>> = mutableStateOf(MutableList(24) { false })
 
     fun onTouchEvent(event: MotionEvent) = viewModelScope.launch {
+        val isMoved = isMoved.value.toMutableList()
         val action = event.actionMasked
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             val (x, y) = getPositionForFinger(event, event.actionIndex)
@@ -135,6 +136,7 @@ class DrumPadViewModel @Inject constructor(
                 }
             }
         }
+        this@DrumPadViewModel.isMoved.value = isMoved
     }
 
     private fun getPositionForFinger(event: MotionEvent, fingerIndex: Int): Pair<Float, Float> {
@@ -167,7 +169,7 @@ class DrumPadViewModel @Inject constructor(
         drumPadPlayer?.trigger(index)
     }
 
-    private fun getIndex(row: Int, column: Int): Int {
+    fun getIndex(row: Int, column: Int): Int {
         return (_page.value * numberItemsPerPage()) + row * numberOfColumns + column
     }
 

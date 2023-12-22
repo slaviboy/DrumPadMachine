@@ -229,6 +229,7 @@ fun DrumPadComposable(
                                     row = i,
                                     column = j
                                 ),
+                                showGlow = drumPadViewModel.isMoved.value[drumPadViewModel.getIndex(i, j)],
                                 modifier = Modifier
                                     .weight(1f),
                                 onPositionInParentChange = {
