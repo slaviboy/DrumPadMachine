@@ -35,16 +35,14 @@ class DrumPadViewModel @Inject constructor(
     private val _preset: MutableState<Preset?> = mutableStateOf(null)
     val preset: State<Preset?> = _preset
 
+    private var containerBound: Rect = Rect.Zero
+    private var bounds: MutableList<Rect> = MutableList(24) { Rect.Zero }
+
+    private var _isMoved: MutableState<List<Boolean>> = mutableStateOf(MutableList(24) { false })
+    val isMoved: State<List<Boolean>> = _isMoved
+
     val numberOfRows = NUMBER_OF_ROWS
     val numberOfColumns = NUMBER_OF_COLUMNS
-
-    fun init() = viewModelScope.launch {
-        drumPadPlayer?.apply {
-            setupAudioStream()
-            loadWavAssets(context.assets)
-            startAudioStream()
-        }
-    }
 
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
@@ -93,12 +91,12 @@ class DrumPadViewModel @Inject constructor(
         }
     }
 
-    private var containerBound: Rect = Rect.Zero
-    private var bounds: MutableList<Rect> = MutableList(24) { Rect.Zero }
-    var isMoved: MutableState<List<Boolean>> = mutableStateOf(MutableList(24) { false })
+    fun getShowGlow(row: Int, column: Int): Boolean {
+        return _isMoved.value[getIndex(row, column)]
+    }
 
-    fun onTouchEvent(event: MotionEvent) = viewModelScope.launch {
-        val isMoved = isMoved.value.toMutableList()
+    fun onContainerTouch(event: MotionEvent) = viewModelScope.launch {
+        val isMoved = _isMoved.value.toMutableList()
         val action = event.actionMasked
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             val (x, y) = getPositionForFinger(event, event.actionIndex)
@@ -136,7 +134,7 @@ class DrumPadViewModel @Inject constructor(
                 }
             }
         }
-        this@DrumPadViewModel.isMoved.value = isMoved
+        this@DrumPadViewModel._isMoved.value = isMoved
     }
 
     private fun getPositionForFinger(event: MotionEvent, fingerIndex: Int): Pair<Float, Float> {
@@ -169,7 +167,7 @@ class DrumPadViewModel @Inject constructor(
         drumPadPlayer?.trigger(index)
     }
 
-    fun getIndex(row: Int, column: Int): Int {
+    private fun getIndex(row: Int, column: Int): Int {
         return (_page.value * numberItemsPerPage()) + row * numberOfColumns + column
     }
 

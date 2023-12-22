@@ -1,8 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
 import androidx.activity.compose.BackHandler
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +46,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
@@ -169,21 +168,21 @@ fun DrumPadComposable(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ImageButtonWithTest(
+                ImageButtonWithText(
                     iconResId = R.drawable.ic_metronome,
                     textResId = R.string.tempo,
                     onClick = {
 
                     }
                 )
-                ImageButtonWithTest(
+                ImageButtonWithText(
                     iconResId = R.drawable.ic_record,
                     textResId = R.string.record,
                     onClick = {
 
                     }
                 )
-                ImageButtonWithTest(
+                ImageButtonWithText(
                     iconResId = if (drumPadViewModel.page.value == 0) {
                         R.drawable.ic_side_a
                     } else {
@@ -194,7 +193,7 @@ fun DrumPadComposable(
                         drumPadViewModel.movePage()
                     }
                 )
-                ImageButtonWithTest(
+                ImageButtonWithText(
                     iconResId = R.drawable.ic_lessons,
                     textResId = R.string.lessons,
                     onClick = {
@@ -209,7 +208,7 @@ fun DrumPadComposable(
             Column(
                 modifier = Modifier
                     .pointerInteropFilter {
-                        drumPadViewModel.onTouchEvent(it)
+                        drumPadViewModel.onContainerTouch(it)
                         true
                     }
                     .onGloballyPositioned {
@@ -229,7 +228,10 @@ fun DrumPadComposable(
                                     row = i,
                                     column = j
                                 ),
-                                showGlow = drumPadViewModel.isMoved.value[drumPadViewModel.getIndex(i, j)],
+                                showGlow = drumPadViewModel.getShowGlow(
+                                    row = i,
+                                    column = j
+                                ),
                                 modifier = Modifier
                                     .weight(1f),
                                 onPositionInParentChange = {
@@ -300,35 +302,5 @@ fun DrumPadComposable(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ImageButtonWithTest(
-    modifier: Modifier = Modifier,
-    @DrawableRes iconResId: Int,
-    @StringRes textResId: Int,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .wrapContentWidth()
-            .bounceClick(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = iconResId),
-            contentDescription = null,
-            modifier = Modifier
-                .size(0.08.dw),
-            colorFilter = ColorFilter.tint(Color.Gray)
-        )
-        Text(
-            text = stringResource(id = textResId).uppercase(),
-            color = Color.Gray,
-            fontFamily = RobotoFont,
-            fontSize = 0.035.sw,
-            fontWeight = FontWeight.Normal
-        )
     }
 }
