@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -44,7 +45,7 @@ fun SearchTextField(
     text: String,
     modifier: Modifier,
     onTextChange: (text: String) -> Unit = {},
-    onSearchButtonClick: () -> Unit = {}
+    onClearText: () -> Unit = {}
 ) {
     val enabled = true
     val singleLine = true
@@ -63,7 +64,8 @@ fun SearchTextField(
             singleLine = singleLine,
             textStyle = TextStyle(
                 fontSize = 0.037.sw,
-                color = Color.White
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             ),
             cursorBrush = SolidColor(Color.White),
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -72,7 +74,6 @@ fun SearchTextField(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearchButtonClick()
                     keyboardController?.hide()
                 }
             ),
@@ -85,8 +86,10 @@ fun SearchTextField(
                 visualTransformation = VisualTransformation.None,
                 interactionSource = interactionSource,
                 contentPadding = PaddingValues(
-                    vertical = 0.032.dw,
-                    horizontal = 0.055.dw
+                    top = 0.032.dw,
+                    bottom = 0.032.dw,
+                    start = 0.13.dw,
+                    end = 0.055.dw
                 ),
                 shape = CircleShape,
                 colors = TextFieldDefaults.colors(
@@ -102,30 +105,42 @@ fun SearchTextField(
                 ),
             )
         }
-        if (text.isEmpty()) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .offset(x = 0.055.dw),
-                text = stringResource(id = hintResId),
-                fontSize = 0.037.sw,
-                color = Color.LightGray
-            )
-        }
         Image(
             painter = painterResource(id = R.drawable.ic_search),
             contentDescription = null,
             modifier = Modifier
-                .align(Alignment.CenterEnd)
+                .align(Alignment.CenterStart)
                 .size(0.1.dw)
-                .offset(x = -(0.03.dw))
-                .bounceClick {
-                    onSearchButtonClick()
-                    keyboardController?.hide()
-                }
+                .offset(x = (0.026.dw))
                 .padding(0.026.dw),
             colorFilter = ColorFilter.tint(Color.White),
             contentScale = ContentScale.FillHeight
         )
+        if (text.isEmpty()) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = 0.13.dw),
+                text = stringResource(id = hintResId),
+                fontSize = 0.037.sw,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.ic_close_transparent),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(0.1.dw)
+                    .offset(x = -(0.01.dw))
+                    .bounceClick {
+                        onClearText()
+                    }
+                    .padding(0.03.dw),
+                colorFilter = ColorFilter.tint(Color.White),
+                contentScale = ContentScale.FillHeight
+            )
+        }
     }
 }

@@ -12,5 +12,8 @@ data class Preset(
     val orderBy: String?,
     val timestamp: Int?,
     val deleted: Boolean?,
-    val tags: List<String>?
+    val hasInfo: Boolean,
+    val tempo: Int,
+    val tags: List<String>?,
+    val files: List<File>?
 ) : Parcelable

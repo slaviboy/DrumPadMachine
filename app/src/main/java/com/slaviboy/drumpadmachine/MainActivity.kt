@@ -3,7 +3,6 @@ package com.slaviboy.drumpadmachine
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.MemoryCategory
@@ -40,20 +40,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private val drumPadViewModel: DrumPadViewModel by viewModels()
-    private val homeViewModel: HomeViewModel by viewModels()
-    private val presetsViewModel: PresetsViewModel by viewModels()
-
-    override fun onStart() {
-        super.onStart()
-        drumPadViewModel.init()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        drumPadViewModel.terminate()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,22 +90,23 @@ class MainActivity : ComponentActivity() {
                         navGraph = NavGraphs.root,
                         dependenciesContainerBuilder = {
                             dependency(DrumPadComposableDestination) {
-                                drumPadViewModel
+                                hiltViewModel<DrumPadViewModel>()
                             }
                         }
                     ) {
                         composable(HomeComposableDestination) {
                             HomeComposable(
                                 navigator = destinationsNavigator,
-                                homeViewModel = homeViewModel,
+                                homeViewModel = hiltViewModel<HomeViewModel>(),
                                 onError = onError
                             )
                         }
                         composable(PresetsComposableDestination) {
                             PresetsComposable(
                                 navigator = destinationsNavigator,
-                                presetsViewModel = presetsViewModel,
+                                presetsViewModel = hiltViewModel<PresetsViewModel>(),
                                 onError = onError,
+                                name = navArgs.name,
                                 presets = navArgs.presets
                             )
                         }

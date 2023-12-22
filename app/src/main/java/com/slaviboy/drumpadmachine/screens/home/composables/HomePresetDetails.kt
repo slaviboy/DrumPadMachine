@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -42,6 +44,7 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.LoadingBox
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.click
@@ -60,7 +63,9 @@ fun HomePresetDetails(
     animatedHeight: Dp,
     animatedX: Float,
     animatedY: Float,
+    minHeight: Dp = 0.36.dw,
     clickedPreset: Preset?,
+    isLoading: Boolean,
     onGloballyPositioned: (x: Float, y: Float) -> Unit,
     onGetPresetForFree: (presetId: Int) -> Unit,
     onGetAllPresets: () -> Unit,
@@ -71,24 +76,20 @@ fun HomePresetDetails(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .alpha(animatedValue)
-            .background(Color(0x88000000))
-            .click { }
-    ) {}
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
             .graphicsLayer {
                 alpha = animatedValue
             }
-            .background(Color(0x88000000))
+            .background(Color(0xC3000000))
             .click { }
     ) {
         Box(
             modifier = Modifier
                 .width(0.76.dw)
                 .height(0.51.dh)
-                .background(Color.White, RoundedCornerShape(0.04.dw))
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(0.043.dw)
+                )
                 .align(Alignment.Center)
                 .onGloballyPositioned {
                     val position = it.positionInWindow()
@@ -101,98 +102,113 @@ fun HomePresetDetails(
                     .height(fromHeight)
                     .clip(RoundedCornerShape(topStart = 0.04.dw, topEnd = 0.04.dw))
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.18.dh)
-                    .align(Alignment.BottomCenter)
-                    .padding(
-                        horizontal = 0.03.dw,
-                        vertical = 0.03.dw
-                    ),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Row(
+            if (isLoading) {
+                LoadingBox(
+                    boxScope = this,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .bounceClick {
-                            onGetPresetForFree(clickedPreset.id)
-                        }
-                        .border(1.dp, Color(0xFFBFBFC0), RoundedCornerShape(0.02.dw))
-                        .padding(start = 0.045.dw),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.get_preset_for_free_title),
-                            color = Color(0xFF0A0A0F),
-                            fontFamily = RobotoFont,
-                            fontSize = 0.042.sw,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = stringResource(id = R.string.get_preset_for_free_subtitle),
-                            color = Color(0xFF78787B),
-                            fontFamily = RobotoFont,
-                            fontSize = 0.032.sw,
-                            fontWeight = FontWeight.Normal
-                        )
-                    }
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(0.12.dw)
-                            .padding(0.03.dw)
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(0.02.dw)
+                        .height(0.18.dh)
+                        .align(Alignment.BottomCenter)
+                        .padding(
+                            horizontal = 0.03.dw,
+                            vertical = 0.03.dw
+                        ),
+                    textColor = Color(0xFF050505)
                 )
-                Row(
+            } else {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .bounceClick {
-                            onGetAllPresets()
-                        }
-                        .background(Color(0xFFFFD112), RoundedCornerShape(0.02.dw))
-                        .padding(start = 0.045.dw),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(0.18.dh)
+                        .align(Alignment.BottomCenter)
+                        .padding(
+                            horizontal = 0.03.dw,
+                            vertical = 0.03.dw
+                        ),
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .wrapContentHeight()
+                            .fillMaxWidth()
                             .weight(1f)
+                            .bounceClick {
+                                onGetPresetForFree(clickedPreset.id)
+                            }
+                            .border(1.dp, Color(0xFFBFBFC0), RoundedCornerShape(0.02.dw))
+                            .padding(start = 0.045.dw),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.get_all_presets_title),
-                            color = Color(0xFF0A0A0F),
-                            fontFamily = RobotoFont,
-                            fontSize = 0.042.sw,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = stringResource(id = R.string.get_all_presets_subtitle),
-                            color = Color(0xFF78787B),
-                            fontFamily = RobotoFont,
-                            fontSize = 0.032.sw,
-                            fontWeight = FontWeight.Normal
+                        Column(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.get_preset_for_free_title),
+                                color = Color(0xFF0A0A0F),
+                                fontFamily = RobotoFont,
+                                fontSize = 0.042.sw,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = stringResource(id = R.string.get_preset_for_free_subtitle),
+                                color = Color(0xFF78787B),
+                                fontFamily = RobotoFont,
+                                fontSize = 0.032.sw,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(0.12.dw)
+                                .padding(0.03.dw)
                         )
                     }
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = null,
+                    Spacer(
                         modifier = Modifier
-                            .size(0.12.dw)
-                            .padding(0.03.dw)
+                            .height(0.02.dw)
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .bounceClick {
+                                onGetAllPresets()
+                            }
+                            .background(Color(0xFFFFD112), RoundedCornerShape(0.02.dw))
+                            .padding(start = 0.045.dw),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.get_all_presets_title),
+                                color = Color(0xFF0A0A0F),
+                                fontFamily = RobotoFont,
+                                fontSize = 0.042.sw,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = stringResource(id = R.string.get_all_presets_subtitle),
+                                color = Color(0xFF78787B),
+                                fontFamily = RobotoFont,
+                                fontSize = 0.032.sw,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(0.12.dw)
+                                .padding(0.03.dw)
+                        )
+                    }
                 }
             }
         }
@@ -200,6 +216,11 @@ fun HomePresetDetails(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .drawWithContent {
+                clipRect(top = minHeight.toPx()) {
+                    this@drawWithContent.drawContent()
+                }
+            }
     ) {
         Box(
             modifier = Modifier

@@ -1,11 +1,14 @@
 package com.slaviboy.drumpadmachine.screens.home.composables
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,6 +27,7 @@ import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.presets.composables.PresetCard
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomePresetRow(
     lazyItemScope: LazyItemScope,
@@ -62,7 +66,7 @@ fun HomePresetRow(
     }
     Spacer(
         modifier = Modifier
-            .height(0.02.dw)
+            .height(0.04.dw)
     )
     LazyRow(
         modifier = Modifier
@@ -75,7 +79,14 @@ fun HomePresetRow(
                 titleTextSize = 0.035.sw,
                 subtitleTextSize = 0.023.sw,
                 coverSize = 0.35.dw,
-                onPresetClick = onPresetClick
+                onPresetClick = onPresetClick,
+                modifier = Modifier
+                    .offset(x = 0.04.dw)
+                    .animateItemPlacement()
+            )
+            Spacer(
+                modifier = Modifier
+                    .width(0.04.dw)
             )
         }
     }

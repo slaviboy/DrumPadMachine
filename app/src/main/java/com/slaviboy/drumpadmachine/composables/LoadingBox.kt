@@ -23,7 +23,8 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
 @Composable
 fun LoadingBox(
     boxScope: BoxScope,
-    modifier: Modifier
+    modifier: Modifier,
+    textColor: Color = Color.White
 ) = with(boxScope) {
     Column(
         modifier = modifier
@@ -41,11 +42,11 @@ fun LoadingBox(
         )
         Spacer(
             modifier = Modifier
-                .height(0.02.dw)
+                .height(0.04.dw)
         )
         Text(
             text = stringResource(id = R.string.loading).uppercase(),
-            color = Color.White,
+            color = textColor,
             fontFamily = RobotoFont,
             fontSize = 0.035.sw,
             fontWeight = FontWeight.Bold

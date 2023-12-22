@@ -1,5 +1,7 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +36,17 @@ class HomeViewModel @Inject constructor(
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
+    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Int>> = _presetIdState
+
     private val navigationEventChannel = Channel<NavigationEvent>()
     val navigationEventFlow = navigationEventChannel.receiveAsFlow()
 
     private val errorEventChannel = Channel<ErrorEvent>()
     val errorEventFlow = errorEventChannel.receiveAsFlow()
+
+    private val _noItemsState: MutableState<BaseItem?> = mutableStateOf(null)
+    val noItemsState: State<BaseItem?> = _noItemsState
 
     private val _menuItemsState: MutableState<List<MenuItem>> = mutableStateOf(
         listOf(
@@ -65,19 +73,28 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        init()
+        getPresets()
     }
 
     fun getSoundForFree(presetId: Int?) {
         presetId ?: return
+        if (_presetIdState.value.isLoadingOrSuccess()) return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
+                _presetIdState.value = it
                 if (it is Result.Success) {
-                    navigationEventChannel.send(
-                        NavigationEvent.NavigateToDrumPadScreen(presetId)
-                    )
+                    val preset = getPresetById(presetId)
+                    if (preset != null) {
+                        navigationEventChannel.send(
+                            NavigationEvent.NavigateToDrumPadScreen(preset)
+                        )
+                    } else {
+                        errorEventChannel.send(
+                            ErrorEvent.ErrorWithMessage("Unable to find Preset!")
+                        )
+                    }
                 }
-                if (it is Result.Error) {
+                if (it is Result.Fail) {
                     errorEventChannel.send(
                         ErrorEvent.ErrorWithMessage(it.errorMessage)
                     )
@@ -106,9 +123,10 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
-    fun search() = viewModelScope.launch {
+    private fun search() = viewModelScope.launch {
         if (_searchTextState.value.isEmpty()) {
             _filteredCategoriesMapState.value = _categoriesMapState.value
+            setNoItemEvent()
             return@launch
         }
         val hashMap = HashMap<String, MutableList<Preset>>()
@@ -123,15 +141,36 @@ class HomeViewModel @Inject constructor(
             }
         }
         _filteredCategoriesMapState.value = hashMap
+        setNoItemEvent()
     }
 
-    private fun init() = viewModelScope.launch {
+    private fun setNoItemEvent() {
+        val isEmpty = _filteredCategoriesMapState.value.isEmpty()
+        _noItemsState.value = if (_audioConfigState.value is Result.Fail && isEmpty) {
+            BaseItem(
+                iconResId = R.drawable.ic_no_internet,
+                titleResId = R.string.no_items,
+                subtitleResId = R.string.please_check_your_network
+            )
+        } else if (audioConfigState.value is Result.Success && isEmpty) {
+            BaseItem(
+                iconResId = R.drawable.ic_audio,
+                titleResId = R.string.no_items,
+                subtitleResId = R.string.there_are_no_items_found
+            )
+        } else {
+            null
+        }
+    }
+
+    private fun getPresets() = viewModelScope.launch {
         getPresetsConfigUseCase.execute(PRESETS_VERSION).collect {
             _audioConfigState.value = it
+            setNoItemEvent()
             if (it is Result.Success) {
                 setConfig(it.data)
             }
-            if (it is Result.Error) {
+            if (it is Result.Fail) {
                 errorEventChannel.send(
                     ErrorEvent.ErrorWithMessage(it.errorMessage)
                 )
@@ -162,7 +201,23 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
+    private fun getPresetById(presetId: Int): Preset? {
+        return _categoriesMapState.value.firstNotNullOfOrNull {
+            it.value.firstOrNull { it.id == presetId }
+        }
+    }
+
+    fun resetPresetIdState() {
+        _presetIdState.value = Result.Initial
+    }
+
     companion object {
         const val PRESETS_VERSION = 12
     }
 }
+
+data class BaseItem(
+    @DrawableRes val iconResId: Int,
+    @StringRes val titleResId: Int,
+    @StringRes val subtitleResId: Int
+)

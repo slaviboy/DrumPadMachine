@@ -5,10 +5,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DrumPadPlayer(
-    private val row: Int = 4,
-    private val column: Int = 3
-) {
+class DrumPadPlayer {
     companion object {
         const val NUM_PLAY_CHANNELS: Int = 2  // The number of channels in the player Stream.
 
@@ -31,13 +28,21 @@ class DrumPadPlayer(
 
     fun loadWavFile(
         dirPath: String,
+        filenames: List<String>,
         pans: List<Float>? = null // [-1,1]
     ) {
         val directory = File(dirPath)
-        val files = directory.listFiles() ?: return
-        for (i in files.indices) {
-            val dataBytes = getByteArrayFromWavFile(files[i].absolutePath) ?: return
-            loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+        if (filenames.isEmpty()) {
+            val files = directory.listFiles() ?: return
+            for (i in files.indices) {
+                val dataBytes = getByteArrayFromWavFile(files[i].absolutePath) ?: return
+                loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+            }
+        } else {
+            filenames.forEachIndexed { i, filename ->
+                val dataBytes = getByteArrayFromWavFile("$directory/$filename") ?: return
+                loadWavAssetNative(dataBytes, i, pans?.getOrNull(i) ?: 0f)
+            }
         }
     }
 
@@ -60,17 +65,13 @@ class DrumPadPlayer(
         unloadWavAssetsNative()
     }
 
-    fun trigger(page: Int, row: Int, column: Int) {
-        val i = (page * (this.column + 1) * (this.row + 1)) + row * (this.column + 1) + (column + 1)
-        trigger(i)
-    }
-
     private fun getByteArrayFromWavFile(filePath: String): ByteArray? {
         return try {
             val file = File(filePath)
             val inputStream = FileInputStream(file)
-            val byteBuffer = ByteArray(file.length().toInt())
-            inputStream.read(byteBuffer)
+            val dataLen = file.length().toInt()
+            val byteBuffer = ByteArray(dataLen)
+            inputStream.read(byteBuffer, 0, dataLen)
             inputStream.close()
             byteBuffer
         } catch (e: IOException) {
