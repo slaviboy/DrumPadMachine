@@ -137,6 +137,19 @@ class DrumPadViewModel @Inject constructor(
         this@DrumPadViewModel._isMoved.value = isMoved
     }
 
+    fun onPositionInParentChange(
+        rect: Rect,
+        row: Int,
+        column: Int
+    ) {
+        val index = getIndex(row, column)
+        bounds[index] = rect
+    }
+
+    fun setContainerBound(bound: Rect) {
+        containerBound = bound
+    }
+
     private fun getPositionForFinger(event: MotionEvent, fingerIndex: Int): Pair<Float, Float> {
         val mActivePointerId = event.getPointerId(fingerIndex)
         return event.findPointerIndex(mActivePointerId).let { pointerIndex ->
@@ -177,19 +190,6 @@ class DrumPadViewModel @Inject constructor(
 
     private fun numberItemsPerPage(): Int {
         return numberOfColumns * numberOfRows
-    }
-
-    fun onPositionInParentChange(
-        rect: Rect,
-        row: Int,
-        column: Int
-    ) {
-        val index = getIndex(row, column)
-        bounds[index] = rect
-    }
-
-    fun setContainerBound(bound: Rect) {
-        containerBound = bound
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.screens.presets.viewmodels
+package com.slaviboy.drumpadmachine.screens.presetslist.viewmodels
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PresetsViewModel @Inject constructor(
+class PresetsListViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase
 ) : ViewModel() {
 

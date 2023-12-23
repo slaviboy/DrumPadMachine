@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.screens.presets.composables
+package com.slaviboy.drumpadmachine.screens.presetslist.composables
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image

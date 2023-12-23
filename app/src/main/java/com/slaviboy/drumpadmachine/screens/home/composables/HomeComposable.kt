@@ -38,7 +38,7 @@ import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.ObserveAsEvents
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
-import com.slaviboy.drumpadmachine.screens.destinations.PresetsComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -186,7 +186,7 @@ fun HomeComposable(
                 onSeeAllClick = {
                     keyboardController?.hide()
                     navigator.navigate(
-                        direction = PresetsComposableDestination(
+                        direction = PresetsListComposableDestination(
                             name = categoryName,
                             presets = filteredCategories[it]?.toTypedArray() ?: arrayOf()
                         )

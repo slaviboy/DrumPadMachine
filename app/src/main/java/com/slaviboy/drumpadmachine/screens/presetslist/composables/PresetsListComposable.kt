@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.screens.presets.composables
+package com.slaviboy.drumpadmachine.screens.presetslist.composables
 
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
@@ -40,22 +40,22 @@ import com.slaviboy.drumpadmachine.extensions.ObserveAsEvents
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.composables.HomePresetDetails
-import com.slaviboy.drumpadmachine.screens.presets.viewmodels.PresetsViewModel
+import com.slaviboy.drumpadmachine.screens.presetslist.viewmodels.PresetsListViewModel
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Destination
 @Composable
-fun PresetsComposable(
+fun PresetsListComposable(
     navigator: DestinationsNavigator,
-    presetsViewModel: PresetsViewModel,
+    presetsListViewModel: PresetsListViewModel,
     name: String,
     presets: Array<Preset>,
     onError: (error: String) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(presets) {
-        presetsViewModel.initPresets(presets)
+        presetsListViewModel.initPresets(presets)
     }
 
     val fromWidth by remember {
@@ -134,12 +134,12 @@ fun PresetsComposable(
             animatedHeight = value.mapValue(fromHeight, toHeight)
         } while (playTime <= animation.durationNanos)
     }
-    presetsViewModel.errorEventFlow.ObserveAsEvents {
+    presetsListViewModel.errorEventFlow.ObserveAsEvents {
         if (it is ErrorEvent.ErrorWithMessage) {
             onError(it.message)
         }
     }
-    presetsViewModel.navigationEventFlow.ObserveAsEvents {
+    presetsListViewModel.navigationEventFlow.ObserveAsEvents {
         if (it is NavigationEvent.NavigateToDrumPadScreen) {
             navigator.navigate(
                 direction = DrumPadComposableDestination(
@@ -160,12 +160,12 @@ fun PresetsComposable(
                 minHeight = minHeight,
                 maxHeight = maxHeight,
                 leftIconResId = R.drawable.ic_arrow_left,
-                text = presetsViewModel.searchTextState.value,
+                text = presetsListViewModel.searchTextState.value,
                 onTextChange = {
-                    presetsViewModel.changeText(it)
+                    presetsListViewModel.changeText(it)
                 },
                 onClearText = {
-                    presetsViewModel.changeText("")
+                    presetsListViewModel.changeText("")
                 },
                 onLeftButtonClicked = {
                     navigator.navigateUp()
@@ -181,7 +181,7 @@ fun PresetsComposable(
                     .height(0.04.dw + topBarOffset)
             )
         }
-        val list = presetsViewModel.filteredPresetsState.value
+        val list = presetsListViewModel.filteredPresetsState.value
         val size = (list.size / 2.0).roundToInt()
         items(size) {
             Row(
@@ -247,16 +247,16 @@ fun PresetsComposable(
             animatedY = animatedY,
             minHeight = 0.36.dw,
             clickedPreset = clickedPreset,
-            isLoading = (presetsViewModel.presetIdState.value is Result.Loading),
+            isLoading = (presetsListViewModel.presetIdState.value is Result.Loading),
             onGloballyPositioned = { x, y ->
                 toX = x
                 toY = y
             },
             onGetPresetForFree = {
-                presetsViewModel.getSoundForFree(it)
+                presetsListViewModel.getSoundForFree(it)
             },
             onGetAllPresets = {
-                presetsViewModel.unlockAllSounds()
+                presetsListViewModel.unlockAllSounds()
             },
             onCloseButtonClick = {
                 isReversed = true
@@ -264,7 +264,7 @@ fun PresetsComposable(
             }
         )
 
-        presetsViewModel.noItemsState.value?.let {
+        presetsListViewModel.noItemsState.value?.let {
             NoItems(
                 boxScope = this,
                 modifier = Modifier
