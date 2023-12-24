@@ -19,3 +19,7 @@ fun <T> Flow<T>.ObserveAsEvents(onEvent: (T) -> Unit) {
         }
     }
 }
+
+fun Float.factMultiplyBy(value: Float): Float {
+    return 1f + (1f - this) * -(value)
+}

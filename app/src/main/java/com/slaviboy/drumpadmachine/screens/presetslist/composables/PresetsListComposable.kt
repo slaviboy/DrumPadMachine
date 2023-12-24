@@ -153,7 +153,7 @@ fun PresetsListComposable(
         maxHeight = 0.53.dw,
         topBar = { height, minHeight, maxHeight ->
             topBarHeight = height
-            PresetsTopBar(
+            PresetsListTopBar(
                 title = name,
                 subtitle = "Search for your favorite sound pack",
                 height = height,

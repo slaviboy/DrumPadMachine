@@ -29,10 +29,13 @@ import com.slaviboy.drumpadmachine.extensions.hideSystemBars
 import com.slaviboy.drumpadmachine.screens.NavGraphs
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.screens.home.composables.HomeComposable
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
+import com.slaviboy.drumpadmachine.screens.lessonslist.composables.LessonsListComposable
+import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.screens.presetslist.composables.PresetsListComposable
 import com.slaviboy.drumpadmachine.screens.presetslist.viewmodels.PresetsListViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -108,6 +111,14 @@ class MainActivity : ComponentActivity() {
                                 onError = onError,
                                 name = navArgs.name,
                                 presets = navArgs.presets
+                            )
+                        }
+                        composable(LessonsListComposableDestination) {
+                            LessonsListComposable(
+                                navigator = destinationsNavigator,
+                                lessonsListViewModel = hiltViewModel<LessonsListViewModel>(),
+                                onError = onError,
+                               // preset = navArgs.preset
                             )
                         }
                     }

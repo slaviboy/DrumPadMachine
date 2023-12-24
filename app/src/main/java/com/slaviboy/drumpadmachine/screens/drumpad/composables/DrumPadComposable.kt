@@ -50,6 +50,7 @@ import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
@@ -197,7 +198,11 @@ fun DrumPadComposable(
                     iconResId = R.drawable.ic_lessons,
                     textResId = R.string.lessons,
                     onClick = {
-
+                        navigator.navigate(
+                            direction = LessonsListComposableDestination(
+                                //preset = preset
+                            )
+                        )
                     }
                 )
             }

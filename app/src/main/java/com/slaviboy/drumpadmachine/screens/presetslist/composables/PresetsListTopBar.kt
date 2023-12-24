@@ -33,12 +33,13 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.extensions.bounceClick
+import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
 @Composable
-fun PresetsTopBar(
+fun PresetsListTopBar(
     height: Dp,
     minHeight: Dp? = null,
     maxHeight: Dp? = null,
@@ -182,8 +183,4 @@ fun PresetsTopBar(
                 )
         )
     }
-}
-
-fun Float.factMultiplyBy(value: Float): Float {
-    return 1f + (1f - this) * -(value)
 }
