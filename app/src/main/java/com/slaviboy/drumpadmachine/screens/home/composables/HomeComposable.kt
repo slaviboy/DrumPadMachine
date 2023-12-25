@@ -42,7 +42,7 @@ import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDes
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
-@RootNavGraph(start = false)
+@RootNavGraph(start = true)
 @Destination
 @Composable
 fun HomeComposable(

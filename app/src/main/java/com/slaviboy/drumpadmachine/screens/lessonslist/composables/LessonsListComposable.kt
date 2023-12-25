@@ -62,7 +62,6 @@ import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.LessonState
-import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
@@ -73,59 +72,16 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Destination
 @Composable
-@RootNavGraph(start = true)
+@RootNavGraph(start = false)
 fun LessonsListComposable(
     navigator: DestinationsNavigator,
     lessonsListViewModel: LessonsListViewModel,
     onError: (error: String) -> Unit = {},
-    // preset: Preset
+    preset: Preset
 ) {
-    val preset: Preset = Preset(
-        0, "Hey", "What yo", null, null, null, null, false, 1, null, null,
-
-        listOf(
-            Lesson(
-                id = 0,
-                side = "a",
-                version = 0,
-                name = "01",
-                orderBy = 0,
-                sequencerSize = 33,
-                rating = 3,
-                lastScore = 20,
-                bestScore = 60,
-                lessonState = LessonState.Replay,
-                pads = hashMapOf(
-                    "9" to arrayOf(Pad(0, false), Pad(16, false)),
-                    "10" to arrayOf(Pad(4, false), Pad(12, false), Pad(20, false), Pad(28, false)),
-                    "11" to arrayOf(Pad(8, false), Pad(24, false))
-                )
-            ),
-            Lesson(
-                id = 1,
-                side = "b",
-                version = 0,
-                name = "02",
-                orderBy = 0,
-                sequencerSize = 65,
-                rating = 0,
-                lastScore = 0,
-                bestScore = 0,
-                lessonState = LessonState.Play,
-                pads = hashMapOf(
-                    "0" to arrayOf(Pad(0, false)),
-                    "1" to arrayOf(Pad(16, false)),
-                    "2" to arrayOf(Pad(8, false)),
-                    "9" to arrayOf(Pad(8, false), Pad(16, false)),
-                    "1" to arrayOf(Pad(4, false), Pad(12, false), Pad(20, false), Pad(28, false)),
-                    "11" to arrayOf(Pad(8, false), Pad(24, false))
-                )
-            )
-        )
-    )
     LaunchedEffect(preset) {
         lessonsListViewModel.init(preset)
     }
@@ -461,6 +417,15 @@ fun LessonItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val iconColor = when (lesson.lessonState) {
+                    LessonState.Replay, LessonState.Unlock -> Color(0xFF908F9C)
+                    LessonState.Play -> Color(0xFFFFD011)
+                }
+                val iconResId = when (lesson.lessonState) {
+                    LessonState.Unlock -> R.drawable.ic_chain
+                    LessonState.Replay -> R.drawable.ic_circular_check
+                    LessonState.Play -> R.drawable.ic_circular_right_arrow
+                }
                 Image(
                     modifier = Modifier
                         .width(0.09.dw)
@@ -468,10 +433,10 @@ fun LessonItem(
                         .clip(CircleShape),
                     contentScale = ContentScale.FillWidth,
                     painter = painterResource(
-                        id = R.drawable.ic_circular_check
+                        id = iconResId
                     ),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color(0xFFFFD011))
+                    colorFilter = ColorFilter.tint(iconColor)
                 )
                 Spacer(
                     modifier = Modifier

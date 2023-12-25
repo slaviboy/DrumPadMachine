@@ -201,7 +201,7 @@ fun DrumPadComposable(
                     onClick = {
                         navigator.navigate(
                             direction = LessonsListComposableDestination(
-                                //preset = preset
+                                preset = preset
                             )
                         )
                     }

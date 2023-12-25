@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
                                 navigator = destinationsNavigator,
                                 lessonsListViewModel = hiltViewModel<LessonsListViewModel>(),
                                 onError = onError,
-                               // preset = navArgs.preset
+                                preset = navArgs.preset
                             )
                         }
                     }
