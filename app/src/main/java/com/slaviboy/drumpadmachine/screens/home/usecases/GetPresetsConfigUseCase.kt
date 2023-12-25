@@ -144,7 +144,8 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                         padApiArray.map {
                             Pad(
                                 start = it.start,
-                                embient = it.embient
+                                embient = it.embient,
+                                duration = it.duration
                             )
                         }.toTypedArray()
                     } as HashMap

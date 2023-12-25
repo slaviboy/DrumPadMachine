@@ -77,7 +77,7 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun getPadColor(row: Int, column: Int): PadColor {
-        val index = DrumPadHelper.getIndex(row, column)
+        val index = DrumPadHelper.getIndex(_page.value, row, column)
         val color = _preset.value?.files?.getOrNull(index)?.color ?: return PadColor.None
         return when (color) {
             "red" -> PadColor.Red
@@ -90,7 +90,7 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun getShowGlow(row: Int, column: Int): Boolean {
-        return _isMoved.value[DrumPadHelper.getIndex(row, column)]
+        return _isMoved.value[DrumPadHelper.getIndex(_page.value, row, column)]
     }
 
     fun onContainerTouch(event: MotionEvent) = viewModelScope.launch {
@@ -140,7 +140,7 @@ class DrumPadViewModel @Inject constructor(
         row: Int,
         column: Int
     ) {
-        val index = DrumPadHelper.getIndex(row, column)
+        val index = DrumPadHelper.getIndex(_page.value, row, column)
         bounds[index] = rect
     }
 
@@ -157,7 +157,7 @@ class DrumPadViewModel @Inject constructor(
 
     private fun findMatchItemIndex(x: Float, y: Float): Int {
         bounds.forEachIndexed { i, rect ->
-            if (rect.contains(Offset(x, y)) && DrumPadHelper.isIndexInPage(i)) {
+            if (rect.contains(Offset(x, y)) && DrumPadHelper.isIndexInPage(_page.value, i)) {
                 return i
             }
         }

@@ -320,7 +320,7 @@ fun LessonsListTopBar(
                             .alpha(fact),
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(
-                            id = R.drawable.ic_lessons
+                            id = R.drawable.ic_graduation
                         ),
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(Color(0xFFFFD011))
@@ -443,7 +443,7 @@ fun LessonItem(
                         .width(0.02.dw)
                 )
                 Text(
-                    text = "Lesson ${lesson.id + 1}",
+                    text = stringResource(id = R.string.lessons_number).format(lesson.id + 1),
                     color = Color.LightGray,
                     fontFamily = RobotoFont,
                     fontSize = 0.048.sw,
@@ -498,8 +498,12 @@ fun LessonItem(
                     for (i in 0 until numberOfRows) {
                         Row {
                             for (j in 0 until numberOfColumns) {
-                                val index = DrumPadHelper.getIndex(i, j)
-                                val padColor = if (lesson.pads.containsKey("$index")) {
+                                val containsIndex = DrumPadHelper.containsIndex(
+                                    row = i,
+                                    column = j,
+                                    indices = lesson.pads.keys.mapNotNull { it.toIntOrNull() }
+                                )
+                                val padColor = if (containsIndex) {
                                     Color(0xFF908F9C)
                                 } else {
                                     Color(0xFF606071)

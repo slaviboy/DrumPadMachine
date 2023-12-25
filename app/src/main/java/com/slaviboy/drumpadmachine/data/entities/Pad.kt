@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Pad(
     val start: Int,
-    val embient: Boolean
+    val embient: Boolean,
+    val duration: Int
 ) : Parcelable
