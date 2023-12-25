@@ -1,15 +1,19 @@
 package com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
+import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.BaseItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -17,6 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LessonsListViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _lessonsState: MutableState<List<Lesson>> = mutableStateOf(listOf())
@@ -43,30 +48,20 @@ class LessonsListViewModel @Inject constructor(
             setNoItemEvent()
             return@launch
         }
-        /*val hashMap = HashMap<String, MutableList<Preset>>()
+        val list = mutableListOf<Lesson>()
         _lessonsState.value.forEach {
-            val (key, value) = it
-            value.forEach {
-                if (it.name.containsString(_searchTextState.value)) {
-                    hashMap.getOrPut(key) {
-                        mutableListOf()
-                    }.add(it)
-                }
+            val name = context.getString(R.string.lessons_number).format(it.id + 1)
+            if (name.containsString(_searchTextState.value)) {
+                list.add(it)
             }
         }
-        _filteredLessonsState.value = hashMap
-        setNoItemEvent()*/
+        _filteredLessonsState.value = list
+        setNoItemEvent()
     }
 
     private fun setNoItemEvent() {
         val isEmpty = _filteredLessonsState.value.isEmpty()
-        /*_noItemsState.value = if (_audioConfigState.value is Result.Fail && isEmpty) {
-            BaseItem(
-                iconResId = R.drawable.ic_no_internet,
-                titleResId = R.string.no_items,
-                subtitleResId = R.string.please_check_your_network
-            )
-        } else if (audioConfigState.value is Result.Success && isEmpty) {
+        _noItemsState.value = if (isEmpty) {
             BaseItem(
                 iconResId = R.drawable.ic_audio,
                 titleResId = R.string.no_items,
@@ -74,7 +69,7 @@ class LessonsListViewModel @Inject constructor(
             )
         } else {
             null
-        }*/
+        }
     }
 
     fun init(preset: Preset) {

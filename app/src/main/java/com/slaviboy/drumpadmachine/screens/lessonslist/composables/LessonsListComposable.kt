@@ -58,6 +58,7 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.NoItems
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Lesson
@@ -85,7 +86,6 @@ fun LessonsListComposable(
     LaunchedEffect(preset) {
         lessonsListViewModel.init(preset)
     }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     var topBarHeight by remember {
         mutableStateOf(0.dw)
@@ -126,10 +126,32 @@ fun LessonsListComposable(
         }
         val list = lessonsListViewModel.filteredLessonsState.value
         items(list.size) {
-            LessonItem(list[it])
+            LessonItem(lesson = list[it],
+                onButtonClick = {
+                    keyboardController?.hide()
+                }
+            )
             Spacer(
                 modifier = Modifier
                     .height(0.06.dw)
+            )
+        }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        lessonsListViewModel.noItemsState.value?.let {
+            NoItems(
+                boxScope = this,
+                modifier = Modifier
+                    .padding(
+                        top = topBarHeight,
+                        bottom = 0.075.dh
+                    ),
+                iconResId = it.iconResId,
+                titleResId = it.titleResId,
+                subtitleResId = it.subtitleResId
             )
         }
     }
@@ -390,7 +412,8 @@ fun LessonsListTopBar(
 fun LessonItem(
     lesson: Lesson,
     numberOfRows: Int = 4,
-    numberOfColumns: Int = 3
+    numberOfColumns: Int = 3,
+    onButtonClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -607,9 +630,7 @@ fun LessonItem(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .bounceClick {
-
-                                    }
+                                    .bounceClick(onClick = onButtonClick)
                                     .border(
                                         width = 1.dp,
                                         color = Color(0xFF59586B),
@@ -629,9 +650,7 @@ fun LessonItem(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .bounceClick {
-
-                                    }
+                                    .bounceClick(onClick = onButtonClick)
                                     .background(
                                         color = Color(0xFFFFD011),
                                         shape = RoundedCornerShape(0.02.dw)
