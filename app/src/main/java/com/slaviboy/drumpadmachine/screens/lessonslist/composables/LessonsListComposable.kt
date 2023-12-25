@@ -3,6 +3,7 @@ package com.slaviboy.drumpadmachine.screens.lessonslist.composables
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,10 +40,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -56,15 +60,18 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.composables.SearchTextField
+import com.slaviboy.drumpadmachine.data.entities.Lesson
+import com.slaviboy.drumpadmachine.data.entities.LessonState
+import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
 import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalGlideComposeApi::class)
 @Destination
@@ -76,7 +83,52 @@ fun LessonsListComposable(
     onError: (error: String) -> Unit = {},
     // preset: Preset
 ) {
-    val preset: Preset = Preset(0, "Hey", "What yo", null, null, null, null, false, 1, null, null)
+    val preset: Preset = Preset(
+        0, "Hey", "What yo", null, null, null, null, false, 1, null, null,
+
+        listOf(
+            Lesson(
+                id = 0,
+                side = "a",
+                version = 0,
+                name = "01",
+                orderBy = 0,
+                sequencerSize = 33,
+                rating = 3,
+                lastScore = 20,
+                bestScore = 60,
+                lessonState = LessonState.Replay,
+                pads = hashMapOf(
+                    "9" to arrayOf(Pad(0, false), Pad(16, false)),
+                    "10" to arrayOf(Pad(4, false), Pad(12, false), Pad(20, false), Pad(28, false)),
+                    "11" to arrayOf(Pad(8, false), Pad(24, false))
+                )
+            ),
+            Lesson(
+                id = 1,
+                side = "b",
+                version = 0,
+                name = "02",
+                orderBy = 0,
+                sequencerSize = 65,
+                rating = 0,
+                lastScore = 0,
+                bestScore = 0,
+                lessonState = LessonState.Play,
+                pads = hashMapOf(
+                    "0" to arrayOf(Pad(0, false)),
+                    "1" to arrayOf(Pad(16, false)),
+                    "2" to arrayOf(Pad(8, false)),
+                    "9" to arrayOf(Pad(8, false), Pad(16, false)),
+                    "1" to arrayOf(Pad(4, false), Pad(12, false), Pad(20, false), Pad(28, false)),
+                    "11" to arrayOf(Pad(8, false), Pad(24, false))
+                )
+            )
+        )
+    )
+    LaunchedEffect(preset) {
+        lessonsListViewModel.init(preset)
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var topBarHeight by remember {
@@ -117,10 +169,8 @@ fun LessonsListComposable(
             )
         }
         val list = lessonsListViewModel.filteredLessonsState.value
-        val size = (list.size / 2.0).roundToInt()
-
-        items(100) {
-            LessonItem()
+        items(list.size) {
+            LessonItem(list[it])
             Spacer(
                 modifier = Modifier
                     .height(0.06.dw)
@@ -382,6 +432,7 @@ fun LessonsListTopBar(
 
 @Composable
 fun LessonItem(
+    lesson: Lesson,
     numberOfRows: Int = 4,
     numberOfColumns: Int = 3
 ) {
@@ -427,7 +478,7 @@ fun LessonItem(
                         .width(0.02.dw)
                 )
                 Text(
-                    text = "Lesson 1",
+                    text = "Lesson ${lesson.id + 1}",
                     color = Color.LightGray,
                     fontFamily = RobotoFont,
                     fontSize = 0.048.sw,
@@ -438,6 +489,11 @@ fun LessonItem(
             }
             Row {
                 for (i in 0 until 5) {
+                    val iconColor = if (i < lesson.rating) {
+                        Color(0xFFFFD011)
+                    } else {
+                        Color(0xFF6D6C7D)
+                    }
                     Image(
                         modifier = Modifier
                             .width(0.05.dw)
@@ -448,7 +504,7 @@ fun LessonItem(
                             id = R.drawable.ic_star
                         ),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color(0xFFFFD011))
+                        colorFilter = ColorFilter.tint(iconColor)
                     )
                 }
             }
@@ -477,20 +533,30 @@ fun LessonItem(
                     for (i in 0 until numberOfRows) {
                         Row {
                             for (j in 0 until numberOfColumns) {
+                                val index = DrumPadHelper.getIndex(i, j)
+                                val padColor = if (lesson.pads.containsKey("$index")) {
+                                    Color(0xFF908F9C)
+                                } else {
+                                    Color(0xFF606071)
+                                }
                                 Box(
                                     modifier = Modifier
                                         .size(0.043.dw)
                                         .padding(0.002.dw)
                                         .background(
-                                            color = Color(0xFF606071),
+                                            color = padColor,
                                             shape = RoundedCornerShape(0.01.dw)
                                         )
                                 )
                             }
                         }
                     }
+                    Spacer(
+                        modifier = Modifier
+                            .height(0.02.dw)
+                    )
                     Text(
-                        text = "A",
+                        text = lesson.side.uppercase(),
                         color = Color.LightGray,
                         fontFamily = RobotoFont,
                         fontSize = 0.048.sw,
@@ -509,15 +575,13 @@ fun LessonItem(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                    Row {
                         Column(
                             modifier = Modifier
                                 .weight(1f)
                         ) {
                             Text(
-                                text = "Last",
+                                text = stringResource(id = R.string.last),
                                 color = Color.LightGray,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.036.sw,
@@ -526,7 +590,7 @@ fun LessonItem(
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                text = "34%",
+                                text = "${lesson.lastScore}%",
                                 color = Color.White,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.043.sw,
@@ -540,7 +604,7 @@ fun LessonItem(
                                 .weight(1f)
                         ) {
                             Text(
-                                text = "Best",
+                                text = stringResource(id = R.string.best),
                                 color = Color.LightGray,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.036.sw,
@@ -549,7 +613,7 @@ fun LessonItem(
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                text = "88%",
+                                text = "${lesson.bestScore}%",
                                 color = Color.White,
                                 fontFamily = RobotoFont,
                                 fontSize = 0.043.sw,
@@ -558,30 +622,55 @@ fun LessonItem(
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
-                        Spacer(
-                            modifier = Modifier
-                                .weight(1f)
-                        )
                     }
                     Spacer(
                         modifier = Modifier
                             .height(0.03.dw)
                     )
-                    Text(
-                        color = Color.Black,
-                        fontFamily = RobotoFont,
-                        fontSize = 0.038.sw,
-                        fontWeight = FontWeight.Bold,
-                        text = "Play".uppercase(),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = Color(0xFFFFD011),
-                                shape = RoundedCornerShape(0.02.dw)
+                    when (lesson.lessonState) {
+                        LessonState.Replay, LessonState.Unlock -> {
+                            Text(
+                                color = Color.White,
+                                fontFamily = RobotoFont,
+                                fontSize = 0.038.sw,
+                                fontWeight = FontWeight.Bold,
+                                text = stringResource(id = lesson.lessonState.textResId).uppercase(),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .bounceClick {
+
+                                    }
+                                    .border(
+                                        width = 1.dp,
+                                        color = Color(0xFF59586B),
+                                        shape = RoundedCornerShape(0.02.dw)
+                                    )
+                                    .padding(0.021.dw)
                             )
-                            .padding(0.021.dw)
-                    )
+                        }
+
+                        LessonState.Play -> {
+                            Text(
+                                color = Color.Black,
+                                fontFamily = RobotoFont,
+                                fontSize = 0.038.sw,
+                                fontWeight = FontWeight.Bold,
+                                text = stringResource(id = lesson.lessonState.textResId).uppercase(),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .bounceClick {
+
+                                    }
+                                    .background(
+                                        color = Color(0xFFFFD011),
+                                        shape = RoundedCornerShape(0.02.dw)
+                                    )
+                                    .padding(0.021.dw)
+                            )
+                        }
+                    }
                 }
             }
         }

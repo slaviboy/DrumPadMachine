@@ -15,5 +15,6 @@ data class Preset(
     val hasInfo: Boolean,
     val tempo: Int,
     val tags: List<String>?,
-    val files: List<File>?
+    val files: List<File>?,
+    val lessons: List<Lesson>?
 ) : Parcelable

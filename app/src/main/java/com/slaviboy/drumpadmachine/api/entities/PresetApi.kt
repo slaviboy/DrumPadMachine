@@ -11,5 +11,6 @@ data class PresetApi(
     val hasInfo: Boolean,
     val tempo: Int,
     val tags: List<String>,
-    val files: LinkedHashMap<String, FileApi>
+    val files: LinkedHashMap<String, FileApi>,
+    val beatSchool: LinkedHashMap<String, List<LessonApi>>?
 )

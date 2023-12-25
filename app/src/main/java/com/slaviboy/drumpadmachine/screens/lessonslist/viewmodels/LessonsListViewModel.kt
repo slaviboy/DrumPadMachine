@@ -5,9 +5,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
-import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.BaseItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -19,9 +19,9 @@ import javax.inject.Inject
 class LessonsListViewModel @Inject constructor(
 ) : ViewModel() {
 
-    private val _lessonsState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
-    private val _filteredLessonsState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
-    val filteredLessonsState: State<HashMap<String, MutableList<Preset>>> = _filteredLessonsState
+    private val _lessonsState: MutableState<List<Lesson>> = mutableStateOf(listOf())
+    private val _filteredLessonsState: MutableState<List<Lesson>> = mutableStateOf(listOf())
+    val filteredLessonsState: State<List<Lesson>> = _filteredLessonsState
 
     private val errorEventChannel = Channel<ErrorEvent>()
     val errorEventFlow = errorEventChannel.receiveAsFlow()
@@ -43,7 +43,7 @@ class LessonsListViewModel @Inject constructor(
             setNoItemEvent()
             return@launch
         }
-        val hashMap = HashMap<String, MutableList<Preset>>()
+        /*val hashMap = HashMap<String, MutableList<Preset>>()
         _lessonsState.value.forEach {
             val (key, value) = it
             value.forEach {
@@ -55,7 +55,7 @@ class LessonsListViewModel @Inject constructor(
             }
         }
         _filteredLessonsState.value = hashMap
-        setNoItemEvent()
+        setNoItemEvent()*/
     }
 
     private fun setNoItemEvent() {
@@ -75,5 +75,11 @@ class LessonsListViewModel @Inject constructor(
         } else {
             null
         }*/
+    }
+
+    fun init(preset: Preset) {
+        val lesson = preset.lessons ?: return
+        _lessonsState.value = lesson
+        search()
     }
 }
