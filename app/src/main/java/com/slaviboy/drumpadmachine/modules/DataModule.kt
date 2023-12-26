@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.slaviboy.drumpadmachine.data.room.Database
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
+import com.slaviboy.drumpadmachine.data.room.file.FileDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import dagger.Module
@@ -43,6 +44,14 @@ object DataModule {
         database: Database
     ): FilterDao {
         return database.filterDao
+    }
+
+
+    @Provides
+    fun provideFileDao(
+        database: Database
+    ): FileDao {
+        return database.fileDao
     }
 
     @Provides

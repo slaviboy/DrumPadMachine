@@ -9,6 +9,8 @@ import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigEntity
 import com.slaviboy.drumpadmachine.data.room.converters.StringConverter
 import com.slaviboy.drumpadmachine.data.room.converters.UUIDConverter
+import com.slaviboy.drumpadmachine.data.room.file.FileDao
+import com.slaviboy.drumpadmachine.data.room.file.FileEntity
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
@@ -19,7 +21,8 @@ import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
         CategoryEntity::class,
         ConfigEntity::class,
         PresetEntity::class,
-        FilterEntity::class
+        FilterEntity::class,
+        FileEntity::class
     ],
     version = 1
 )
@@ -32,4 +35,5 @@ abstract class Database : RoomDatabase() {
     abstract val configDao: ConfigDao
     abstract val presetDao: PresetDao
     abstract val filterDao: FilterDao
+    abstract val fileDao: FileDao
 }

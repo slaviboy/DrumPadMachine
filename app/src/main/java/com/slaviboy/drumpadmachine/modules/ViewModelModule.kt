@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
+import com.slaviboy.drumpadmachine.data.room.file.FileDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
@@ -53,10 +54,11 @@ object ViewModelModule {
         categoryDao: CategoryDao,
         presetDao: PresetDao,
         filterDao: FilterDao,
+        fileDao: FileDao,
         gson: Gson,
         @ApplicationContext context: Context,
         dispatchers: Dispatchers
     ): GetPresetsConfigUseCase {
-        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, gson, context, dispatchers)
+        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, fileDao, gson, context, dispatchers)
     }
 }

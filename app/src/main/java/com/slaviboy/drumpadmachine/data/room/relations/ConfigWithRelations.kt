@@ -6,7 +6,7 @@ import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
 import com.slaviboy.drumpadmachine.data.room.config.ConfigEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 
-data class ConfigWithRelation(
+data class ConfigWithRelations(
     @Embedded
     val owner: ConfigEntity,
 
@@ -21,5 +21,5 @@ data class ConfigWithRelation(
         parentColumn = "id",
         entityColumn = "configId"
     )
-    val presets: List<PresetEntity>
+    val presets: List<PresetWithRelations>
 )

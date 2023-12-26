@@ -7,34 +7,38 @@ import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Category
 import com.slaviboy.drumpadmachine.data.entities.Config
+import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Filter
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigEntity
+import com.slaviboy.drumpadmachine.data.room.file.FileDao
+import com.slaviboy.drumpadmachine.data.room.file.FileEntity
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 import com.slaviboy.drumpadmachine.data.room.relations.CategoryWithRelations
-import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelation
+import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
+import com.slaviboy.drumpadmachine.data.room.relations.PresetWithRelations
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import okhttp3.internal.toLongOrDefault
-import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.io.File as IOFile
 
 interface GetPresetsConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
 }
 
-fun ConfigWithRelation.toConfig(): Config {
+fun ConfigWithRelations.toConfig(): Config {
     return Config(
         categories = this.categories.toCategoryList(),
         presets = this.presets.toPresetList()
@@ -58,12 +62,12 @@ fun FilterEntity.toFilter(): Filter {
     )
 }
 
-fun List<PresetEntity>.toPresetList(): List<Preset> {
+fun List<PresetWithRelations>.toPresetList(): List<Preset> {
     return this.map { it.toPreset() }
 }
 
-fun PresetEntity.toPreset(): Preset {
-    return Preset(
+fun PresetWithRelations.toPreset(): Preset {
+    /*return Preset(
         id = this.presetId,
         name = this.name,
         author = this.author,
@@ -76,6 +80,20 @@ fun PresetEntity.toPreset(): Preset {
         tags = this.tags,
         files = null,
         lessons = null
+    )*/
+    return Preset(
+        id = 0,
+        name = "",
+        author = null,
+        price = 1,
+        orderBy = "",
+        timestamp = 1,
+        deleted = false,
+        hasInfo = false,
+        tempo = 1,
+        tags = null,
+        files = null,
+        lessons = null
     )
 }
 
@@ -86,6 +104,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val presetDao: PresetDao,
     private val filterDao: FilterDao,
+    private val fileDao: FileDao,
     private val gson: Gson,
     private val context: Context,
     private val dispatchers: Dispatchers
@@ -106,8 +125,8 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                 emit(Result.Fail("Failed to download ZIP file"))
                 return@flow
             }
-            val path = File(context.cacheDir, "config/presets/v$version/")
-            val tempFile = File(path, "temp_config.zip")
+            val path = IOFile(context.cacheDir, "config/presets/v$version/")
+            val tempFile = IOFile(path, "temp_config.zip")
             tempFile.getParentFile()?.mkdirs()
             tempFile.createNewFile()
             response.body()?.byteStream()?.use { inputStream ->
@@ -119,7 +138,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                     tempFile.delete()
 
                     // extract ConfigApi from json file
-                    val bufferedReader = File(path, "config.json").bufferedReader()
+                    val bufferedReader = IOFile(path, "config.json").bufferedReader()
                     val configText = bufferedReader.use { it.readText() }
                     val configApi = gson.fromJson(configText, ConfigApi::class.java)
 
@@ -177,6 +196,27 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
             )
             presetDao.upsertPreset(presetEntity)
 
+            val files = presetApi.files.map {
+                val (_, fileApi) = it
+                val fileEntity = FileEntity(
+                    presetId = presetEntity.id,
+                    looped = fileApi.looped,
+                    filename = fileApi.filename,
+                    choke = fileApi.choke,
+                    color = fileApi.color,
+                    stopOnRelease = fileApi.stopOnRelease
+                )
+                fileDao.upsertFile(fileEntity)
+
+                File(
+                    looped = fileApi.looped,
+                    filename = fileApi.filename,
+                    choke = fileApi.choke,
+                    color = fileApi.color,
+                    stopOnRelease = fileApi.stopOnRelease
+                )
+            }
+
             Preset(
                 id = presetApi.id.toLongOrDefault(0L),
                 name = presetApi.name,
@@ -188,7 +228,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                 hasInfo = presetApi.hasInfo,
                 tempo = presetApi.tempo,
                 tags = presetApi.tags,
-                files = null, //presetApi
+                files = files,
                 lessons = null //presetApi
             )
         }
