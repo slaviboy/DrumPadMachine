@@ -9,7 +9,7 @@ import java.util.UUID
 data class CategoryEntity(
 
     @PrimaryKey
-    val id: UUID = DatabaseHelper.defaultUUID,
+    val id: UUID = UUID.randomUUID(),
 
     val configId: UUID = DatabaseHelper.defaultUUID,
     val title: String

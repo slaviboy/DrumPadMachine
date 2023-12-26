@@ -8,7 +8,7 @@ import androidx.room.Upsert
 interface PresetDao {
 
     @Upsert
-    suspend fun upsertPresets(preset: List<PresetEntity>)
+    suspend fun upsertPreset(preset: PresetEntity)
 
     @Delete
     suspend fun deletePreset(preset: PresetEntity)

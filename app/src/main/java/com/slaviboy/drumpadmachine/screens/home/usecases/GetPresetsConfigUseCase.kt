@@ -2,10 +2,7 @@ package com.slaviboy.drumpadmachine.screens.home.usecases
 
 import android.content.Context
 import com.google.gson.Gson
-import com.slaviboy.drumpadmachine.api.entities.CategoryApi
 import com.slaviboy.drumpadmachine.api.entities.ConfigApi
-import com.slaviboy.drumpadmachine.api.entities.FilterApi
-import com.slaviboy.drumpadmachine.api.entities.PresetApi
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Category
@@ -37,7 +34,6 @@ interface GetPresetsConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
 }
 
-
 fun ConfigWithRelation.toConfig(): Config {
     return Config(
         categories = this.categories.toCategoryList(),
@@ -62,17 +58,6 @@ fun FilterEntity.toFilter(): Filter {
     )
 }
 
-/*fun List<CategoryEntity>.toCategoryList(): List<Category> {
-    return this.map { it.toCategory() }
-}
-
-fun CategoryEntity.toCategory(): Category {
-    return Category(
-        title = this.title,
-        filter = this.f
-    )
-}*/
-
 fun List<PresetEntity>.toPresetList(): List<Preset> {
     return this.map { it.toPreset() }
 }
@@ -91,40 +76,6 @@ fun PresetEntity.toPreset(): Preset {
         tags = this.tags,
         files = null,
         lessons = null
-    )
-}
-
-fun LinkedHashMap<String, PresetApi>.toPresetEntityList(config: ConfigEntity): List<PresetEntity> {
-    return this.map {
-        val (_, presetApi) = it
-        PresetEntity(
-            configId = config.id,
-            presetId = presetApi.id.toLongOrDefault(0L),
-            name = presetApi.name,
-            author = presetApi.author,
-            price = presetApi.price,
-            orderBy = presetApi.orderBy,
-            timestamp = presetApi.timestamp,
-            deleted = presetApi.deleted,
-            hasInfo = presetApi.hasInfo,
-            tempo = presetApi.tempo,
-            tags = presetApi.tags
-        )
-    }
-}
-
-fun List<CategoryApi>.toCategoryEntityList(config: ConfigEntity): List<CategoryEntity> {
-    return this.map {
-        CategoryEntity(
-            title = it.title,
-            configId = config.id
-        )
-    }
-}
-
-fun FilterApi.toFilter(): Filter {
-    return Filter(
-        tags = this.tags
     )
 }
 
@@ -172,29 +123,9 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                     val configText = bufferedReader.use { it.readText() }
                     val configApi = gson.fromJson(configText, ConfigApi::class.java)
 
-                    // update/insert config
-                    val configId = 0L
-                    val configEntity = ConfigEntity()
-                    configDao.upsertConfig(configEntity)
-
-                    // update/insert config -> categories
-                    /*val categoryEntityList = configApi.categoriesApi.toCategoryEntityList(configId)
-                    categoryDao.upsertCategories(categoryEntityList)*/
-
-                    // update/insert config -> categories -> filter
-                    /* val filterEntity = configApi.categoriesApi.toFilterEntity(configId)
-                     filterDao.upsertFilter(filterEntity)*/
-
-                    // update/insert config -> categories
-                    /*val presetEntityList = configApi.presetsApi.toPresetEntityList(configId)
-                    presetDao.upsertPresets(presetEntityList)*/
-
                     // emit updated API data
-                    /*val config = Config(
-                        categories = categoryEntityList.toCategoryList(),
-                        presets = presetEntityList.toPresetList()
-                    )
-                    emit(Result.Success(config))*/
+                    val config = toCategoryEntity(configApi)
+                    emit(Result.Success(config))
                 }
             } ?: run {
                 emit(Result.Fail("Empty response body"))
@@ -204,4 +135,67 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
             emit(Result.Fail("Network error!"))
         }
     }.flowOn(dispatchers.io)
+
+    private suspend fun toCategoryEntity(configApi: ConfigApi): Config {
+        val configEntity = ConfigEntity()
+        configDao.upsertConfig(configEntity)
+
+        val categories = configApi.categoriesApi.map { categoryApi ->
+            val categoryEntity = CategoryEntity(
+                configId = configEntity.id,
+                title = categoryApi.title
+            )
+            categoryDao.upsertCategory(categoryEntity)
+
+            val filterEntity = FilterEntity(
+                categoryId = categoryEntity.id,
+                tags = categoryApi.filterApi.tags
+            )
+            filterDao.upsertFilter(filterEntity)
+
+            Category(
+                title = categoryApi.title,
+                filter = Filter(categoryApi.filterApi.tags)
+            )
+        }
+
+        val presets = configApi.presetsApi.map {
+            val (_, presetApi) = it
+
+            val presetEntity = PresetEntity(
+                configId = configEntity.id,
+                presetId = presetApi.id.toLongOrDefault(0L),
+                name = presetApi.name,
+                author = presetApi.author,
+                price = presetApi.price,
+                orderBy = presetApi.orderBy,
+                timestamp = presetApi.timestamp,
+                deleted = presetApi.deleted,
+                hasInfo = presetApi.hasInfo,
+                tempo = presetApi.tempo,
+                tags = presetApi.tags
+            )
+            presetDao.upsertPreset(presetEntity)
+
+            Preset(
+                id = presetApi.id.toLongOrDefault(0L),
+                name = presetApi.name,
+                author = presetApi.author,
+                price = presetApi.price,
+                orderBy = presetApi.orderBy,
+                timestamp = presetApi.timestamp,
+                deleted = presetApi.deleted,
+                hasInfo = presetApi.hasInfo,
+                tempo = presetApi.tempo,
+                tags = presetApi.tags,
+                files = null, //presetApi
+                lessons = null //presetApi
+            )
+        }
+
+        return Config(
+            categories = categories,
+            presets = presets
+        )
+    }
 }

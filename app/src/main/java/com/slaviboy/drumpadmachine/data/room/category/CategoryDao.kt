@@ -8,7 +8,7 @@ import androidx.room.Upsert
 interface CategoryDao {
 
     @Upsert
-    suspend fun upsertCategories(category: List<CategoryEntity>)
+    suspend fun upsertCategory(category: CategoryEntity)
 
     @Delete
     suspend fun deleteCategory(category: CategoryEntity)

@@ -9,7 +9,7 @@ import java.util.UUID
 data class FilterEntity(
 
     @PrimaryKey
-    val id: UUID = DatabaseHelper.defaultUUID,
+    val id: UUID = UUID.randomUUID(),
 
     val categoryId: UUID = DatabaseHelper.defaultUUID,
     val tags: List<String>
