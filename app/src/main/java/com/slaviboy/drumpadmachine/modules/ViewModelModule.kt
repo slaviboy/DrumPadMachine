@@ -3,7 +3,9 @@ package com.slaviboy.drumpadmachine.modules
 import android.content.Context
 import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
+import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
+import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
@@ -46,11 +48,13 @@ object ViewModelModule {
     @ViewModelScoped
     fun provideGetPresetsConfigUseCase(
         repository: ApiRepository,
-        dao: ConfigDao,
+        configDao: ConfigDao,
+        categoryDao: CategoryDao,
+        presetDao: PresetDao,
         gson: Gson,
         @ApplicationContext context: Context,
         dispatchers: Dispatchers
     ): GetPresetsConfigUseCase {
-        return GetPresetsConfigUseCaseImpl(repository, dao, gson, context, dispatchers)
+        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, gson, context, dispatchers)
     }
 }

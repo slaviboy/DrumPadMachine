@@ -67,7 +67,7 @@ fun HomePresetDetails(
     clickedPreset: Preset?,
     isLoading: Boolean,
     onGloballyPositioned: (x: Float, y: Float) -> Unit,
-    onGetPresetForFree: (presetId: Int) -> Unit,
+    onGetPresetForFree: (presetId: Long) -> Unit,
     onGetAllPresets: () -> Unit,
     onCloseButtonClick: () -> Unit
 ) = with(boxScope) {

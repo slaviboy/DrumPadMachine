@@ -12,7 +12,7 @@ class ApiRepository @Inject constructor(
         return apiService.getSoundConfigZip(version)
     }
 
-    suspend fun getAudioZipById(id: Int): Response<ResponseBody> {
+    suspend fun getAudioZipById(id: Long): Response<ResponseBody> {
         return apiService.getAudioZipById(id)
     }
 }

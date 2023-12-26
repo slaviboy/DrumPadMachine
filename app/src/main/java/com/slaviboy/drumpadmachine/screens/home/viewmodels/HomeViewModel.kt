@@ -36,8 +36,8 @@ class HomeViewModel @Inject constructor(
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
-    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
-    val presetIdState: State<Result<Int>> = _presetIdState
+    private val _presetIdState: MutableState<Result<Long>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Long>> = _presetIdState
 
     private val navigationEventChannel = Channel<NavigationEvent>()
     val navigationEventFlow = navigationEventChannel.receiveAsFlow()
@@ -76,7 +76,7 @@ class HomeViewModel @Inject constructor(
         getPresets()
     }
 
-    fun getSoundForFree(presetId: Int?) {
+    fun getSoundForFree(presetId: Long?) {
         presetId ?: return
         if (_presetIdState.value.isLoadingOrSuccess()) return
         viewModelScope.launch {
@@ -201,7 +201,7 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
-    private fun getPresetById(presetId: Int): Preset? {
+    private fun getPresetById(presetId: Long): Preset? {
         return _categoriesMapState.value.firstNotNullOfOrNull {
             it.value.firstOrNull { it.id == presetId }
         }

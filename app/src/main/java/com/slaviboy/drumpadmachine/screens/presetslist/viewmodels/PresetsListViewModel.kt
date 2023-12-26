@@ -40,8 +40,8 @@ class PresetsListViewModel @Inject constructor(
     private val _noItemsState: MutableState<BaseItem?> = mutableStateOf(null)
     val noItemsState: State<BaseItem?> = _noItemsState
 
-    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
-    val presetIdState: State<Result<Int>> = _presetIdState
+    private val _presetIdState: MutableState<Result<Long>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Long>> = _presetIdState
 
     init {
         _presetIdState.value = Result.Initial
@@ -57,7 +57,7 @@ class PresetsListViewModel @Inject constructor(
         search()
     }
 
-    fun getSoundForFree(presetId: Int?) {
+    fun getSoundForFree(presetId: Long?) {
         presetId ?: return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
@@ -115,7 +115,7 @@ class PresetsListViewModel @Inject constructor(
         }
     }
 
-    private fun getPresetById(presetId: Int): Preset? {
+    private fun getPresetById(presetId: Long): Preset? {
         return _presetsState.value.firstOrNull { it.id == presetId }
     }
 }

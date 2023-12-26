@@ -165,7 +165,7 @@ fun LessonsListTopBar(
     maxHeight: Dp? = null,
     title: String,
     subtitle: String,
-    presetId: Int,
+    presetId: Long,
     @DrawableRes leftIconResId: Int? = null,
     @DrawableRes rightIconResId: Int? = null,
     text: String,

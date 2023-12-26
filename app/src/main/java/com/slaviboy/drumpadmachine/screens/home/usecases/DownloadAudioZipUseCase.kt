@@ -14,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface DownloadAudioZipUseCase {
-    suspend fun execute(presetId: Int): Flow<Result<Int>>
+    suspend fun execute(presetId: Long): Flow<Result<Long>>
 }
 
 @Singleton
@@ -24,7 +24,7 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
     private val dispatchers: Dispatchers
 ) : DownloadAudioZipUseCase {
 
-    override suspend fun execute(presetId: Int): Flow<Result<Int>> = flow {
+    override suspend fun execute(presetId: Long): Flow<Result<Long>> = flow {
         emit(Result.Loading)
         try {
             val path = File(context.cacheDir, "audio/$presetId/")
