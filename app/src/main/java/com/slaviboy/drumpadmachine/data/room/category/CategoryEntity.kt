@@ -2,15 +2,15 @@ package com.slaviboy.drumpadmachine.data.room.category
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.slaviboy.drumpadmachine.data.entities.Filter
+import com.slaviboy.drumpadmachine.data.helpers.DatabaseHelper
+import java.util.UUID
 
 @Entity
 data class CategoryEntity(
 
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    @PrimaryKey
+    val id: UUID = DatabaseHelper.defaultUUID,
 
-    val configId: Long,
-    val title: String,
-    //val filter: Filter
+    val configId: UUID = DatabaseHelper.defaultUUID,
+    val title: String
 )

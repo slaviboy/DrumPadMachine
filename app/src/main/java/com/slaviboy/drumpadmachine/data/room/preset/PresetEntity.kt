@@ -2,14 +2,18 @@ package com.slaviboy.drumpadmachine.data.room.preset
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.slaviboy.drumpadmachine.data.helpers.DatabaseHelper
+import java.util.UUID
 
 @Entity
 data class PresetEntity(
 
-    @PrimaryKey(autoGenerate = false)
-    val id: Long,
+    @PrimaryKey
+    val id: UUID = DatabaseHelper.defaultUUID,
 
-    val configId: Long,
+    val configId: UUID = DatabaseHelper.defaultUUID,
+
+    val presetId: Long,
     val name: String,
     val author: String?,
     val price: Int?,

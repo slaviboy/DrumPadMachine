@@ -11,10 +11,11 @@ data class ConfigWithRelation(
     val owner: ConfigEntity,
 
     @Relation(
+        entity = CategoryEntity::class,
         parentColumn = "id",
         entityColumn = "configId"
     )
-    val categories: List<CategoryEntity>,
+    val categories: List<CategoryWithRelations>,
 
     @Relation(
         parentColumn = "id",

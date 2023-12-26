@@ -2,7 +2,10 @@ package com.slaviboy.drumpadmachine.screens.home.usecases
 
 import android.content.Context
 import com.google.gson.Gson
+import com.slaviboy.drumpadmachine.api.entities.CategoryApi
 import com.slaviboy.drumpadmachine.api.entities.ConfigApi
+import com.slaviboy.drumpadmachine.api.entities.FilterApi
+import com.slaviboy.drumpadmachine.api.entities.PresetApi
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Category
@@ -13,8 +16,11 @@ import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigEntity
+import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
+import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
+import com.slaviboy.drumpadmachine.data.room.relations.CategoryWithRelations
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelation
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
@@ -39,16 +45,33 @@ fun ConfigWithRelation.toConfig(): Config {
     )
 }
 
-fun List<CategoryEntity>.toCategoryList(): List<Category> {
+fun CategoryWithRelations.toCategory(): Category {
+    return Category(
+        title = this.owner.title,
+        filter = this.filter.toFilter()
+    )
+}
+
+fun List<CategoryWithRelations>.toCategoryList(): List<Category> {
+    return this.map { it.toCategory() }
+}
+
+fun FilterEntity.toFilter(): Filter {
+    return Filter(
+        tags = this.tags
+    )
+}
+
+/*fun List<CategoryEntity>.toCategoryList(): List<Category> {
     return this.map { it.toCategory() }
 }
 
 fun CategoryEntity.toCategory(): Category {
     return Category(
         title = this.title,
-        filter = Filter(listOf()) // it.filter
+        filter = this.f
     )
-}
+}*/
 
 fun List<PresetEntity>.toPresetList(): List<Preset> {
     return this.map { it.toPreset() }
@@ -56,7 +79,7 @@ fun List<PresetEntity>.toPresetList(): List<Preset> {
 
 fun PresetEntity.toPreset(): Preset {
     return Preset(
-        id = this.id,
+        id = this.presetId,
         name = this.name,
         author = this.author,
         price = this.price,
@@ -71,12 +94,47 @@ fun PresetEntity.toPreset(): Preset {
     )
 }
 
+fun LinkedHashMap<String, PresetApi>.toPresetEntityList(config: ConfigEntity): List<PresetEntity> {
+    return this.map {
+        val (_, presetApi) = it
+        PresetEntity(
+            configId = config.id,
+            presetId = presetApi.id.toLongOrDefault(0L),
+            name = presetApi.name,
+            author = presetApi.author,
+            price = presetApi.price,
+            orderBy = presetApi.orderBy,
+            timestamp = presetApi.timestamp,
+            deleted = presetApi.deleted,
+            hasInfo = presetApi.hasInfo,
+            tempo = presetApi.tempo,
+            tags = presetApi.tags
+        )
+    }
+}
+
+fun List<CategoryApi>.toCategoryEntityList(config: ConfigEntity): List<CategoryEntity> {
+    return this.map {
+        CategoryEntity(
+            title = it.title,
+            configId = config.id
+        )
+    }
+}
+
+fun FilterApi.toFilter(): Filter {
+    return Filter(
+        tags = this.tags
+    )
+}
+
 @Singleton
 class GetPresetsConfigUseCaseImpl @Inject constructor(
     private val repository: ApiRepository,
     private val configDao: ConfigDao,
     private val categoryDao: CategoryDao,
     private val presetDao: PresetDao,
+    private val filterDao: FilterDao,
     private val gson: Gson,
     private val context: Context,
     private val dispatchers: Dispatchers
@@ -116,44 +174,27 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
 
                     // update/insert config
                     val configId = 0L
-                    val configEntity = ConfigEntity(id = configId)
+                    val configEntity = ConfigEntity()
                     configDao.upsertConfig(configEntity)
 
                     // update/insert config -> categories
-                    val categoryEntityList = configApi.categoriesApi.map {
-                        CategoryEntity(
-                            id = 0,
-                            configId = configId,
-                            title = it.title
-                        )
-                    }
-                    categoryDao.upsertCategories(categoryEntityList)
+                    /*val categoryEntityList = configApi.categoriesApi.toCategoryEntityList(configId)
+                    categoryDao.upsertCategories(categoryEntityList)*/
+
+                    // update/insert config -> categories -> filter
+                    /* val filterEntity = configApi.categoriesApi.toFilterEntity(configId)
+                     filterDao.upsertFilter(filterEntity)*/
 
                     // update/insert config -> categories
-                    val presetEntityList = configApi.presetsApi.map {
-                        val (_, presetApi) = it
-                        PresetEntity(
-                            id = presetApi.id.toLongOrDefault(0L),
-                            configId = configId,
-                            name = presetApi.name,
-                            author = presetApi.author,
-                            price = presetApi.price,
-                            orderBy = presetApi.orderBy,
-                            timestamp = presetApi.timestamp,
-                            deleted = presetApi.deleted,
-                            hasInfo = presetApi.hasInfo,
-                            tempo = presetApi.tempo,
-                            tags = presetApi.tags
-                        )
-                    }
-                    presetDao.upsertPresets(presetEntityList)
+                    /*val presetEntityList = configApi.presetsApi.toPresetEntityList(configId)
+                    presetDao.upsertPresets(presetEntityList)*/
 
                     // emit updated API data
-                    val config = Config(
+                    /*val config = Config(
                         categories = categoryEntityList.toCategoryList(),
                         presets = presetEntityList.toPresetList()
                     )
-                    emit(Result.Success(config))
+                    emit(Result.Success(config))*/
                 }
             } ?: run {
                 emit(Result.Fail("Empty response body"))

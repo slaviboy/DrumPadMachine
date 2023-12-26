@@ -8,8 +8,8 @@ import androidx.room.Upsert
 interface FilterDao {
 
     @Upsert
-    suspend fun upsertFilter(filter: FilterDao)
+    suspend fun upsertFilter(filter: FilterEntity)
 
     @Delete
-    suspend fun deleteFilter(filter: FilterDao)
+    suspend fun deleteFilter(filter: FilterEntity)
 }
