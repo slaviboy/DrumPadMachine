@@ -18,7 +18,7 @@ data class PresetEntity(
     val deleted: Boolean?,
     val hasInfo: Boolean,
     val tempo: Int,
-    //val tags: List<String>?,
+    val tags: List<String>?,
     // val files: List<File>?,
     // val lessons: List<Lesson>?
 )

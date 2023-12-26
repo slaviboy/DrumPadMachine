@@ -65,7 +65,7 @@ fun PresetEntity.toPreset(): Preset {
         deleted = this.deleted,
         hasInfo = this.hasInfo,
         tempo = this.tempo,
-        tags = null,
+        tags = this.tags,
         files = null,
         lessons = null
     )
@@ -143,7 +143,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                             deleted = presetApi.deleted,
                             hasInfo = presetApi.hasInfo,
                             tempo = presetApi.tempo,
-                            //tags = presetApi.tags
+                            tags = presetApi.tags
                         )
                     }
                     presetDao.upsertPresets(presetEntityList)
