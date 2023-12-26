@@ -3,7 +3,7 @@ package com.slaviboy.drumpadmachine.modules
 import android.content.Context
 import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
-import com.slaviboy.drumpadmachine.data.room.ConfigDao
+import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase

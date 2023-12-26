@@ -1,9 +1,11 @@
-package com.slaviboy.drumpadmachine.data.room
+package com.slaviboy.drumpadmachine.data.room.config
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
+import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelation
 
 @Dao
 interface ConfigDao {
@@ -14,6 +16,7 @@ interface ConfigDao {
     @Delete
     suspend fun deleteConfig(config: ConfigEntity)
 
+    @Transaction
     @Query("SELECT * FROM ConfigEntity WHERE id = 0")
-    fun getConfig(): ConfigEntity?
+    fun getConfig(): ConfigWithRelation?
 }

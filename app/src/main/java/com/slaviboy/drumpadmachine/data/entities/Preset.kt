@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Preset(
-    val id: Int,
+    val id: Long,
     val name: String,
     val author: String?,
     val price: Int?,
