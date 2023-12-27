@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.slaviboy.drumpadmachine.data.helpers.DatabaseHelper
 import java.util.UUID
 
-@Entity
+@Entity(tableName = "category")
 data class CategoryEntity(
 
     @PrimaryKey
