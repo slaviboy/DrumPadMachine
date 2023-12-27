@@ -15,5 +15,5 @@ data class Lesson(
     val lastScore: Int,
     val bestScore: Int,
     val lessonState: LessonState,
-    val pads: HashMap<String, Array<Pad>>
+    val pads: List<Pad>
 ) : Parcelable

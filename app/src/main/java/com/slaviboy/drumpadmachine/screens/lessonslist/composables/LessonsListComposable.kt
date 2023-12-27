@@ -524,7 +524,7 @@ fun LessonItem(
                                 val containsIndex = DrumPadHelper.containsIndex(
                                     row = i,
                                     column = j,
-                                    indices = lesson.pads.keys.mapNotNull { it.toIntOrNull() }
+                                    indices = lesson.pads.map { it.id }
                                 )
                                 val padColor = if (containsIndex) {
                                     Color(0xFF908F9C)

@@ -7,6 +7,8 @@ import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.file.FileDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
+import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
@@ -55,10 +57,12 @@ object ViewModelModule {
         presetDao: PresetDao,
         filterDao: FilterDao,
         fileDao: FileDao,
+        lessonDao: LessonDao,
+        padDao: PadDao,
         gson: Gson,
         @ApplicationContext context: Context,
         dispatchers: Dispatchers
     ): GetPresetsConfigUseCase {
-        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, fileDao, gson, context, dispatchers)
+        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, fileDao, lessonDao, padDao, gson, context, dispatchers)
     }
 }

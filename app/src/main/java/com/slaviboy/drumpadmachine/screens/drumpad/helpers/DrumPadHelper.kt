@@ -12,7 +12,7 @@ object DrumPadHelper {
 
     fun containsIndex(row: Int, column: Int, indices: List<Int>): Boolean {
         for (i in 0 until numberOfPages) {
-            val index = getIndex(row, column, i)
+            val index = getIndex(i, row, column)
             if (indices.contains(index)) {
                 return true
             }

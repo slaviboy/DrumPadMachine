@@ -9,6 +9,9 @@ import com.slaviboy.drumpadmachine.data.entities.Category
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Filter
+import com.slaviboy.drumpadmachine.data.entities.Lesson
+import com.slaviboy.drumpadmachine.data.entities.LessonState
+import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
@@ -18,6 +21,8 @@ import com.slaviboy.drumpadmachine.data.room.file.FileDao
 import com.slaviboy.drumpadmachine.data.room.file.FileEntity
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
+import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 import com.slaviboy.drumpadmachine.data.room.relations.CategoryWithRelations
@@ -105,6 +110,8 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
     private val presetDao: PresetDao,
     private val filterDao: FilterDao,
     private val fileDao: FileDao,
+    private val lessonDao: LessonDao,
+    private val padDao: PadDao,
     private val gson: Gson,
     private val context: Context,
     private val dispatchers: Dispatchers
@@ -114,9 +121,9 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
         emit(Result.Loading)
 
         // emit cached data
-        configDao.getConfig()?.let {
-            emit(Result.Success(it.toConfig()))
-        }
+        /* configDao.getConfig()?.let {
+             emit(Result.Success(it.toConfig()))
+         }*/
 
         // make API request, and cache locally
         try {
@@ -217,6 +224,38 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                 )
             }
 
+            val lessons = presetApi.beatSchool?.map {
+                val (side, lessonApiList) = it
+                lessonApiList.map {
+                    val pads = it.pads.map {
+                        val (padId, padApiArray) = it
+                        padApiArray.map {
+                            Pad(
+                                id = padId.toIntOrNull() ?: -1,
+                                start = it.start,
+                                ambient = it.embient,
+                                duration = it.duration
+                            )
+                        }.filter {
+                            it.id != -1
+                        }
+                    }.flatten()
+                    Lesson(
+                        id = it.id,
+                        side = side,
+                        version = it.version,
+                        name = it.name,
+                        orderBy = it.orderBy,
+                        sequencerSize = it.sequencerSize,
+                        rating = it.rating,
+                        lastScore = 0,
+                        bestScore = 0,
+                        lessonState = LessonState.Unlock,
+                        pads = pads
+                    )
+                }
+            }?.flatten()
+
             Preset(
                 id = presetApi.id.toLongOrDefault(0L),
                 name = presetApi.name,
@@ -229,7 +268,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                 tempo = presetApi.tempo,
                 tags = presetApi.tags,
                 files = files,
-                lessons = null //presetApi
+                lessons = lessons
             )
         }
 
@@ -238,4 +277,32 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
             presets = presets
         )
     }
+
+    /*private fun getLessons(lessonsMap: LinkedHashMap<String, List<LessonApi>>, vararg sides: String): List<Lesson> {
+        return sides.map { side ->
+            lessonsMap[side]?.map {
+                Lesson(
+                    id = it.id,
+                    side = side,
+                    version = it.version,
+                    name = it.name,
+                    orderBy = it.orderBy,
+                    sequencerSize = it.sequencerSize,
+                    rating = it.rating,
+                    lastScore = 0,
+                    bestScore = 0,
+                    lessonState = LessonState.Unlock,
+                    pads = it.pads.mapValues {
+                        val (_, padApiArray) = it
+                        padApiArray.map {
+                            Pad(
+                                start = it.start,
+                                embient = it.embient
+                            )
+                        }.toTypedArray()
+                    } as HashMap
+                )
+            } ?: listOf()
+        }.flatten()
+    }*/
 }

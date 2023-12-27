@@ -3,6 +3,7 @@ package com.slaviboy.drumpadmachine.data.room.relations
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.slaviboy.drumpadmachine.data.room.file.FileEntity
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 
 data class PresetWithRelations(
@@ -13,5 +14,13 @@ data class PresetWithRelations(
         parentColumn = "id",
         entityColumn = "presetId"
     )
-    val files: List<FileEntity>
+    val files: List<FileEntity>,
+
+
+    @Relation(
+        entity = LessonEntity::class,
+        parentColumn = "id",
+        entityColumn = "presetId"
+    )
+    val lessons: List<LessonWithRelations>
 )

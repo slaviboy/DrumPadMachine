@@ -7,6 +7,8 @@ import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.file.FileDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
+import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import dagger.Module
 import dagger.Provides
@@ -46,12 +48,25 @@ object DataModule {
         return database.filterDao
     }
 
-
     @Provides
     fun provideFileDao(
         database: Database
     ): FileDao {
         return database.fileDao
+    }
+
+    @Provides
+    fun provideLessonDao(
+        database: Database
+    ): LessonDao {
+        return database.lessonDao
+    }
+
+    @Provides
+    fun providePadDao(
+        database: Database
+    ): PadDao {
+        return database.padDao
     }
 
     @Provides
