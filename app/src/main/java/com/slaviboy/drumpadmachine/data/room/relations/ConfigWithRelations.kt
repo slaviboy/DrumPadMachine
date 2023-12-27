@@ -18,6 +18,7 @@ data class ConfigWithRelations(
     val categories: List<CategoryWithRelations>,
 
     @Relation(
+        entity = PresetEntity::class,
         parentColumn = "id",
         entityColumn = "configId"
     )
