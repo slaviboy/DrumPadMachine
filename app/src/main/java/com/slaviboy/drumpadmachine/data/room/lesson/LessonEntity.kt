@@ -7,7 +7,7 @@ import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.helpers.DatabaseHelper
 import java.util.UUID
 
-@Entity
+@Entity(tableName = "lesson")
 data class LessonEntity(
 
     @PrimaryKey

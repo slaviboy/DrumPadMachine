@@ -22,12 +22,12 @@ import com.slaviboy.drumpadmachine.data.room.file.FileEntity
 import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
 import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonEntity
 import com.slaviboy.drumpadmachine.data.room.pad.PadDao
+import com.slaviboy.drumpadmachine.data.room.pad.PadEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
-import com.slaviboy.drumpadmachine.data.room.relations.CategoryWithRelations
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
-import com.slaviboy.drumpadmachine.data.room.relations.PresetWithRelations
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
 import kotlinx.coroutines.flow.Flow
@@ -41,65 +41,6 @@ import java.io.File as IOFile
 
 interface GetPresetsConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
-}
-
-fun ConfigWithRelations.toConfig(): Config {
-    return Config(
-        categories = this.categories.toCategoryList(),
-        presets = this.presets.toPresetList()
-    )
-}
-
-fun CategoryWithRelations.toCategory(): Category {
-    return Category(
-        title = this.owner.title,
-        filter = this.filter.toFilter()
-    )
-}
-
-fun List<CategoryWithRelations>.toCategoryList(): List<Category> {
-    return this.map { it.toCategory() }
-}
-
-fun FilterEntity.toFilter(): Filter {
-    return Filter(
-        tags = this.tags
-    )
-}
-
-fun List<PresetWithRelations>.toPresetList(): List<Preset> {
-    return this.map { it.toPreset() }
-}
-
-fun PresetWithRelations.toPreset(): Preset {
-    /*return Preset(
-        id = this.presetId,
-        name = this.name,
-        author = this.author,
-        price = this.price,
-        orderBy = this.orderBy,
-        timestamp = this.timestamp,
-        deleted = this.deleted,
-        hasInfo = this.hasInfo,
-        tempo = this.tempo,
-        tags = this.tags,
-        files = null,
-        lessons = null
-    )*/
-    return Preset(
-        id = 0,
-        name = "",
-        author = null,
-        price = 1,
-        orderBy = "",
-        timestamp = 1,
-        deleted = false,
-        hasInfo = false,
-        tempo = 1,
-        tags = null,
-        files = null,
-        lessons = null
-    )
 }
 
 @Singleton
@@ -121,9 +62,10 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
         emit(Result.Loading)
 
         // emit cached data
-        /* configDao.getConfig()?.let {
-             emit(Result.Success(it.toConfig()))
-         }*/
+        configDao.getConfig()?.let {
+            val config = getConfig(it)
+            emit(Result.Success(config))
+        }
 
         // make API request, and cache locally
         try {
@@ -161,6 +103,64 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
             emit(Result.Fail("Network error!"))
         }
     }.flowOn(dispatchers.io)
+
+    private fun getConfig(configWithRelations: ConfigWithRelations): Config {
+        val presets = configWithRelations.presets.map {
+            Preset(
+                id = it.owner.presetId,
+                name = it.owner.name,
+                author = it.owner.author,
+                price = it.owner.price,
+                orderBy = it.owner.orderBy,
+                timestamp = it.owner.timestamp,
+                deleted = it.owner.deleted,
+                hasInfo = it.owner.hasInfo,
+                tempo = it.owner.tempo,
+                tags = it.owner.tags,
+                files = it.files.map {
+                    File(
+                        looped = it.looped,
+                        filename = it.filename,
+                        choke = it.choke,
+                        color = it.color,
+                        stopOnRelease = it.stopOnRelease
+                    )
+                },
+                lessons = it.lessons.map {
+                    Lesson(
+                        id = it.owner.lessonId,
+                        side = it.owner.side,
+                        version = it.owner.version,
+                        name = it.owner.name,
+                        orderBy = it.owner.orderBy,
+                        sequencerSize = it.owner.sequencerSize,
+                        rating = it.owner.rating,
+                        lastScore = it.owner.lastScore,
+                        bestScore = it.owner.bestScore,
+                        lessonState = it.owner.lessonState,
+                        pads = it.pads.map {
+                            Pad(
+                                id = it.padId,
+                                start = it.start,
+                                ambient = it.ambient,
+                                duration = it.duration
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        val categories = configWithRelations.categories.map {
+            Category(
+                title = it.owner.title,
+                filter = Filter(tags = it.filter.tags)
+            )
+        }
+        return Config(
+            categories = categories,
+            presets = presets
+        )
+    }
 
     private suspend fun toCategoryEntity(configApi: ConfigApi): Config {
         val configEntity = ConfigEntity()
@@ -226,6 +226,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
 
             val lessons = presetApi.beatSchool?.map {
                 val (side, lessonApiList) = it
+
                 lessonApiList.map {
                     val pads = it.pads.map {
                         val (padId, padApiArray) = it
@@ -240,6 +241,34 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
                             it.id != -1
                         }
                     }.flatten()
+
+
+                    val lessonEntity = LessonEntity(
+                        presetId = presetEntity.id,
+                        lessonId = it.id,
+                        side = side,
+                        version = it.version,
+                        name = it.name,
+                        orderBy = it.orderBy,
+                        sequencerSize = it.sequencerSize,
+                        rating = it.rating,
+                        lastScore = 0,
+                        bestScore = 0,
+                        lessonState = LessonState.Unlock
+                    )
+                    lessonDao.upsertLesson(lessonEntity)
+
+                    val padEntityList = pads.map {
+                        PadEntity(
+                            lessonId = lessonEntity.id,
+                            padId = it.id,
+                            start = it.start,
+                            ambient = it.ambient,
+                            duration = it.duration
+                        )
+                    }
+                    padDao.upsertPads(padEntityList)
+
                     Lesson(
                         id = it.id,
                         side = side,
@@ -277,32 +306,4 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
             presets = presets
         )
     }
-
-    /*private fun getLessons(lessonsMap: LinkedHashMap<String, List<LessonApi>>, vararg sides: String): List<Lesson> {
-        return sides.map { side ->
-            lessonsMap[side]?.map {
-                Lesson(
-                    id = it.id,
-                    side = side,
-                    version = it.version,
-                    name = it.name,
-                    orderBy = it.orderBy,
-                    sequencerSize = it.sequencerSize,
-                    rating = it.rating,
-                    lastScore = 0,
-                    bestScore = 0,
-                    lessonState = LessonState.Unlock,
-                    pads = it.pads.mapValues {
-                        val (_, padApiArray) = it
-                        padApiArray.map {
-                            Pad(
-                                start = it.start,
-                                embient = it.embient
-                            )
-                        }.toTypedArray()
-                    } as HashMap
-                )
-            } ?: listOf()
-        }.flatten()
-    }*/
 }

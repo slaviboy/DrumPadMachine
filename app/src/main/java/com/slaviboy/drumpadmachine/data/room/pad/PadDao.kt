@@ -8,7 +8,7 @@ import androidx.room.Upsert
 interface PadDao {
 
     @Upsert
-    suspend fun upsertPad(pad: PadEntity)
+    suspend fun upsertPads(pads: List<PadEntity>)
 
     @Delete
     suspend fun deletePad(pad: PadEntity)
