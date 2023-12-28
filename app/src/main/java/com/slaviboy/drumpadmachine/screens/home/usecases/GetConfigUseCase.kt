@@ -27,6 +27,9 @@ import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -99,6 +102,7 @@ class GetConfigUseCaseImpl @Inject constructor(
         } catch (e: Exception) {
             emit(Result.Fail("Network error!"))
         }
+
     }.flowOn(dispatchers.io)
 
     private fun getConfig(configWithRelations: ConfigWithRelations): Config {
@@ -154,8 +158,6 @@ class GetConfigUseCaseImpl @Inject constructor(
             filterEntityList.add(filterEntity)
             categories.add(category)
         }
-        categoryDao.upsertCategories(categoryEntityList)
-        filterDao.upsertFilters(filterEntityList)
 
         val presetEntityList = mutableListOf<PresetEntity>()
         val fileEntityList = mutableListOf<FileEntity>()
@@ -244,10 +246,18 @@ class GetConfigUseCaseImpl @Inject constructor(
             )
             presets.add(preset)
         }
-        fileDao.upsertFiles(fileEntityList)
-        presetDao.upsertPresets(presetEntityList)
-        lessonDao.upsertLessons(lessonEntityList)
-        padDao.upsertPads(padEntityList)
+
+        coroutineScope {
+            listOf(
+                async(dispatchers.io) { categoryDao.upsertCategories(categoryEntityList) },
+                async(dispatchers.io) { filterDao.upsertFilters(filterEntityList) },
+                async(dispatchers.io) { filterDao.upsertFilters(filterEntityList) },
+                async(dispatchers.io) { fileDao.upsertFiles(fileEntityList) },
+                async(dispatchers.io) { presetDao.upsertPresets(presetEntityList) },
+                async(dispatchers.io) { lessonDao.upsertLessons(lessonEntityList) },
+                async(dispatchers.io) { padDao.upsertPads(padEntityList) }
+            ).awaitAll()
+        }
 
         return Config(
             categories = categories,
