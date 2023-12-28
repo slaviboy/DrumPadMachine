@@ -27,8 +27,6 @@ import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -64,6 +62,7 @@ class GetConfigUseCaseImpl @Inject constructor(
         configDao.getConfig()?.let {
             val config = getConfig(it)
             emit(Result.Success(config))
+            return@flow
         }
 
         // make API request, and cache locally
@@ -246,29 +245,12 @@ class GetConfigUseCaseImpl @Inject constructor(
             presets.add(preset)
         }
 
-        flow<Unit> {
-            categoryDao.upsertCategories(categoryEntityList)
-        }.flowOn(dispatchers.io)
-
-        flow<Unit> {
-            filterDao.upsertFilters(filterEntityList)
-        }.flowOn(dispatchers.io)
-
-        flow<Unit> {
-            fileDao.upsertFiles(fileEntityList)
-        }.flowOn(dispatchers.io)
-
-        flow<Unit> {
-            presetDao.upsertPresets(presetEntityList)
-        }.flowOn(dispatchers.io)
-
-        flow<Unit> {
-            lessonDao.upsertLessons(lessonEntityList)
-        }.flowOn(dispatchers.io)
-
-        flow<Unit> {
-            padDao.upsertPads(padEntityList)
-        }.flowOn(dispatchers.io)
+        categoryDao.upsertCategories(categoryEntityList)
+        filterDao.upsertFilters(filterEntityList)
+        fileDao.upsertFiles(fileEntityList)
+        presetDao.upsertPresets(presetEntityList)
+        lessonDao.upsertLessons(lessonEntityList)
+        padDao.upsertPads(padEntityList)
 
         return Config(
             categories = categories,
