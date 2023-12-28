@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
-import com.slaviboy.drumpadmachine.screens.home.viewmodels.BaseItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel

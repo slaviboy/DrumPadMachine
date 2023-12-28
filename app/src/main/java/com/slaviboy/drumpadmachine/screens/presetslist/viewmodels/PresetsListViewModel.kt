@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
-import com.slaviboy.drumpadmachine.screens.home.viewmodels.BaseItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow

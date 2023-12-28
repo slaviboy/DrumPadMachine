@@ -39,12 +39,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File as IOFile
 
-interface GetPresetsConfigUseCase {
+interface GetConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
 }
 
 @Singleton
-class GetPresetsConfigUseCaseImpl @Inject constructor(
+class GetConfigUseCaseImpl @Inject constructor(
     private val repository: ApiRepository,
     private val configDao: ConfigDao,
     private val categoryDao: CategoryDao,
@@ -56,7 +56,7 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
     private val gson: Gson,
     private val context: Context,
     private val dispatchers: Dispatchers
-) : GetPresetsConfigUseCase {
+) : GetConfigUseCase {
 
     override fun execute(version: Int): Flow<Result<Config>> = flow {
         emit(Result.Loading)
@@ -107,47 +107,18 @@ class GetPresetsConfigUseCaseImpl @Inject constructor(
     private fun getConfig(configWithRelations: ConfigWithRelations): Config {
         val presets = configWithRelations.presets.map {
             Preset(
-                id = it.owner.presetId,
-                name = it.owner.name,
-                author = it.owner.author,
-                price = it.owner.price,
-                orderBy = it.owner.orderBy,
-                timestamp = it.owner.timestamp,
-                deleted = it.owner.deleted,
-                hasInfo = it.owner.hasInfo,
-                tempo = it.owner.tempo,
-                tags = it.owner.tags,
-                files = it.files.map {
-                    File(
-                        looped = it.looped,
-                        filename = it.filename,
-                        choke = it.choke,
-                        color = it.color,
-                        stopOnRelease = it.stopOnRelease
-                    )
-                },
-                lessons = it.lessons.map {
-                    Lesson(
-                        id = it.owner.lessonId,
-                        side = it.owner.side,
-                        version = it.owner.version,
-                        name = it.owner.name,
-                        orderBy = it.owner.orderBy,
-                        sequencerSize = it.owner.sequencerSize,
-                        rating = it.owner.rating,
-                        lastScore = it.owner.lastScore,
-                        bestScore = it.owner.bestScore,
-                        lessonState = it.owner.lessonState,
-                        pads = it.pads.map {
-                            Pad(
-                                id = it.padId,
-                                start = it.start,
-                                ambient = it.ambient,
-                                duration = it.duration
-                            )
-                        }
-                    )
-                }
+                id = it.presetId,
+                name = it.name,
+                author = it.author,
+                price = it.price,
+                orderBy = it.orderBy,
+                timestamp = it.timestamp,
+                deleted = it.deleted,
+                hasInfo = it.hasInfo,
+                tempo = it.tempo,
+                tags = it.tags,
+                files = null,
+                lessons = null
             )
         }
         val categories = configWithRelations.categories.map {

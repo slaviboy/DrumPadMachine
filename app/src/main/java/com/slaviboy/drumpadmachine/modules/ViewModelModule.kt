@@ -14,8 +14,10 @@ import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCaseImpl
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCaseImpl
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCaseImpl
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCaseImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,7 +52,16 @@ object ViewModelModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetPresetsConfigUseCase(
+    fun provideGetPresetUseCase(
+        presetDao: PresetDao,
+        dispatchers: Dispatchers
+    ): GetPresetUseCase {
+        return GetPresetUseCaseImpl(presetDao, dispatchers)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetConfigUseCase(
         repository: ApiRepository,
         configDao: ConfigDao,
         categoryDao: CategoryDao,
@@ -62,7 +73,7 @@ object ViewModelModule {
         gson: Gson,
         @ApplicationContext context: Context,
         dispatchers: Dispatchers
-    ): GetPresetsConfigUseCase {
-        return GetPresetsConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, fileDao, lessonDao, padDao, gson, context, dispatchers)
+    ): GetConfigUseCase {
+        return GetConfigUseCaseImpl(repository, configDao, categoryDao, presetDao, filterDao, fileDao, lessonDao, padDao, gson, context, dispatchers)
     }
 }

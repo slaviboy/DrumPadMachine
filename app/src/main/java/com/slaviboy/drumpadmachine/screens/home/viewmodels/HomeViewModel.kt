@@ -1,7 +1,5 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
@@ -16,7 +15,8 @@ import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -26,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getPresetsConfigUseCase: GetPresetsConfigUseCase
+    private val getConfigUseCase: GetConfigUseCase,
+    private val getPresetUseCase: GetPresetUseCase
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -73,7 +74,7 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        getPresets()
+        getConfig()
     }
 
     fun getSoundForFree(presetId: Long?) {
@@ -81,23 +82,17 @@ class HomeViewModel @Inject constructor(
         if (_presetIdState.value.isLoadingOrSuccess()) return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
-                _presetIdState.value = it
                 if (it is Result.Success) {
-                    val preset = getPresetById(presetId)
-                    if (preset != null) {
-                        navigationEventChannel.send(
-                            NavigationEvent.NavigateToDrumPadScreen(preset)
-                        )
-                    } else {
-                        errorEventChannel.send(
-                            ErrorEvent.ErrorWithMessage("Unable to find Preset!")
-                        )
-                    }
+                    getPresetById(presetId)
+                }
+                if (it is Result.Loading) {
+                    _presetIdState.value = it
                 }
                 if (it is Result.Fail) {
                     errorEventChannel.send(
                         ErrorEvent.ErrorWithMessage(it.errorMessage)
                     )
+                    _presetIdState.value = it
                 }
             }
         }
@@ -163,8 +158,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getPresets() = viewModelScope.launch {
-        getPresetsConfigUseCase.execute(PRESETS_VERSION).collect {
+    private fun getConfig() = viewModelScope.launch {
+        getConfigUseCase.execute(PRESETS_VERSION).collect {
             _audioConfigState.value = it
             setNoItemEvent()
             if (it is Result.Success) {
@@ -201,9 +196,22 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
-    private fun getPresetById(presetId: Long): Preset? {
-        return _categoriesMapState.value.firstNotNullOfOrNull {
-            it.value.firstOrNull { it.id == presetId }
+    private fun getPresetById(presetId: Long) {
+        viewModelScope.launch {
+            getPresetUseCase.execute(presetId).collect {
+                if (it is Result.Success) {
+                    navigationEventChannel.send(
+                        NavigationEvent.NavigateToDrumPadScreen(it.data)
+                    )
+                    _presetIdState.value = Result.Success(presetId)
+                }
+                if (it is Result.Fail) {
+                    errorEventChannel.send(
+                        ErrorEvent.ErrorWithMessage(it.errorMessage)
+                    )
+                    _presetIdState.value = Result.Fail(it.errorMessage)
+                }
+            }
         }
     }
 
@@ -215,9 +223,3 @@ class HomeViewModel @Inject constructor(
         const val PRESETS_VERSION = 12
     }
 }
-
-data class BaseItem(
-    @DrawableRes val iconResId: Int,
-    @StringRes val titleResId: Int,
-    @StringRes val subtitleResId: Int
-)

@@ -29,9 +29,11 @@ class DownloadAudioZipUseCaseImpl @Inject constructor(
         try {
             val path = File(context.cacheDir, "audio/$presetId/")
             val listFile = path.listFiles() ?: arrayOf()
-            if (listFile.size == 24) {
+            if (listFile.size >= 24) {
                 emit(Result.Success(presetId))
                 return@flow
+            } else {
+                path.deleteRecursively()
             }
             val response = repository.getAudioZipById(presetId)
             if (!response.isSuccessful) {

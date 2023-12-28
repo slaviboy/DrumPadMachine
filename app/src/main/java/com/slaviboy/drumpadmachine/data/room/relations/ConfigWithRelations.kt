@@ -22,5 +22,5 @@ data class ConfigWithRelations(
         parentColumn = "id",
         entityColumn = "configId"
     )
-    val presets: List<PresetWithRelations>
+    val presets: List<PresetEntity>
 )
