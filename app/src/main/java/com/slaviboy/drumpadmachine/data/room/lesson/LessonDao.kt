@@ -8,7 +8,7 @@ import androidx.room.Upsert
 interface LessonDao {
 
     @Upsert
-    suspend fun upsertLesson(lesson: LessonEntity)
+    suspend fun upsertLessons(lesson: List<LessonEntity>)
 
     @Delete
     suspend fun deleteLesson(lesson: LessonEntity)

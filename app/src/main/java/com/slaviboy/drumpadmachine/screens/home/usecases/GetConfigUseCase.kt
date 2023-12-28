@@ -7,11 +7,8 @@ import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Category
 import com.slaviboy.drumpadmachine.data.entities.Config
-import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Filter
-import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.LessonState
-import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
@@ -137,28 +134,37 @@ class GetConfigUseCaseImpl @Inject constructor(
         val configEntity = ConfigEntity()
         configDao.upsertConfig(configEntity)
 
-        val categories = configApi.categoriesApi.map { categoryApi ->
+        val categories = mutableListOf<Category>()
+        val categoryEntityList = mutableListOf<CategoryEntity>()
+        val filterEntityList = mutableListOf<FilterEntity>()
+        configApi.categoriesApi.forEach { categoryApi ->
             val categoryEntity = CategoryEntity(
                 configId = configEntity.id,
                 title = categoryApi.title
             )
-            categoryDao.upsertCategory(categoryEntity)
-
             val filterEntity = FilterEntity(
                 categoryId = categoryEntity.id,
                 tags = categoryApi.filterApi.tags
             )
-            filterDao.upsertFilter(filterEntity)
-
-            Category(
+            val category = Category(
                 title = categoryApi.title,
                 filter = Filter(categoryApi.filterApi.tags)
             )
+            categoryEntityList.add(categoryEntity)
+            filterEntityList.add(filterEntity)
+            categories.add(category)
         }
+        categoryDao.upsertCategories(categoryEntityList)
+        filterDao.upsertFilters(filterEntityList)
 
-        val presets = configApi.presetsApi.map {
+        val presetEntityList = mutableListOf<PresetEntity>()
+        val fileEntityList = mutableListOf<FileEntity>()
+        val lessonEntityList = mutableListOf<LessonEntity>()
+        val padEntityList = mutableListOf<PadEntity>()
+        val presets = mutableListOf<Preset>()
+
+        configApi.presetsApi.forEach {
             val (_, presetApi) = it
-
             val presetEntity = PresetEntity(
                 configId = configEntity.id,
                 presetId = presetApi.id.toLongOrDefault(0L),
@@ -172,9 +178,9 @@ class GetConfigUseCaseImpl @Inject constructor(
                 tempo = presetApi.tempo,
                 tags = presetApi.tags
             )
-            presetDao.upsertPreset(presetEntity)
+            presetEntityList.add(presetEntity)
 
-            val files = presetApi.files.map {
+            presetApi.files.forEach {
                 val (_, fileApi) = it
                 val fileEntity = FileEntity(
                     presetId = presetEntity.id,
@@ -184,36 +190,12 @@ class GetConfigUseCaseImpl @Inject constructor(
                     color = fileApi.color,
                     stopOnRelease = fileApi.stopOnRelease
                 )
-                fileDao.upsertFile(fileEntity)
-
-                File(
-                    looped = fileApi.looped,
-                    filename = fileApi.filename,
-                    choke = fileApi.choke,
-                    color = fileApi.color,
-                    stopOnRelease = fileApi.stopOnRelease
-                )
+                fileEntityList.add(fileEntity)
             }
 
-            val lessons = presetApi.beatSchool?.map {
+            presetApi.beatSchool?.forEach {
                 val (side, lessonApiList) = it
-
-                lessonApiList.map {
-                    val pads = it.pads.map {
-                        val (padId, padApiArray) = it
-                        padApiArray.map {
-                            Pad(
-                                id = padId.toIntOrNull() ?: -1,
-                                start = it.start,
-                                ambient = it.embient,
-                                duration = it.duration
-                            )
-                        }.filter {
-                            it.id != -1
-                        }
-                    }.flatten()
-
-
+                lessonApiList.forEach {
                     val lessonEntity = LessonEntity(
                         presetId = presetEntity.id,
                         lessonId = it.id,
@@ -227,36 +209,26 @@ class GetConfigUseCaseImpl @Inject constructor(
                         bestScore = 0,
                         lessonState = LessonState.Unlock
                     )
-                    lessonDao.upsertLesson(lessonEntity)
+                    lessonEntityList.add(lessonEntity)
 
-                    val padEntityList = pads.map {
-                        PadEntity(
-                            lessonId = lessonEntity.id,
-                            padId = it.id,
-                            start = it.start,
-                            ambient = it.ambient,
-                            duration = it.duration
-                        )
-                    }
-                    padDao.upsertPads(padEntityList)
-
-                    Lesson(
-                        id = it.id,
-                        side = side,
-                        version = it.version,
-                        name = it.name,
-                        orderBy = it.orderBy,
-                        sequencerSize = it.sequencerSize,
-                        rating = it.rating,
-                        lastScore = 0,
-                        bestScore = 0,
-                        lessonState = LessonState.Unlock,
-                        pads = pads
-                    )
+                    val pads = it.pads.map {
+                        val (padId, padApiArray) = it
+                        padApiArray.map {
+                            PadEntity(
+                                lessonId = lessonEntity.id,
+                                padId = padId.toIntOrNull() ?: -1,
+                                start = it.start,
+                                ambient = it.embient,
+                                duration = it.duration
+                            )
+                        }.filter {
+                            it.padId != -1
+                        }
+                    }.flatten()
+                    padEntityList.addAll(pads)
                 }
-            }?.flatten()
-
-            Preset(
+            }
+            val preset = Preset(
                 id = presetApi.id.toLongOrDefault(0L),
                 name = presetApi.name,
                 author = presetApi.author,
@@ -267,10 +239,15 @@ class GetConfigUseCaseImpl @Inject constructor(
                 hasInfo = presetApi.hasInfo,
                 tempo = presetApi.tempo,
                 tags = presetApi.tags,
-                files = files,
-                lessons = lessons
+                files = null,
+                lessons = null
             )
+            presets.add(preset)
         }
+        fileDao.upsertFiles(fileEntityList)
+        presetDao.upsertPresets(presetEntityList)
+        lessonDao.upsertLessons(lessonEntityList)
+        padDao.upsertPads(padEntityList)
 
         return Config(
             categories = categories,

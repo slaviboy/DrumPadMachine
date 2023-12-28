@@ -11,7 +11,7 @@ import com.slaviboy.drumpadmachine.data.room.relations.PresetWithRelations
 interface PresetDao {
 
     @Upsert
-    suspend fun upsertPreset(preset: PresetEntity)
+    suspend fun upsertPresets(preset: List<PresetEntity>)
 
     @Delete
     suspend fun deletePreset(preset: PresetEntity)

@@ -8,7 +8,7 @@ import androidx.room.Upsert
 interface FileDao {
 
     @Upsert
-    suspend fun upsertFile(category: FileEntity)
+    suspend fun upsertFiles(category: List<FileEntity>)
 
     @Delete
     suspend fun deleteFile(category: FileEntity)
