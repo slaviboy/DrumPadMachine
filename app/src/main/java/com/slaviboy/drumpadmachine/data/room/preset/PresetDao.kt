@@ -10,7 +10,6 @@ import com.slaviboy.drumpadmachine.data.room.relations.PresetWithRelations
 @Dao
 interface PresetDao {
 
-    @Transaction
     @Upsert
     suspend fun upsertPresets(preset: List<PresetEntity>)
 
