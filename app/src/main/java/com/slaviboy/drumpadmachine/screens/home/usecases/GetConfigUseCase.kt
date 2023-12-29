@@ -31,10 +31,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import okhttp3.internal.toLongOrDefault
+import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
-import java.io.File as IOFile
 
 interface GetConfigUseCase {
     fun execute(version: Int): Flow<Result<Config>>
@@ -67,14 +67,25 @@ class GetConfigUseCaseImpl @Inject constructor(
 
         // make API request, and cache locally
         try {
+
+            val path = File(context.cacheDir, "config/presets/v$version/")
+            if (!path.exists()) {
+                path.mkdirs()
+            }
+
+            // try with cached config.json file
+            readConfigFile(path)?.let {
+                emit(Result.Success(it))
+                return@flow
+            }
+
+            // make API call
             val response = repository.getSoundConfigZip(version)
             if (!response.isSuccessful) {
                 emit(Result.Fail("Failed to download ZIP file"))
                 return@flow
             }
-            val path = IOFile(context.cacheDir, "config/presets/v$version/")
-            val tempFile = IOFile(path, "temp_config.zip")
-            tempFile.getParentFile()?.mkdirs()
+            val tempFile = File(path, "temp_config.zip")
             tempFile.createNewFile()
             response.body()?.byteStream()?.use { inputStream ->
                 FileOutputStream(tempFile).use { outputStream ->
@@ -85,13 +96,9 @@ class GetConfigUseCaseImpl @Inject constructor(
                     tempFile.delete()
 
                     // extract ConfigApi from json file
-                    val bufferedReader = IOFile(path, "config.json").bufferedReader()
-                    val configText = bufferedReader.use { it.readText() }
-                    val configApi = gson.fromJson(configText, ConfigApi::class.java)
-
-                    // emit updated API data
-                    val config = toCategoryEntity(configApi)
-                    emit(Result.Success(config))
+                    readConfigFile(path)?.let {
+                        emit(Result.Success(it))
+                    }
                 }
             } ?: run {
                 emit(Result.Fail("Empty response body"))
@@ -102,6 +109,17 @@ class GetConfigUseCaseImpl @Inject constructor(
         }
 
     }.flowOn(dispatchers.io)
+
+    private suspend fun readConfigFile(path: File): Config? {
+        val configFile = File(path, "config.json")
+        if (!configFile.exists()) {
+            return null
+        }
+        val bufferedReader = configFile.bufferedReader()
+        val configText = bufferedReader.use { it.readText() }
+        val configApi = gson.fromJson(configText, ConfigApi::class.java)
+        return toCategoryEntity(configApi)
+    }
 
     private fun getConfig(configWithRelations: ConfigWithRelations): Config {
         val presets = configWithRelations.presets.map {
