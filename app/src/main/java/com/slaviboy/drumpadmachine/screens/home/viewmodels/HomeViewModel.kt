@@ -1,16 +1,22 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.data.room.managers.StoreDatabaseWorker
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
@@ -18,6 +24,8 @@ import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -27,7 +35,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
     private val getConfigUseCase: GetConfigUseCase,
-    private val getPresetUseCase: GetPresetUseCase
+    private val getPresetUseCase: GetPresetUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -77,10 +86,18 @@ class HomeViewModel @Inject constructor(
         getConfig()
     }
 
+    val uploadWorkRequest: WorkRequest =
+        OneTimeWorkRequestBuilder<StoreDatabaseWorker>()
+            .build()
+
+    private var downloadJob: Job? = null
+    private var getPreset: Job? = null
+
     fun getSoundForFree(presetId: Long?) {
         presetId ?: return
         if (_presetIdState.value.isLoadingOrSuccess()) return
-        viewModelScope.launch {
+        downloadJob?.cancel()
+        downloadJob = viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
                 if (it is Result.Success) {
                     getPresetById(presetId)
@@ -164,6 +181,21 @@ class HomeViewModel @Inject constructor(
             setNoItemEvent()
             if (it is Result.Success) {
                 setConfig(it.data)
+                WorkManager.getInstance(context)
+                    .enqueue(uploadWorkRequest)
+
+               /* WorkManager.getInstance(context)
+                    .getWorkInfoByIdLiveData(uploadWorkRequest.id)
+                    .observeForever { workInfo ->
+                        if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                            val a = 4
+                        }
+                    }*/
+                /*.observe(context, Observer { workInfo ->
+                    if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        // Work completed successfully
+                    }
+                })*/
             }
             if (it is Result.Fail) {
                 errorEventChannel.send(
@@ -197,7 +229,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPresetById(presetId: Long) {
-        viewModelScope.launch {
+        getPreset?.cancel()
+        getPreset = viewModelScope.launch {
             getPresetUseCase.execute(presetId).collect {
                 if (it is Result.Success) {
                     navigationEventChannel.send(
@@ -216,6 +249,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetPresetIdState() {
+        _presetIdState.value = Result.Initial
+    }
+
+    fun cancelDownload() = viewModelScope.launch {
+        downloadJob?.cancel()
+        getPreset?.cancel()
+    }
+
+    fun setInitPresetStatus() {
         _presetIdState.value = Result.Initial
     }
 

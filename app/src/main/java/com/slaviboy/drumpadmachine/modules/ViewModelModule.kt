@@ -10,7 +10,6 @@ import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
 import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
-import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCaseImpl
@@ -33,11 +32,6 @@ object ViewModelModule {
     @ViewModelScoped
     fun provideApplicationContext(@ApplicationContext context: Context): Context {
         return context
-    }
-
-    @Provides
-    fun provideDispatchers(): Dispatchers {
-        return DefaultDispatchers()
     }
 
     @Provides

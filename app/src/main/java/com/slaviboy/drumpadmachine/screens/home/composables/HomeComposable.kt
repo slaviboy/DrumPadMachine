@@ -182,6 +182,7 @@ fun HomeComposable(
                     isReversed = false
                     animationFlag = !(animationFlag ?: true)
                     clickedPreset = preset
+                    homeViewModel.setInitPresetStatus()
                 },
                 onSeeAllClick = {
                     keyboardController?.hide()
@@ -229,6 +230,7 @@ fun HomeComposable(
             onCloseButtonClick = {
                 isReversed = true
                 animationFlag = !(animationFlag ?: true)
+                homeViewModel.cancelDownload()
             }
         )
         NavigationMenu(

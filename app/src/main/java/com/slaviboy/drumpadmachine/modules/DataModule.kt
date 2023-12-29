@@ -10,6 +10,8 @@ import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
 import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
 import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
+import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +21,11 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+
+    @Provides
+    fun provideDispatchers(): Dispatchers {
+        return DefaultDispatchers()
+    }
 
     @Provides
     fun provideConfigDao(

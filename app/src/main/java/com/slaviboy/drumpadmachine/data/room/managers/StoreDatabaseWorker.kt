@@ -1,15 +1,12 @@
-package com.slaviboy.drumpadmachine.screens.home.usecases
+package com.slaviboy.drumpadmachine.data.room.managers
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.slaviboy.drumpadmachine.api.entities.ConfigApi
-import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
-import com.slaviboy.drumpadmachine.api.results.Result
-import com.slaviboy.drumpadmachine.data.entities.Category
-import com.slaviboy.drumpadmachine.data.entities.Config
-import com.slaviboy.drumpadmachine.data.entities.Filter
 import com.slaviboy.drumpadmachine.data.entities.LessonState
-import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
 import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
@@ -24,25 +21,17 @@ import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.pad.PadEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
-import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
-import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.withContext
 import okhttp3.internal.toLongOrDefault
 import java.io.File
-import java.io.FileOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
-interface GetConfigUseCase {
-    fun execute(version: Int): Flow<Result<Config>>
-}
-
-@Singleton
-class GetConfigUseCaseImpl @Inject constructor(
-    private val repository: ApiRepository,
+@HiltWorker
+class StoreDatabaseWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParameters: WorkerParameters,
     private val configDao: ConfigDao,
     private val categoryDao: CategoryDao,
     private val presetDao: PresetDao,
@@ -50,113 +39,43 @@ class GetConfigUseCaseImpl @Inject constructor(
     private val fileDao: FileDao,
     private val lessonDao: LessonDao,
     private val padDao: PadDao,
-    private val gson: Gson,
-    private val context: Context,
-    private val dispatchers: Dispatchers
-) : GetConfigUseCase {
+    private val dispatchers: Dispatchers,
+    private val gson: Gson
+) : CoroutineWorker(context, workerParameters) {
 
-    override fun execute(version: Int): Flow<Result<Config>> = flow {
-        emit(Result.Loading)
-
-        // emit cached data
-        configDao.getConfig()?.let {
-            val config = getConfig(it)
-            emit(Result.Success(config))
-            return@flow
-        }
-
-        // make API request, and cache locally
+    override suspend fun doWork(): Result = withContext(dispatchers.io) {
         try {
+            val version = 12
+            val path = File(applicationContext.cacheDir, "config/presets/v$version/")
+            if (path.exists()) {
 
-            val path = File(context.cacheDir, "config/presets/v$version/")
-            if (!path.exists()) {
-                path.mkdirs()
-            }
-
-            // try with cached config.json file
-            readConfigFile(path)?.let {
-                emit(Result.Success(it))
-                return@flow
-            }
-
-            // make API call
-            val response = repository.getSoundConfigZip(version)
-            if (!response.isSuccessful) {
-                emit(Result.Fail("Failed to download ZIP file"))
-                return@flow
-            }
-            val tempFile = File(path, "temp_config.zip")
-            tempFile.createNewFile()
-            response.body()?.byteStream()?.use { inputStream ->
-                FileOutputStream(tempFile).use { outputStream ->
-
-                    // extract Zip and save json file locally
-                    inputStream.copyTo(outputStream)
-                    ZipHelper.extractZip(tempFile, path)
-                    tempFile.delete()
-
-                    // extract ConfigApi from json file
-                    readConfigFile(path)?.let {
-                        emit(Result.Success(it))
-                    }
+                // try with cached config.json file
+                readConfigFile(path)?.let {
+                    saveRoomDatabaseEntities(it)
                 }
-            } ?: run {
-                emit(Result.Fail("Empty response body"))
             }
 
         } catch (e: Exception) {
-            emit(Result.Fail("Network error!"))
+            print(e)
         }
+        return@withContext Result.success()
+    }
 
-    }.flowOn(dispatchers.io)
-
-    private suspend fun readConfigFile(path: File): Config? {
+    private fun readConfigFile(path: File): ConfigApi? {
         val configFile = File(path, "config.json")
         if (!configFile.exists()) {
             return null
         }
         val bufferedReader = configFile.bufferedReader()
         val configText = bufferedReader.use { it.readText() }
-        val configApi = gson.fromJson(configText, ConfigApi::class.java)
-        return toCategoryEntity(configApi)
+        return gson.fromJson(configText, ConfigApi::class.java)
     }
 
-    private fun getConfig(configWithRelations: ConfigWithRelations): Config {
-        val presets = configWithRelations.presets.map {
-            Preset(
-                id = it.presetId,
-                name = it.name,
-                author = it.author,
-                price = it.price,
-                orderBy = it.orderBy,
-                timestamp = it.timestamp,
-                deleted = it.deleted,
-                hasInfo = it.hasInfo,
-                tempo = it.tempo,
-                tags = it.tags,
-                files = null,
-                lessons = null
-            )
-        }
-        val categories = configWithRelations.categories.map {
-            Category(
-                title = it.owner.title,
-                filter = Filter(tags = it.filter.tags)
-            )
-        }
-        return Config(
-            categories = categories,
-            presets = presets
-        )
-    }
-
-    private suspend fun toCategoryEntity(configApi: ConfigApi): Config {
+    private suspend fun saveRoomDatabaseEntities(configApi: ConfigApi) {
         val configEntity = ConfigEntity()
-        configDao.upsertConfig(configEntity)
-
-        val categories = mutableListOf<Category>()
         val categoryEntityList = mutableListOf<CategoryEntity>()
         val filterEntityList = mutableListOf<FilterEntity>()
+
         configApi.categoriesApi.forEach { categoryApi ->
             val categoryEntity = CategoryEntity(
                 configId = configEntity.id,
@@ -166,20 +85,14 @@ class GetConfigUseCaseImpl @Inject constructor(
                 categoryId = categoryEntity.id,
                 tags = categoryApi.filterApi.tags
             )
-            val category = Category(
-                title = categoryApi.title,
-                filter = Filter(categoryApi.filterApi.tags)
-            )
             categoryEntityList.add(categoryEntity)
             filterEntityList.add(filterEntity)
-            categories.add(category)
         }
 
         val presetEntityList = mutableListOf<PresetEntity>()
         val fileEntityList = mutableListOf<FileEntity>()
         val lessonEntityList = mutableListOf<LessonEntity>()
         val padEntityList = mutableListOf<PadEntity>()
-        val presets = mutableListOf<Preset>()
 
         configApi.presetsApi.forEach {
             val (_, presetApi) = it
@@ -246,33 +159,14 @@ class GetConfigUseCaseImpl @Inject constructor(
                     padEntityList.addAll(pads)
                 }
             }
-            val preset = Preset(
-                id = presetApi.id.toLongOrDefault(0L),
-                name = presetApi.name,
-                author = presetApi.author,
-                price = presetApi.price,
-                orderBy = presetApi.orderBy,
-                timestamp = presetApi.timestamp,
-                deleted = presetApi.deleted,
-                hasInfo = presetApi.hasInfo,
-                tempo = presetApi.tempo,
-                tags = presetApi.tags,
-                files = null,
-                lessons = null
-            )
-            presets.add(preset)
         }
 
-        /* categoryDao.upsertCategories(categoryEntityList)
-         filterDao.upsertFilters(filterEntityList)
-         fileDao.upsertFiles(fileEntityList)
-         presetDao.upsertPresets(presetEntityList)
-         lessonDao.upsertLessons(lessonEntityList)
-         padDao.upsertPads(padEntityList)*/
-
-        return Config(
-            categories = categories,
-            presets = presets
-        )
+        configDao.upsertConfig(configEntity)
+        categoryDao.upsertCategories(categoryEntityList)
+        filterDao.upsertFilters(filterEntityList)
+        fileDao.upsertFiles(fileEntityList)
+        presetDao.upsertPresets(presetEntityList)
+        lessonDao.upsertLessons(lessonEntityList)
+        padDao.upsertPads(padEntityList)
     }
 }
