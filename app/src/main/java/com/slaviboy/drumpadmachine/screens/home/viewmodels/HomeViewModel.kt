@@ -1,22 +1,20 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
-import com.slaviboy.drumpadmachine.data.room.managers.StoreDatabaseWorker
+import com.slaviboy.drumpadmachine.data.room.services.SaveDatabaseForegroundService
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
@@ -85,10 +83,6 @@ class HomeViewModel @Inject constructor(
     init {
         getConfig()
     }
-
-    val uploadWorkRequest: WorkRequest =
-        OneTimeWorkRequestBuilder<StoreDatabaseWorker>()
-            .build()
 
     private var downloadJob: Job? = null
     private var getPreset: Job? = null
@@ -181,21 +175,9 @@ class HomeViewModel @Inject constructor(
             setNoItemEvent()
             if (it is Result.Success) {
                 setConfig(it.data)
-                WorkManager.getInstance(context)
-                    .enqueue(uploadWorkRequest)
 
-               /* WorkManager.getInstance(context)
-                    .getWorkInfoByIdLiveData(uploadWorkRequest.id)
-                    .observeForever { workInfo ->
-                        if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
-                            val a = 4
-                        }
-                    }*/
-                /*.observe(context, Observer { workInfo ->
-                    if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
-                        // Work completed successfully
-                    }
-                })*/
+                val serviceIntent = Intent(context, SaveDatabaseForegroundService::class.java)
+                startForegroundService(context, serviceIntent)
             }
             if (it is Result.Fail) {
                 errorEventChannel.send(

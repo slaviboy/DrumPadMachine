@@ -1,10 +1,15 @@
-package com.slaviboy.drumpadmachine.data.room.managers
+package com.slaviboy.drumpadmachine.data.room.services
 
-import android.content.Context
-import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.WorkerParameters
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
+import android.content.Intent
+import android.os.Build
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
+import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.entities.ConfigApi
 import com.slaviboy.drumpadmachine.data.entities.LessonState
 import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
@@ -21,44 +26,104 @@ import com.slaviboy.drumpadmachine.data.room.pad.PadDao
 import com.slaviboy.drumpadmachine.data.room.pad.PadEntity
 import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
 import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
-import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
-import kotlinx.coroutines.withContext
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import okhttp3.internal.toLongOrDefault
 import java.io.File
+import javax.inject.Inject
 
-@HiltWorker
-class StoreDatabaseWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParameters: WorkerParameters,
-    private val configDao: ConfigDao,
-    private val categoryDao: CategoryDao,
-    private val presetDao: PresetDao,
-    private val filterDao: FilterDao,
-    private val fileDao: FileDao,
-    private val lessonDao: LessonDao,
-    private val padDao: PadDao,
-    private val dispatchers: Dispatchers,
-    private val gson: Gson
-) : CoroutineWorker(context, workerParameters) {
+@AndroidEntryPoint
+class SaveDatabaseForegroundService : Service() {
 
-    override suspend fun doWork(): Result = withContext(dispatchers.io) {
-        try {
-            val version = 12
-            val path = File(applicationContext.cacheDir, "config/presets/v$version/")
-            if (path.exists()) {
+    @Inject
+    lateinit var configDao: ConfigDao
 
-                // try with cached config.json file
-                readConfigFile(path)?.let {
-                    saveRoomDatabaseEntities(it)
+    @Inject
+    lateinit var categoryDao: CategoryDao
+
+    @Inject
+    lateinit var presetDao: PresetDao
+
+    @Inject
+    lateinit var filterDao: FilterDao
+
+    @Inject
+    lateinit var fileDao: FileDao
+
+    @Inject
+    lateinit var lessonDao: LessonDao
+
+    @Inject
+    lateinit var padDao: PadDao
+
+    @Inject
+    lateinit var gson: Gson
+
+    private var job: Job? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForeground(NOTIFICATION_ID, createNotification())
+
+        job = CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val version = 12
+                val path = File(applicationContext.cacheDir, "config/presets/v$version/")
+                if (path.exists()) {
+                    readConfigFile(path)?.let {
+                        saveRoomDatabaseEntities(it)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                    } else {
+                        stopForeground(true)
+                    }
+                    stopSelfResult(startId)
                 }
+            } catch (e: Exception) {
+                print(e)
             }
-
-        } catch (e: Exception) {
-            print(e)
         }
-        return@withContext Result.success()
+        return START_STICKY
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
+    override fun onDestroy() {
+        job?.cancel()
+        super.onDestroy()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Foreground Service Channel",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_dev_foreground)
+            .setContentTitle("Downloading audio presets")
+            .setContentText("Running...")
+            .setProgress(0, 0, true)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
     }
 
     private fun readConfigFile(path: File): ConfigApi? {
@@ -168,5 +233,10 @@ class StoreDatabaseWorker @AssistedInject constructor(
         presetDao.upsertPresets(presetEntityList)
         lessonDao.upsertLessons(lessonEntityList)
         padDao.upsertPads(padEntityList)
+    }
+
+    companion object {
+        private const val NOTIFICATION_ID = 1
+        private const val CHANNEL_ID = "ForegroundServiceChannel"
     }
 }
