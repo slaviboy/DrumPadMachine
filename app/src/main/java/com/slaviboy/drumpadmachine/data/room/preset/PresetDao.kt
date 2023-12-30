@@ -14,10 +14,10 @@ interface PresetDao {
     @Upsert
     suspend fun upsertPresets(preset: List<PresetEntity>)
 
-    @Delete
-    suspend fun deletePreset(preset: PresetEntity)
-
     @Transaction
     @Query("SELECT * FROM  preset WHERE presetId = :presetId")
     fun getPreset(presetId: Long): PresetWithRelations?
+
+    @Query("DELETE FROM preset")
+    fun deleteAll()
 }

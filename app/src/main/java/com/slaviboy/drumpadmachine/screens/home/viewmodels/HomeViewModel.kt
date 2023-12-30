@@ -1,24 +1,25 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
-import com.slaviboy.drumpadmachine.data.room.services.SaveDatabaseForegroundService
+import com.slaviboy.drumpadmachine.data.workers.StoreDatabaseWorker
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
-import com.slaviboy.drumpadmachine.extensions.isServiceRunning
 import com.slaviboy.drumpadmachine.global.allTrue
 import com.slaviboy.drumpadmachine.network.ConnectivityObserver
 import com.slaviboy.drumpadmachine.network.NetworkConnectivityObserver
@@ -194,12 +195,15 @@ class HomeViewModel @Inject constructor(
             setNoItemEvent()
             if (it is Result.Success) {
                 val config = it.data
-                if (config.presets?.firstOrNull()?.files?.isNotEmpty() == true &&
-                    !context.isServiceRunning<SaveDatabaseForegroundService>()
-                ) {
-                    val serviceIntent = Intent(context, SaveDatabaseForegroundService::class.java)
-                    serviceIntent.putExtra("CONFIG_VERSION", CONFIG_VERSION)
-                    ContextCompat.startForegroundService(context, serviceIntent)
+                if (config.presets?.firstOrNull()?.files?.isNotEmpty() == true) {
+                    val data = Data.Builder().apply {
+                        putInt("CONFIG_VERSION", CONFIG_VERSION)
+                    }
+                    val storeDatabaseWorker = OneTimeWorkRequestBuilder<StoreDatabaseWorker>()
+                        .setInputData(data.build())
+                        .build()
+                    WorkManager.getInstance(context)
+                        .enqueueUniqueWork("store_database_worker", ExistingWorkPolicy.KEEP, storeDatabaseWorker)
                 }
                 setConfig(config)
             }

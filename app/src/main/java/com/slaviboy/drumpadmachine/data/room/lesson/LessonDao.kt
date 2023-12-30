@@ -1,7 +1,7 @@
 package com.slaviboy.drumpadmachine.data.room.lesson
 
 import androidx.room.Dao
-import androidx.room.Delete
+import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 
@@ -12,6 +12,6 @@ interface LessonDao {
     @Upsert
     suspend fun upsertLessons(lesson: List<LessonEntity>)
 
-    @Delete
-    suspend fun deleteLesson(lesson: LessonEntity)
+    @Query("DELETE FROM lesson")
+    fun deleteAll()
 }

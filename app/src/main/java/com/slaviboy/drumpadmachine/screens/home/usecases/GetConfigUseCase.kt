@@ -14,9 +14,7 @@ import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
-import com.slaviboy.drumpadmachine.data.room.services.SaveDatabaseForegroundService
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
-import com.slaviboy.drumpadmachine.extensions.isServiceRunning
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -44,13 +42,11 @@ class GetConfigUseCaseImpl @Inject constructor(
         emit(Result.Loading)
 
         // emit cached data
-        if (!context.isServiceRunning<SaveDatabaseForegroundService>()) {
-            configDao.getConfig()?.let {
-                val config = getConfig(it)
-                if (!config.categories.isNullOrEmpty() && !config.presets.isNullOrEmpty()) {
-                    emit(Result.Success(config))
-                    return@flow
-                }
+        configDao.getConfig()?.let {
+            val config = getConfig(it)
+            if (!config.categories.isNullOrEmpty() && !config.presets.isNullOrEmpty()) {
+                emit(Result.Success(config))
+                return@flow
             }
         }
 

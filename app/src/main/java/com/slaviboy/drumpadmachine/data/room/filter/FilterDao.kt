@@ -2,6 +2,7 @@ package com.slaviboy.drumpadmachine.data.room.filter
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 
@@ -12,6 +13,6 @@ interface FilterDao {
     @Upsert
     suspend fun upsertFilters(filter: List<FilterEntity>)
 
-    @Delete
-    suspend fun deleteFilter(filter: FilterEntity)
+    @Query("DELETE FROM filter")
+    fun deleteAll()
 }
