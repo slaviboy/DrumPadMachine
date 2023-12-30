@@ -19,4 +19,10 @@
     <string name="rected_by">Recreated by:</string>
     <string name="sound_packs">Sound packs</string>
     <string name="there_are_no_items_found">There are no items found</string>
+    <string name="last">Last</string>
+    <string name="best">Best</string>
+    <string name="replay">Replay</string>
+    <string name="play">Play</string>
+    <string name="unlock">Unlock</string>
+    <string name="lessons_number">Lessons %s</string>
 </resources>

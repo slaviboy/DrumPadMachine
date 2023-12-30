@@ -18,11 +18,11 @@ class NetworkModule {
     companion object {
         const val BASE_URL = "https://raw.githubusercontent.com/slaviboy/DrumPadMachine-Resources/main/"
 
-        fun coverIconUrl(presetId: Int): String {
+        fun coverIconUrl(presetId: Long): String {
             return "${BASE_URL}cover_icons/${presetId}.jpg"
         }
 
-        fun coverUrl(presetId: Int): String {
+        fun coverUrl(presetId: Long): String {
             return "${BASE_URL}covers/${presetId}.jpg"
         }
     }

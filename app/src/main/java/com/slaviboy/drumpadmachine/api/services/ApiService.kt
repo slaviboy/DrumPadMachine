@@ -13,5 +13,5 @@ interface ApiService {
 
     @GET("audio/{id}.zip")
     @Streaming
-    suspend fun getAudioZipById(@Path("id") id: Int): Response<ResponseBody>
+    suspend fun getAudioZipById(@Path("id") id: Long): Response<ResponseBody>
 }

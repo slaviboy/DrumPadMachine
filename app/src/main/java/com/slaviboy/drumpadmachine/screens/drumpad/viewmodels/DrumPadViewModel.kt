@@ -15,6 +15,7 @@ import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
+import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.android.awaitFrame
@@ -40,9 +41,6 @@ class DrumPadViewModel @Inject constructor(
 
     private var _isMoved: MutableState<List<Boolean>> = mutableStateOf(MutableList(24) { false })
     val isMoved: State<List<Boolean>> = _isMoved
-
-    val numberOfRows = NUMBER_OF_ROWS
-    val numberOfColumns = NUMBER_OF_COLUMNS
 
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
@@ -79,7 +77,7 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun getPadColor(row: Int, column: Int): PadColor {
-        val index = getIndex(row, column)
+        val index = DrumPadHelper.getIndex(_page.value, row, column)
         val color = _preset.value?.files?.getOrNull(index)?.color ?: return PadColor.None
         return when (color) {
             "red" -> PadColor.Red
@@ -92,7 +90,7 @@ class DrumPadViewModel @Inject constructor(
     }
 
     fun getShowGlow(row: Int, column: Int): Boolean {
-        return _isMoved.value[getIndex(row, column)]
+        return _isMoved.value[DrumPadHelper.getIndex(_page.value, row, column)]
     }
 
     fun onContainerTouch(event: MotionEvent) = viewModelScope.launch {
@@ -137,6 +135,19 @@ class DrumPadViewModel @Inject constructor(
         this@DrumPadViewModel._isMoved.value = isMoved
     }
 
+    fun onPositionInParentChange(
+        rect: Rect,
+        row: Int,
+        column: Int
+    ) {
+        val index = DrumPadHelper.getIndex(_page.value, row, column)
+        bounds[index] = rect
+    }
+
+    fun setContainerBound(bound: Rect) {
+        containerBound = bound
+    }
+
     private fun getPositionForFinger(event: MotionEvent, fingerIndex: Int): Pair<Float, Float> {
         val mActivePointerId = event.getPointerId(fingerIndex)
         return event.findPointerIndex(mActivePointerId).let { pointerIndex ->
@@ -146,7 +157,7 @@ class DrumPadViewModel @Inject constructor(
 
     private fun findMatchItemIndex(x: Float, y: Float): Int {
         bounds.forEachIndexed { i, rect ->
-            if (rect.contains(Offset(x, y)) && isIndexInPage(i)) {
+            if (rect.contains(Offset(x, y)) && DrumPadHelper.isIndexInPage(_page.value, i)) {
                 return i
             }
         }
@@ -165,35 +176,5 @@ class DrumPadViewModel @Inject constructor(
             }
         }
         drumPadPlayer?.trigger(index)
-    }
-
-    private fun getIndex(row: Int, column: Int): Int {
-        return (_page.value * numberItemsPerPage()) + row * numberOfColumns + column
-    }
-
-    private fun isIndexInPage(index: Int): Boolean {
-        return (_page.value == index / numberItemsPerPage())
-    }
-
-    private fun numberItemsPerPage(): Int {
-        return numberOfColumns * numberOfRows
-    }
-
-    fun onPositionInParentChange(
-        rect: Rect,
-        row: Int,
-        column: Int
-    ) {
-        val index = getIndex(row, column)
-        bounds[index] = rect
-    }
-
-    fun setContainerBound(bound: Rect) {
-        containerBound = bound
-    }
-
-    companion object {
-        private const val NUMBER_OF_ROWS = 4
-        private const val NUMBER_OF_COLUMNS = 3
     }
 }

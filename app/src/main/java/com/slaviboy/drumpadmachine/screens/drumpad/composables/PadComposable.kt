@@ -1,6 +1,6 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.composables
 
-import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -30,7 +30,7 @@ fun PadComposable(
     padColor: PadColor,
     showGlow: Boolean,
     modifier: Modifier = Modifier,
-    glowDuration: Int = 150,
+    glowDuration: Int = 250,
     onPositionInParentChange: (Rect) -> Unit
 ) {
     var showGlowInner by remember {
@@ -41,7 +41,7 @@ fun PadComposable(
         label = "",
         animationSpec = tween(
             durationMillis = glowDuration,
-            easing = EaseOutCubic
+            easing = LinearEasing
         )
     )
     LaunchedEffect(showGlow) {

@@ -24,7 +24,7 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
-import com.slaviboy.drumpadmachine.screens.presets.composables.PresetCard
+import com.slaviboy.drumpadmachine.screens.presetslist.composables.PresetCard
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 @OptIn(ExperimentalFoundationApi::class)
