@@ -20,6 +20,8 @@ import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.extensions.isServiceRunning
 import com.slaviboy.drumpadmachine.global.allTrue
+import com.slaviboy.drumpadmachine.network.ConnectivityObserver
+import com.slaviboy.drumpadmachine.network.NetworkConnectivityObserver
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
@@ -27,6 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -84,6 +87,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         getConfig()
+        initNetworkListener()
     }
 
     private var downloadJob: Job? = null
@@ -131,6 +135,14 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
+    private fun initNetworkListener() = viewModelScope.launch {
+        NetworkConnectivityObserver(context).observe().collectLatest {
+            if (it == ConnectivityObserver.Status.Available && hasNetworkError()) {
+                getConfig()
+            }
+        }
+    }
+
     private fun search() = viewModelScope.launch {
         if (_searchTextState.value.isEmpty()) {
             _filteredCategoriesMapState.value = _categoriesMapState.value
@@ -152,9 +164,14 @@ class HomeViewModel @Inject constructor(
         setNoItemEvent()
     }
 
+    private fun hasNetworkError(): Boolean {
+        val isEmpty = _filteredCategoriesMapState.value.isEmpty()
+        return (_audioConfigState.value is Result.Fail && isEmpty)
+    }
+
     private fun setNoItemEvent() {
         val isEmpty = _filteredCategoriesMapState.value.isEmpty()
-        _noItemsState.value = if (_audioConfigState.value is Result.Fail && isEmpty) {
+        _noItemsState.value = if (hasNetworkError()) {
             BaseItem(
                 iconResId = R.drawable.ic_no_internet,
                 titleResId = R.string.no_items,

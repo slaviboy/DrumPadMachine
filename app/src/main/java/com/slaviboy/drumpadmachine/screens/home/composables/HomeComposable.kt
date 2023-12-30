@@ -51,7 +51,6 @@ fun HomeComposable(
     onError: (error: String) -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-
     val fromWidth by remember {
         mutableStateOf(0.35.dw)
     }
