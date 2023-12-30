@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat.startForegroundService
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
@@ -18,6 +18,8 @@ import com.slaviboy.drumpadmachine.data.room.services.SaveDatabaseForegroundServ
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
+import com.slaviboy.drumpadmachine.extensions.isServiceRunning
+import com.slaviboy.drumpadmachine.global.allTrue
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
 import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
@@ -170,14 +172,19 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getConfig() = viewModelScope.launch {
-        getConfigUseCase.execute(PRESETS_VERSION).collect {
+        getConfigUseCase.execute(CONFIG_VERSION).collect {
             _audioConfigState.value = it
             setNoItemEvent()
             if (it is Result.Success) {
-                setConfig(it.data)
-
-                val serviceIntent = Intent(context, SaveDatabaseForegroundService::class.java)
-                startForegroundService(context, serviceIntent)
+                val config = it.data
+                if (config.presets?.firstOrNull()?.files?.isNotEmpty() == true &&
+                    !context.isServiceRunning<SaveDatabaseForegroundService>()
+                ) {
+                    val serviceIntent = Intent(context, SaveDatabaseForegroundService::class.java)
+                    serviceIntent.putExtra("CONFIG_VERSION", CONFIG_VERSION)
+                    ContextCompat.startForegroundService(context, serviceIntent)
+                }
+                setConfig(config)
             }
             if (it is Result.Fail) {
                 errorEventChannel.send(
@@ -213,6 +220,26 @@ class HomeViewModel @Inject constructor(
     private fun getPresetById(presetId: Long) {
         getPreset?.cancel()
         getPreset = viewModelScope.launch {
+
+            // on first launch use full Preset object
+            val preset = _categoriesMapState.value.firstNotNullOfOrNull {
+                it.value.firstOrNull {
+                    allTrue(
+                        it.id == presetId,
+                        it.files != null,
+                        it.lessons != null
+                    )
+                }
+            }
+            if (preset != null) {
+                navigationEventChannel.send(
+                    NavigationEvent.NavigateToDrumPadScreen(preset)
+                )
+                _presetIdState.value = Result.Success(presetId)
+                return@launch
+            }
+
+            // on any upcoming launches, use short Preset - without *{files} *{lessons} fields
             getPresetUseCase.execute(presetId).collect {
                 if (it is Result.Success) {
                     navigationEventChannel.send(
@@ -244,6 +271,6 @@ class HomeViewModel @Inject constructor(
     }
 
     companion object {
-        const val PRESETS_VERSION = 12
+        const val CONFIG_VERSION = 12
     }
 }

@@ -71,11 +71,28 @@ class SaveDatabaseForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(NOTIFICATION_ID, createNotification())
+        if (!isServiceRunning) {
+            isServiceRunning = true
+            val configVersion = intent?.getIntExtra("CONFIG_VERSION", 12) ?: 12
+            doWork(startId, configVersion)
+        }
+        return START_STICKY
+    }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
+    override fun onDestroy() {
+        job?.cancel()
+        super.onDestroy()
+        isServiceRunning = false
+    }
+
+    private fun doWork(startId: Int, configVersion: Int) {
         job = CoroutineScope(Dispatchers.IO).launch {
             try {
-                val version = 12
-                val path = File(applicationContext.cacheDir, "config/presets/v$version/")
+                val path = File(applicationContext.cacheDir, "config/presets/v$configVersion/")
                 if (path.exists()) {
                     readConfigFile(path)?.let {
                         saveRoomDatabaseEntities(it)
@@ -91,16 +108,6 @@ class SaveDatabaseForegroundService : Service() {
                 print(e)
             }
         }
-        return START_STICKY
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
-    override fun onDestroy() {
-        job?.cancel()
-        super.onDestroy()
     }
 
     private fun createNotificationChannel() {
@@ -238,5 +245,7 @@ class SaveDatabaseForegroundService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "ForegroundServiceChannel"
+
+        var isServiceRunning: Boolean = false
     }
 }

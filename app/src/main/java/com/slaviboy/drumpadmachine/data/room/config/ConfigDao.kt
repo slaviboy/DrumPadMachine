@@ -10,6 +10,7 @@ import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
 @Dao
 interface ConfigDao {
 
+    @Transaction
     @Upsert
     suspend fun upsertConfig(config: ConfigEntity)
 
@@ -17,6 +18,6 @@ interface ConfigDao {
     suspend fun deleteConfig(config: ConfigEntity)
 
     @Transaction
-    @Query("SELECT * FROM config")
+    @Query("SELECT * FROM config LIMIT 1")
     fun getConfig(): ConfigWithRelations?
 }

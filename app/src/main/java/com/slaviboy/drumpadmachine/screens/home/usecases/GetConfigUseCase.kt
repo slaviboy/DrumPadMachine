@@ -8,24 +8,15 @@ import com.slaviboy.drumpadmachine.api.results.Result
 import com.slaviboy.drumpadmachine.data.entities.Category
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Filter
+import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.LessonState
+import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
-import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
-import com.slaviboy.drumpadmachine.data.room.category.CategoryEntity
 import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
-import com.slaviboy.drumpadmachine.data.room.config.ConfigEntity
-import com.slaviboy.drumpadmachine.data.room.file.FileDao
-import com.slaviboy.drumpadmachine.data.room.file.FileEntity
-import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
-import com.slaviboy.drumpadmachine.data.room.filter.FilterEntity
-import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
-import com.slaviboy.drumpadmachine.data.room.lesson.LessonEntity
-import com.slaviboy.drumpadmachine.data.room.pad.PadDao
-import com.slaviboy.drumpadmachine.data.room.pad.PadEntity
-import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
-import com.slaviboy.drumpadmachine.data.room.preset.PresetEntity
 import com.slaviboy.drumpadmachine.data.room.relations.ConfigWithRelations
+import com.slaviboy.drumpadmachine.data.room.services.SaveDatabaseForegroundService
 import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
+import com.slaviboy.drumpadmachine.extensions.isServiceRunning
 import com.slaviboy.drumpadmachine.screens.home.helpers.ZipHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -37,38 +28,36 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface GetConfigUseCase {
-    fun execute(version: Int): Flow<Result<Config>>
+    fun execute(configVersion: Int): Flow<Result<Config>>
 }
 
 @Singleton
 class GetConfigUseCaseImpl @Inject constructor(
     private val repository: ApiRepository,
     private val configDao: ConfigDao,
-    private val categoryDao: CategoryDao,
-    private val presetDao: PresetDao,
-    private val filterDao: FilterDao,
-    private val fileDao: FileDao,
-    private val lessonDao: LessonDao,
-    private val padDao: PadDao,
     private val gson: Gson,
     private val context: Context,
     private val dispatchers: Dispatchers
 ) : GetConfigUseCase {
 
-    override fun execute(version: Int): Flow<Result<Config>> = flow {
+    override fun execute(configVersion: Int): Flow<Result<Config>> = flow {
         emit(Result.Loading)
 
         // emit cached data
-        configDao.getConfig()?.let {
-            val config = getConfig(it)
-            emit(Result.Success(config))
-            return@flow
+        if (!context.isServiceRunning<SaveDatabaseForegroundService>()) {
+            configDao.getConfig()?.let {
+                val config = getConfig(it)
+                if (!config.categories.isNullOrEmpty() && !config.presets.isNullOrEmpty()) {
+                    emit(Result.Success(config))
+                    return@flow
+                }
+            }
         }
 
         // make API request, and cache locally
         try {
 
-            val path = File(context.cacheDir, "config/presets/v$version/")
+            val path = File(context.cacheDir, "config/presets/v$configVersion/")
             if (!path.exists()) {
                 path.mkdirs()
             }
@@ -80,7 +69,7 @@ class GetConfigUseCaseImpl @Inject constructor(
             }
 
             // make API call
-            val response = repository.getSoundConfigZip(version)
+            val response = repository.getSoundConfigZip(configVersion)
             if (!response.isSuccessful) {
                 emit(Result.Fail("Failed to download ZIP file"))
                 return@flow
@@ -150,73 +139,49 @@ class GetConfigUseCaseImpl @Inject constructor(
         )
     }
 
-    private suspend fun toCategoryEntity(configApi: ConfigApi): Config {
-        val configEntity = ConfigEntity()
-        configDao.upsertConfig(configEntity)
+    private fun toCategoryEntity(configApi: ConfigApi): Config {
 
-        val categories = mutableListOf<Category>()
-        val categoryEntityList = mutableListOf<CategoryEntity>()
-        val filterEntityList = mutableListOf<FilterEntity>()
-        configApi.categoriesApi.forEach { categoryApi ->
-            val categoryEntity = CategoryEntity(
-                configId = configEntity.id,
-                title = categoryApi.title
-            )
-            val filterEntity = FilterEntity(
-                categoryId = categoryEntity.id,
-                tags = categoryApi.filterApi.tags
-            )
-            val category = Category(
+        val categories = configApi.categoriesApi.map { categoryApi ->
+            Category(
                 title = categoryApi.title,
                 filter = Filter(categoryApi.filterApi.tags)
             )
-            categoryEntityList.add(categoryEntity)
-            filterEntityList.add(filterEntity)
-            categories.add(category)
         }
 
-        val presetEntityList = mutableListOf<PresetEntity>()
-        val fileEntityList = mutableListOf<FileEntity>()
-        val lessonEntityList = mutableListOf<LessonEntity>()
-        val padEntityList = mutableListOf<PadEntity>()
-        val presets = mutableListOf<Preset>()
-
-        configApi.presetsApi.forEach {
+        val presets = configApi.presetsApi.map {
             val (_, presetApi) = it
-            val presetEntity = PresetEntity(
-                configId = configEntity.id,
-                presetId = presetApi.id.toLongOrDefault(0L),
-                name = presetApi.name,
-                author = presetApi.author,
-                price = presetApi.price,
-                orderBy = presetApi.orderBy,
-                timestamp = presetApi.timestamp,
-                deleted = presetApi.deleted,
-                hasInfo = presetApi.hasInfo,
-                tempo = presetApi.tempo,
-                tags = presetApi.tags
-            )
-            presetEntityList.add(presetEntity)
 
-            presetApi.files.forEach {
+            val files = presetApi.files.map {
                 val (_, fileApi) = it
-                val fileEntity = FileEntity(
-                    presetId = presetEntity.id,
+                com.slaviboy.drumpadmachine.data.entities.File(
                     looped = fileApi.looped,
                     filename = fileApi.filename,
                     choke = fileApi.choke,
                     color = fileApi.color,
                     stopOnRelease = fileApi.stopOnRelease
                 )
-                fileEntityList.add(fileEntity)
             }
 
-            presetApi.beatSchool?.forEach {
+            val lessons = presetApi.beatSchool?.map {
                 val (side, lessonApiList) = it
-                lessonApiList.forEach {
-                    val lessonEntity = LessonEntity(
-                        presetId = presetEntity.id,
-                        lessonId = it.id,
+
+                lessonApiList.map {
+                    val pads = it.pads.map {
+                        val (padId, padApiArray) = it
+                        padApiArray.map {
+                            Pad(
+                                id = padId.toIntOrNull() ?: -1,
+                                start = it.start,
+                                ambient = it.embient,
+                                duration = it.duration
+                            )
+                        }.filter {
+                            it.id != -1
+                        }
+                    }.flatten()
+
+                    Lesson(
+                        id = it.id,
                         side = side,
                         version = it.version,
                         name = it.name,
@@ -225,28 +190,13 @@ class GetConfigUseCaseImpl @Inject constructor(
                         rating = it.rating,
                         lastScore = 0,
                         bestScore = 0,
-                        lessonState = LessonState.Unlock
+                        lessonState = LessonState.Unlock,
+                        pads = pads
                     )
-                    lessonEntityList.add(lessonEntity)
-
-                    val pads = it.pads.map {
-                        val (padId, padApiArray) = it
-                        padApiArray.map {
-                            PadEntity(
-                                lessonId = lessonEntity.id,
-                                padId = padId.toIntOrNull() ?: -1,
-                                start = it.start,
-                                ambient = it.embient,
-                                duration = it.duration
-                            )
-                        }.filter {
-                            it.padId != -1
-                        }
-                    }.flatten()
-                    padEntityList.addAll(pads)
                 }
-            }
-            val preset = Preset(
+            }?.flatten()
+
+            Preset(
                 id = presetApi.id.toLongOrDefault(0L),
                 name = presetApi.name,
                 author = presetApi.author,
@@ -257,18 +207,10 @@ class GetConfigUseCaseImpl @Inject constructor(
                 hasInfo = presetApi.hasInfo,
                 tempo = presetApi.tempo,
                 tags = presetApi.tags,
-                files = null,
-                lessons = null
+                files = files,
+                lessons = lessons
             )
-            presets.add(preset)
         }
-
-        /* categoryDao.upsertCategories(categoryEntityList)
-         filterDao.upsertFilters(filterEntityList)
-         fileDao.upsertFiles(fileEntityList)
-         presetDao.upsertPresets(presetEntityList)
-         lessonDao.upsertLessons(lessonEntityList)
-         padDao.upsertPads(padEntityList)*/
 
         return Config(
             categories = categories,
