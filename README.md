@@ -3,10 +3,11 @@
 ----
 
 TODO:
-1) [ ] Implement Tutorials functionality
-2) [ ] Allow users to load custom sounds (23 audio files, pick color and position)
-3) [ ] Implement recording songs
-4) [ ] Implement settings
+1) [ ] Implement crashlitics for app
+2) [ ] Implement Tutorials functionality
+3) [ ] Allow users to load custom sounds (23 audio files, pick color and position)
+4) [ ] Implement recording songs
+5) [ ] Implement settings
       - pan
       - reverb
 
