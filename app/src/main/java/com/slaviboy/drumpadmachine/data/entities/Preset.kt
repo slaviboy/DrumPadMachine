@@ -2,10 +2,11 @@ package com.slaviboy.drumpadmachine.data.entities
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import java.util.UUID
 
 @Parcelize
 data class Preset(
-    val id: Int,
+    val id: Long,
     val name: String,
     val author: String?,
     val price: Int?,
@@ -15,5 +16,6 @@ data class Preset(
     val hasInfo: Boolean,
     val tempo: Int,
     val tags: List<String>?,
-    val files: List<File>?
+    val files: List<File>?,
+    val lessons: List<Lesson>?
 ) : Parcelable

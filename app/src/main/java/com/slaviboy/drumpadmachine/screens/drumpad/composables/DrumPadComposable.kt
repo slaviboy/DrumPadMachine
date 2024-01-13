@@ -50,6 +50,8 @@ import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
+import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
@@ -197,7 +199,11 @@ fun DrumPadComposable(
                     iconResId = R.drawable.ic_lessons,
                     textResId = R.string.lessons,
                     onClick = {
-
+                        navigator.navigate(
+                            direction = LessonsListComposableDestination(
+                                preset = preset
+                            )
+                        )
                     }
                 )
             }
@@ -215,14 +221,14 @@ fun DrumPadComposable(
                         drumPadViewModel.setContainerBound(it.boundsInRoot())
                     }
             ) {
-                for (i in 0 until drumPadViewModel.numberOfRows) {
+                for (i in 0 until DrumPadHelper.numberOfRows) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 0.02.dw),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        for (j in 0 until drumPadViewModel.numberOfColumns) {
+                        for (j in 0 until DrumPadHelper.numberOfColumns) {
                             PadComposable(
                                 padColor = drumPadViewModel.getPadColor(
                                     row = i,
@@ -242,7 +248,7 @@ fun DrumPadComposable(
                                     )
                                 }
                             )
-                            if (j < drumPadViewModel.numberOfColumns - 1) {
+                            if (j < DrumPadHelper.numberOfColumns - 1) {
                                 Spacer(
                                     modifier = Modifier
                                         .width(0.01.dw)
@@ -250,7 +256,7 @@ fun DrumPadComposable(
                             }
                         }
                     }
-                    if (i < drumPadViewModel.numberOfRows - 1) {
+                    if (i < DrumPadHelper.numberOfRows - 1) {
                         Spacer(
                             modifier = Modifier
                                 .height(0.01.dw)

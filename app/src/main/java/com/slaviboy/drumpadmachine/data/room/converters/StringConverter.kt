@@ -3,21 +3,23 @@ package com.slaviboy.drumpadmachine.data.room.converters
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.slaviboy.drumpadmachine.data.entities.Category
 
-object CategoryConverter {
+object StringConverter {
 
     @TypeConverter
-    fun stringToCategoryList(value: String?): List<Category> {
+    fun stringToStringList(value: String?): List<String> {
         if (value == null) {
-            return arrayListOf()
+            return listOf()
         }
-        val listType = object : TypeToken<List<Category?>?>() {}.type
+        val listType = object : TypeToken<List<String?>?>() {}.type
         return Gson().fromJson(value, listType)
     }
 
     @TypeConverter
-    fun categoryListToString(list: List<Category>): String {
+    fun stringListToString(list: List<String?>?): String? {
+        if (list == null) {
+            return null
+        }
         return Gson().toJson(list)
     }
 }

@@ -1,4 +1,4 @@
-package com.slaviboy.drumpadmachine.screens.presets.viewmodels
+package com.slaviboy.drumpadmachine.screens.presetslist.viewmodels
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
-import com.slaviboy.drumpadmachine.screens.home.viewmodels.BaseItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PresetsViewModel @Inject constructor(
+class PresetsListViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase
 ) : ViewModel() {
 
@@ -40,8 +40,8 @@ class PresetsViewModel @Inject constructor(
     private val _noItemsState: MutableState<BaseItem?> = mutableStateOf(null)
     val noItemsState: State<BaseItem?> = _noItemsState
 
-    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
-    val presetIdState: State<Result<Int>> = _presetIdState
+    private val _presetIdState: MutableState<Result<Long>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Long>> = _presetIdState
 
     init {
         _presetIdState.value = Result.Initial
@@ -57,7 +57,7 @@ class PresetsViewModel @Inject constructor(
         search()
     }
 
-    fun getSoundForFree(presetId: Int?) {
+    fun getSoundForFree(presetId: Long?) {
         presetId ?: return
         viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
@@ -115,7 +115,7 @@ class PresetsViewModel @Inject constructor(
         }
     }
 
-    private fun getPresetById(presetId: Int): Preset? {
+    private fun getPresetById(presetId: Long): Preset? {
         return _presetsState.value.firstOrNull { it.id == presetId }
     }
 }

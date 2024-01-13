@@ -1,24 +1,36 @@
 package com.slaviboy.drumpadmachine.screens.home.viewmodels
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.api.results.Result
+import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.MenuItem
 import com.slaviboy.drumpadmachine.data.entities.Config
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.data.workers.StoreDatabaseWorker
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
+import com.slaviboy.drumpadmachine.global.allTrue
+import com.slaviboy.drumpadmachine.network.ConnectivityObserver
+import com.slaviboy.drumpadmachine.network.NetworkConnectivityObserver
 import com.slaviboy.drumpadmachine.screens.home.usecases.DownloadAudioZipUseCase
-import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetsConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetConfigUseCase
+import com.slaviboy.drumpadmachine.screens.home.usecases.GetPresetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +38,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val downloadAudioZipUseCase: DownloadAudioZipUseCase,
-    private val getPresetsConfigUseCase: GetPresetsConfigUseCase
+    private val getConfigUseCase: GetConfigUseCase,
+    private val getPresetUseCase: GetPresetUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _categoriesMapState: MutableState<HashMap<String, MutableList<Preset>>> = mutableStateOf(hashMapOf())
@@ -36,8 +50,8 @@ class HomeViewModel @Inject constructor(
     private val _audioConfigState: MutableState<Result<Config>> = mutableStateOf(Result.Initial)
     val audioConfigState: State<Result<Config>> = _audioConfigState
 
-    private val _presetIdState: MutableState<Result<Int>> = mutableStateOf(Result.Initial)
-    val presetIdState: State<Result<Int>> = _presetIdState
+    private val _presetIdState: MutableState<Result<Long>> = mutableStateOf(Result.Initial)
+    val presetIdState: State<Result<Long>> = _presetIdState
 
     private val navigationEventChannel = Channel<NavigationEvent>()
     val navigationEventFlow = navigationEventChannel.receiveAsFlow()
@@ -73,31 +87,30 @@ class HomeViewModel @Inject constructor(
     val searchTextState: State<String> = _searchTextState
 
     init {
-        getPresets()
+        getConfig()
+        initNetworkListener()
     }
 
-    fun getSoundForFree(presetId: Int?) {
+    private var downloadJob: Job? = null
+    private var getPreset: Job? = null
+
+    fun getSoundForFree(presetId: Long?) {
         presetId ?: return
         if (_presetIdState.value.isLoadingOrSuccess()) return
-        viewModelScope.launch {
+        downloadJob?.cancel()
+        downloadJob = viewModelScope.launch {
             downloadAudioZipUseCase.execute(presetId).collect {
-                _presetIdState.value = it
                 if (it is Result.Success) {
-                    val preset = getPresetById(presetId)
-                    if (preset != null) {
-                        navigationEventChannel.send(
-                            NavigationEvent.NavigateToDrumPadScreen(preset)
-                        )
-                    } else {
-                        errorEventChannel.send(
-                            ErrorEvent.ErrorWithMessage("Unable to find Preset!")
-                        )
-                    }
+                    getPresetById(presetId)
+                }
+                if (it is Result.Loading) {
+                    _presetIdState.value = it
                 }
                 if (it is Result.Fail) {
                     errorEventChannel.send(
                         ErrorEvent.ErrorWithMessage(it.errorMessage)
                     )
+                    _presetIdState.value = it
                 }
             }
         }
@@ -123,6 +136,14 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
+    private fun initNetworkListener() = viewModelScope.launch {
+        NetworkConnectivityObserver(context).observe().collectLatest {
+            if (it == ConnectivityObserver.Status.Available && hasNetworkError()) {
+                getConfig()
+            }
+        }
+    }
+
     private fun search() = viewModelScope.launch {
         if (_searchTextState.value.isEmpty()) {
             _filteredCategoriesMapState.value = _categoriesMapState.value
@@ -144,9 +165,14 @@ class HomeViewModel @Inject constructor(
         setNoItemEvent()
     }
 
+    private fun hasNetworkError(): Boolean {
+        val isEmpty = _filteredCategoriesMapState.value.isEmpty()
+        return (_audioConfigState.value is Result.Fail && isEmpty)
+    }
+
     private fun setNoItemEvent() {
         val isEmpty = _filteredCategoriesMapState.value.isEmpty()
-        _noItemsState.value = if (_audioConfigState.value is Result.Fail && isEmpty) {
+        _noItemsState.value = if (hasNetworkError()) {
             BaseItem(
                 iconResId = R.drawable.ic_no_internet,
                 titleResId = R.string.no_items,
@@ -163,12 +189,23 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getPresets() = viewModelScope.launch {
-        getPresetsConfigUseCase.execute(PRESETS_VERSION).collect {
+    private fun getConfig() = viewModelScope.launch {
+        getConfigUseCase.execute(CONFIG_VERSION).collect {
             _audioConfigState.value = it
             setNoItemEvent()
             if (it is Result.Success) {
-                setConfig(it.data)
+                val config = it.data
+                if (config.presets?.firstOrNull()?.files?.isNotEmpty() == true) {
+                    val data = Data.Builder().apply {
+                        putInt("CONFIG_VERSION", CONFIG_VERSION)
+                    }
+                    val storeDatabaseWorker = OneTimeWorkRequestBuilder<StoreDatabaseWorker>()
+                        .setInputData(data.build())
+                        .build()
+                    WorkManager.getInstance(context)
+                        .enqueueUniqueWork("store_database_worker", ExistingWorkPolicy.KEEP, storeDatabaseWorker)
+                }
+                setConfig(config)
             }
             if (it is Result.Fail) {
                 errorEventChannel.send(
@@ -201,9 +238,43 @@ class HomeViewModel @Inject constructor(
         search()
     }
 
-    private fun getPresetById(presetId: Int): Preset? {
-        return _categoriesMapState.value.firstNotNullOfOrNull {
-            it.value.firstOrNull { it.id == presetId }
+    private fun getPresetById(presetId: Long) {
+        getPreset?.cancel()
+        getPreset = viewModelScope.launch {
+
+            // on first launch use full Preset object
+            val preset = _categoriesMapState.value.firstNotNullOfOrNull {
+                it.value.firstOrNull {
+                    allTrue(
+                        it.id == presetId,
+                        it.files != null,
+                        it.lessons != null
+                    )
+                }
+            }
+            if (preset != null) {
+                navigationEventChannel.send(
+                    NavigationEvent.NavigateToDrumPadScreen(preset)
+                )
+                _presetIdState.value = Result.Success(presetId)
+                return@launch
+            }
+
+            // on any upcoming launches, use short Preset - without *{files} *{lessons} fields
+            getPresetUseCase.execute(presetId).collect {
+                if (it is Result.Success) {
+                    navigationEventChannel.send(
+                        NavigationEvent.NavigateToDrumPadScreen(it.data)
+                    )
+                    _presetIdState.value = Result.Success(presetId)
+                }
+                if (it is Result.Fail) {
+                    errorEventChannel.send(
+                        ErrorEvent.ErrorWithMessage(it.errorMessage)
+                    )
+                    _presetIdState.value = Result.Fail(it.errorMessage)
+                }
+            }
         }
     }
 
@@ -211,13 +282,16 @@ class HomeViewModel @Inject constructor(
         _presetIdState.value = Result.Initial
     }
 
+    fun cancelDownload() = viewModelScope.launch {
+        downloadJob?.cancel()
+        getPreset?.cancel()
+    }
+
+    fun setInitPresetStatus() {
+        _presetIdState.value = Result.Initial
+    }
+
     companion object {
-        const val PRESETS_VERSION = 12
+        const val CONFIG_VERSION = 12
     }
 }
-
-data class BaseItem(
-    @DrawableRes val iconResId: Int,
-    @StringRes val titleResId: Int,
-    @StringRes val subtitleResId: Int
-)

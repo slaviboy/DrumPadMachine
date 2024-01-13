@@ -2,8 +2,16 @@ package com.slaviboy.drumpadmachine.modules
 
 import android.content.Context
 import androidx.room.Room
-import com.slaviboy.drumpadmachine.data.room.ConfigDao
-import com.slaviboy.drumpadmachine.data.room.ConfigDatabase
+import com.slaviboy.drumpadmachine.data.room.Database
+import com.slaviboy.drumpadmachine.data.room.category.CategoryDao
+import com.slaviboy.drumpadmachine.data.room.config.ConfigDao
+import com.slaviboy.drumpadmachine.data.room.file.FileDao
+import com.slaviboy.drumpadmachine.data.room.filter.FilterDao
+import com.slaviboy.drumpadmachine.data.room.lesson.LessonDao
+import com.slaviboy.drumpadmachine.data.room.pad.PadDao
+import com.slaviboy.drumpadmachine.data.room.preset.PresetDao
+import com.slaviboy.drumpadmachine.dispatchers.DefaultDispatchers
+import com.slaviboy.drumpadmachine.dispatchers.Dispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,20 +23,67 @@ import dagger.hilt.components.SingletonComponent
 object DataModule {
 
     @Provides
-    fun provideConfigDatabase(
-        @ApplicationContext context: Context
-    ): ConfigDatabase {
-        return Room.databaseBuilder(
-            context,
-            ConfigDatabase::class.java,
-            "config.db"
-        ).build()
+    fun provideDispatchers(): Dispatchers {
+        return DefaultDispatchers()
     }
 
     @Provides
     fun provideConfigDao(
-        configDatabase: ConfigDatabase
+        database: Database
     ): ConfigDao {
-        return configDatabase.dao
+        return database.configDao
+    }
+
+    @Provides
+    fun provideCategoryDao(
+        database: Database
+    ): CategoryDao {
+        return database.categoryDao
+    }
+
+    @Provides
+    fun providePresetDao(
+        database: Database
+    ): PresetDao {
+        return database.presetDao
+    }
+
+    @Provides
+    fun provideFilterDao(
+        database: Database
+    ): FilterDao {
+        return database.filterDao
+    }
+
+    @Provides
+    fun provideFileDao(
+        database: Database
+    ): FileDao {
+        return database.fileDao
+    }
+
+    @Provides
+    fun provideLessonDao(
+        database: Database
+    ): LessonDao {
+        return database.lessonDao
+    }
+
+    @Provides
+    fun providePadDao(
+        database: Database
+    ): PadDao {
+        return database.padDao
+    }
+
+    @Provides
+    fun provideDatabase(
+        @ApplicationContext context: Context
+    ): Database {
+        return Room.databaseBuilder(
+            context,
+            Database::class.java,
+            "config.db"
+        ).build()
     }
 }

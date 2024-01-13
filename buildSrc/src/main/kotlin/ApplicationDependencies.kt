@@ -11,9 +11,13 @@ object ApplicationDependencies {
     private const val composeMaterial3 = "androidx.compose.material3:material3:${ApplicationDependencyVersions.composeMaterial3}"
     private const val composeMaterial3WindowSize = "androidx.compose.material3:material3-window-size-class:${ApplicationDependencyVersions.composeMaterial3}"
     private const val composeUIToolingPreview = "androidx.compose.ui:ui-tooling-preview:${ApplicationDependencyVersions.composeUI}"
-    private const val hiltNavigationCompose = "androidx.hilt:hilt-navigation-compose:${ApplicationDependencyVersions.hiltNavigationCompose}"
     private const val daggerHilt = "com.google.dagger:hilt-android:${ApplicationDependencyVersions.daggerHilt}"
     private const val daggerHiltCompiler = "com.google.dagger:hilt-android-compiler:${ApplicationDependencyVersions.daggerHilt}"
+    private const val hiltNavigationCompose = "androidx.hilt:hilt-navigation-compose:${ApplicationDependencyVersions.hilt}"
+    private const val hiltCompiler = "androidx.hilt:hilt-compiler:${ApplicationDependencyVersions.hilt}"
+    private const val hiltWork = "androidx.hilt:hilt-work:${ApplicationDependencyVersions.hilt}"
+    private const val hiltCommon = "androidx.hilt:hilt-common:${ApplicationDependencyVersions.hilt}"
+    private const val workRuntimeKtx = "androidx.work:work-runtime-ktx:${ApplicationDependencyVersions.workRuntimeKtx}"
     private const val gson = "com.google.code.gson:gson:${ApplicationDependencyVersions.gson}"
     private const val raamcostaCore = "io.github.raamcosta.compose-destinations:core:${ApplicationDependencyVersions.raamcosta}"
     private const val raamcostaKsp = "io.github.raamcosta.compose-destinations:ksp:${ApplicationDependencyVersions.raamcosta}"
@@ -55,6 +59,10 @@ object ApplicationDependencies {
         raamcostaCore,
         raamcostaAnimationsCore,
         hiltNavigationCompose,
+        hiltCompiler,
+        hiltWork,
+        hiltCommon,
+        workRuntimeKtx,
         datastorePreferences,
         splashscreen,
         libphonenumber,
