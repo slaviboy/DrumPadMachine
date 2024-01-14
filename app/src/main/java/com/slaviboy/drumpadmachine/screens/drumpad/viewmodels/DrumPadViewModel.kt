@@ -141,7 +141,9 @@ class DrumPadViewModel @Inject constructor(
         column: Int
     ) {
         val index = DrumPadHelper.getIndex(_page.value, row, column)
-        bounds[index] = rect
+        if (index <= bounds.lastIndex) {
+            bounds[index] = rect
+        }
     }
 
     fun setContainerBound(bound: Rect) {
