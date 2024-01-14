@@ -3,7 +3,7 @@
 ----
 
 TODO:
-1) [ ] Implement crashlitics for app
+1) [x] Implement crashlitics for app
 2) [ ] Implement Tutorials functionality
 3) [ ] Allow users to load custom sounds (23 audio files, pick color and position)
 4) [ ] Implement recording songs
