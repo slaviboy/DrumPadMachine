@@ -8,6 +8,7 @@ plugins {
 }
 
 dependencies {
+    implementationPlatform(*ApplicationDependencies.dependenciesAppPlatform)
     implementation(*ApplicationDependencies.dependenciesApp)
     ksp(*ApplicationDependencies.ksp)
     project(

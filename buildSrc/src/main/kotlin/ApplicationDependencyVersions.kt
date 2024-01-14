@@ -34,6 +34,7 @@ object ApplicationDependencyVersions {
     const val timber = "5.0.1"
     const val room = "2.5.0"
     const val kotlinInterpolator = "1.0.0"
+    const val firebaseBom = "32.7.0"
 
     // Firebase
     const val firebaseBOM = "32.5.0"
