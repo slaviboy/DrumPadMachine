@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "680086720247",
+    "project_id": "drumpadmachine-81946",
+    "storage_bucket": "drumpadmachine-81946.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680086720247:android:ba542559b1045ba1414df2",
+        "android_client_info": {
+          "package_name": "com.slaviboy.drumpadmachine"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKYGbfC3cQQf0RK1MyWkDyob7k1sL1PEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680086720247:android:9afba82e7bd40fff414df2",
+        "android_client_info": {
+          "package_name": "com.slaviboy.drumpadmachine.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKYGbfC3cQQf0RK1MyWkDyob7k1sL1PEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

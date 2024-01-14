@@ -39,9 +39,17 @@ object ApplicationDependencies {
     private const val coil = "io.coil-kt:coil-compose:${ApplicationDependencyVersions.coil}"
     private const val kotlinInterpolator = "com.github.slaviboy:KotlinInterpolator:${ApplicationDependencyVersions.kotlinInterpolator}"
 
+    // Firebase
+    private const val firebaseBom = "com.google.firebase:firebase-bom:${ApplicationDependencyVersions.firebaseBom}"
+    private const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
+    private const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics"
+
     // Testing
     const val junit = "junit:junit:${ApplicationDependencyVersions.junit}"
 
+    val dependenciesAppPlatform = arrayOf(
+        firebaseBom
+    )
     val dependenciesApp = arrayOf(
         kotlinStandardLib,
         kotlinxCoroutinesCore,
@@ -76,6 +84,8 @@ object ApplicationDependencies {
         room,
         glide,
         coil,
+        firebaseAnalytics,
+        firebaseCrashlytics
         //kotlinInterpolator
     )
 
