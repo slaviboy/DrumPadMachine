@@ -70,6 +70,9 @@ fun DrumPadComposable(
     preset: Preset
 ) {
     val uriHandler = LocalUriHandler.current
+    // Synchronous, not in the LaunchedEffect below - keeps pad colors correct on the very
+    // first frame instead of a blank/gray flash until the effect gets a chance to run.
+    drumPadViewModel.setPreset(preset)
     LaunchedEffect(preset) {
         drumPadViewModel.loadSounds(preset)
     }
