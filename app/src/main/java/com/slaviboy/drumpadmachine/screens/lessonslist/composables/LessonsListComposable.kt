@@ -56,6 +56,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.slaviboy.composeunits.DpToPx
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
@@ -65,6 +70,7 @@ import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.LessonState
+import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
@@ -683,5 +689,39 @@ fun LessonItem(
             modifier = Modifier
                 .height(0.04.dw)
         )
+    }
+}
+
+private fun previewLesson(id: Int, lessonState: LessonState, rating: Int, lastScore: Int, bestScore: Int) = Lesson(
+    id = id,
+    side = "a",
+    version = 1,
+    name = "New Tone",
+    orderBy = id,
+    sequencerSize = 17,
+    rating = rating,
+    lastScore = lastScore,
+    bestScore = bestScore,
+    lessonState = lessonState,
+    pads = listOf(
+        Pad(id = 9, start = 0, ambient = false, duration = 1),
+        Pad(id = 10, start = 4, ambient = false, duration = 1),
+        Pad(id = 11, start = 8, ambient = false, duration = 1)
+    )
+)
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonItemPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    Column {
+        LessonItem(lesson = previewLesson(0, LessonState.Play, rating = 0, lastScore = 0, bestScore = 0), onButtonClick = {})
+        Spacer(modifier = Modifier.height(0.03.dw))
+        LessonItem(lesson = previewLesson(1, LessonState.Replay, rating = 3, lastScore = 100, bestScore = 100), onButtonClick = {})
+        Spacer(modifier = Modifier.height(0.03.dw))
+        LessonItem(lesson = previewLesson(2, LessonState.Unlock, rating = 0, lastScore = 0, bestScore = 0), onButtonClick = {})
     }
 }

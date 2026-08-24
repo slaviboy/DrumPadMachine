@@ -34,12 +34,17 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
@@ -282,5 +287,45 @@ fun HomePresetDetails(
                     .bounceClick(onClick = onCloseButtonClick)
             )
         }
+    }
+}
+
+private val previewPreset = Preset(
+    id = 1,
+    name = "Beautiful Vibes",
+    author = "Slaviboy",
+    price = 100,
+    orderBy = "1",
+    timestamp = null,
+    deleted = false,
+    hasInfo = true,
+    tempo = 150,
+    tags = listOf("#dubstep"),
+    files = null,
+    lessons = null
+)
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun HomePresetDetailsPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    Box(modifier = Modifier.fillMaxSize()) {
+        HomePresetDetails(
+            boxScope = this,
+            animatedValue = 1f,
+            animatedWidth = 0.76.dw,
+            animatedHeight = 0.33.dh,
+            animatedX = 0f,
+            animatedY = 0f,
+            clickedPreset = previewPreset,
+            isLoading = false,
+            onGloballyPositioned = { _, _ -> },
+            onGetPresetForFree = {},
+            onGetAllPresets = {},
+            onCloseButtonClick = {}
+        )
     }
 }

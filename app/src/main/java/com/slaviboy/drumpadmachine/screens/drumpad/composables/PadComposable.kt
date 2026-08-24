@@ -5,7 +5,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
@@ -17,6 +19,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.enums.PadColor
 
@@ -61,5 +65,20 @@ fun PadComposable(
                 .wrapContentHeight()
                 .alpha(alpha)
         )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun PadComposablePreview() {
+    Row {
+        PadColor.values().forEach { color ->
+            PadComposable(
+                padColor = color,
+                showGlow = color == PadColor.Orange,
+                modifier = Modifier.width(80.dp),
+                onPositionInParentChange = {}
+            )
+        }
     }
 }
