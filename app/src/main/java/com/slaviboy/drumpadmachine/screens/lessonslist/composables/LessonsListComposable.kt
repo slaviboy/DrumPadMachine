@@ -140,14 +140,12 @@ fun LessonsListComposable(
             LessonItem(lesson = lesson,
                 onButtonClick = {
                     keyboardController?.hide()
-                    if (lesson.lessonState != LessonState.Unlock) {
-                        navigator.navigate(
-                            direction = LessonPlayerComposableDestination(
-                                preset = preset,
-                                lesson = lesson
-                            )
+                    navigator.navigate(
+                        direction = LessonPlayerComposableDestination(
+                            preset = preset,
+                            lesson = lesson
                         )
-                    }
+                    )
                 }
             )
             Spacer(
