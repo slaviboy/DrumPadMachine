@@ -42,6 +42,8 @@ class DrumPadViewModel @Inject constructor(
     private var _isMoved: MutableState<List<Boolean>> = mutableStateOf(MutableList(24) { false })
     val isMoved: State<List<Boolean>> = _isMoved
 
+    private val activePointerIndex: MutableMap<Int, Int> = mutableMapOf()
+
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
             teardownAudioStream()
@@ -102,11 +104,11 @@ class DrumPadViewModel @Inject constructor(
             if (index != -1) {
                 playSoundAtIndex(index)
                 isMoved[index] = true
+                activePointerIndex[event.getPointerId(event.actionIndex)] = index
             }
         } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_CANCEL) {
-            val (x, y) = getPositionForFinger(event, event.actionIndex)
-            val index = findMatchItemIndex(x, y)
-            if (index != -1) {
+            val index = activePointerIndex.remove(event.getPointerId(event.actionIndex))
+            if (index != null && index != -1) {
                 val currentFile = getFileAtIndex(index) ?: return@launch
                 if (currentFile.stopOnRelease == "1") {
                     drumPadPlayer?.stopTrigger(index)
@@ -118,8 +120,12 @@ class DrumPadViewModel @Inject constructor(
             for (j in 0 until event.pointerCount) {
                 val (x, y) = getPositionForFinger(event, j)
                 val index = findMatchItemIndex(x, y)
+                val pointerId = event.getPointerId(j)
                 if (index != -1) {
                     matchIndices.add(index)
+                    activePointerIndex[pointerId] = index
+                } else {
+                    activePointerIndex.remove(pointerId)
                 }
                 if (index != -1 && !isMoved[index]) {
                     playSoundAtIndex(index)

@@ -89,7 +89,21 @@ bool SimpleMultiPlayer::openStream() {
     builder.setSharingMode(SharingMode::Exclusive);
     builder.setSampleRateConversionQuality(SampleRateConversionQuality::Medium);
 
+    // Request AAudio explicitly for the lowest latency path. AAudio only exists on
+    // API 26+; on older devices (minSdk is 21) this open will fail and we retry
+    // below with Unspecified, which lets Oboe fall back to OpenSL ES.
+    builder.setAudioApi(AudioApi::AAudio);
+
     Result result = builder.openStream(mAudioStream);
+    if (result != Result::OK) {
+        __android_log_print(
+                ANDROID_LOG_WARN,
+                TAG,
+                "openStream with AAudio failed. Error: %s. Retrying with OpenSL ES fallback.",
+                convertToText(result));
+        builder.setAudioApi(AudioApi::Unspecified);
+        result = builder.openStream(mAudioStream);
+    }
     if (result != Result::OK){
         __android_log_print(
                 ANDROID_LOG_ERROR,
@@ -100,6 +114,7 @@ bool SimpleMultiPlayer::openStream() {
 
     // Reduce stream latency by setting the buffer size to a multiple of the burst size
     // Note: this will fail with ErrorUnimplemented if we are using a callback with OpenSL ES
+    // (i.e. on API < 26 where AAudio is unavailable) - expected there, not a bug.
     // See oboe::AudioStreamBuffered::setBufferSizeInFrames
     result = mAudioStream->setBufferSizeInFrames(
             mAudioStream->getFramesPerBurst() * kBufferSizeInBursts);

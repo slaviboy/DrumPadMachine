@@ -21,6 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -229,24 +232,12 @@ fun DrumPadComposable(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         for (j in 0 until DrumPadHelper.numberOfColumns) {
-                            PadComposable(
-                                padColor = drumPadViewModel.getPadColor(
-                                    row = i,
-                                    column = j
-                                ),
-                                showGlow = drumPadViewModel.getShowGlow(
-                                    row = i,
-                                    column = j
-                                ),
+                            DrumPadItem(
+                                drumPadViewModel = drumPadViewModel,
+                                row = i,
+                                column = j,
                                 modifier = Modifier
-                                    .weight(1f),
-                                onPositionInParentChange = {
-                                    drumPadViewModel.onPositionInParentChange(
-                                        rect = it,
-                                        row = i,
-                                        column = j
-                                    )
-                                }
+                                    .weight(1f)
                             )
                             if (j < DrumPadHelper.numberOfColumns - 1) {
                                 Spacer(
@@ -309,4 +300,31 @@ fun DrumPadComposable(
             }
         }
     }
+}
+
+@Composable
+private fun DrumPadItem(
+    drumPadViewModel: DrumPadViewModel,
+    row: Int,
+    column: Int,
+    modifier: Modifier = Modifier
+) {
+    // Isolates recomposition to just this pad: without derivedStateOf here, every
+    // touch event (which flips one entry in the shared isMoved list) would recompose
+    // the whole pad grid, since all pads' getShowGlow() reads lived in one shared scope.
+    val showGlow by remember {
+        derivedStateOf { drumPadViewModel.getShowGlow(row = row, column = column) }
+    }
+    PadComposable(
+        padColor = drumPadViewModel.getPadColor(row = row, column = column),
+        showGlow = showGlow,
+        modifier = modifier,
+        onPositionInParentChange = {
+            drumPadViewModel.onPositionInParentChange(
+                rect = it,
+                row = row,
+                column = column
+            )
+        }
+    )
 }
