@@ -58,12 +58,12 @@ fun LessonPlayerTopBar(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.07.dw)
+                .padding(horizontal = 0.09.dw)
         ) {
             // Icons anchor exactly to the start/middle/end dot positions of the track below -
             // the start/end icons are centered ON the row's edge (not aligned by their own edge
             // to it), so they're shifted out by half their own width to sit on top of the dot.
-            val edgeIconSize = 0.07.dw
+            val edgeIconSize = 0.08.dw
             Image(
                 painter = painterResource(id = R.drawable.ic_note),
                 contentDescription = null,
@@ -78,7 +78,7 @@ fun LessonPlayerTopBar(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(0.085.dw)
+                    .size(0.09.dw)
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_circular_check),
@@ -164,7 +164,7 @@ private fun ProgressSegment(fraction: Float, modifier: Modifier = Modifier) {
 private fun ProgressDot(filled: Boolean) {
     Box(
         modifier = Modifier
-            .size(0.022.dw)
+            .size(0.035.dw)
             .background(color = if (filled) ActiveColor else TrackColor, shape = CircleShape)
     )
 }
