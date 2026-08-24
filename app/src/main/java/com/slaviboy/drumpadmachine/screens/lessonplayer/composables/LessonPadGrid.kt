@@ -21,9 +21,15 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
+import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPhase
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPlayerUiState
 
 /**
@@ -87,4 +93,25 @@ fun LessonPadGrid(
             }
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPadGridPlayPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonPadGrid(
+        uiState = LessonPlayerUiState(
+            phase = LessonPhase.Play,
+            page = 0,
+            usedPadIndices = setOf(9, 10, 11),
+            padColors = mapOf(9 to PadColor.Blue, 10 to PadColor.Orange, 11 to PadColor.Blue),
+            glowingPads = emptySet(),
+            expectedPadIndices = setOf(9)
+        ),
+        onPadTapped = {},
+        modifier = Modifier.fillMaxWidth()
+    )
 }

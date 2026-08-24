@@ -28,6 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
@@ -172,4 +177,36 @@ fun LessonResultComposable(
             )
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonResultComposablePassPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonResultComposable(
+        isPass = true,
+        scorePercent = 100,
+        bestScorePercent = 100,
+        onReplay = {},
+        onDone = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonResultComposableFailPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonResultComposable(
+        isPass = false,
+        scorePercent = 17,
+        bestScorePercent = 17,
+        onReplay = {},
+        onDone = {}
+    )
 }

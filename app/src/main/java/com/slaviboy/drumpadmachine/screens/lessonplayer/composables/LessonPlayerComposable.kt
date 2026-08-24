@@ -31,16 +31,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPhase
+import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPlayerUiState
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonResultPayload
 import com.slaviboy.drumpadmachine.screens.lessonplayer.viewmodels.LessonPlayerViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
@@ -99,6 +106,37 @@ fun LessonPlayerComposable(
         }
     }
 
+    LessonPlayerScreenContent(
+        lessonNumber = lesson.id + 1,
+        lessonName = lesson.name,
+        uiState = uiState,
+        listenProgress = listenProgress.value,
+        playProgress = playProgress.value,
+        onBack = finish,
+        onDone = finish,
+        onReplay = { lessonPlayerViewModel.start(preset, lesson) },
+        onPadTapped = lessonPlayerViewModel::onPadTapped
+    )
+}
+
+/**
+ * Pure UI body of the lesson player, split out from [LessonPlayerComposable] so it can be
+ * previewed with hand-built [LessonPlayerUiState] values - the destination composable above
+ * owns the Hilt [LessonPlayerViewModel] and its native-audio side effects, which can't run
+ * inside a Compose preview.
+ */
+@Composable
+private fun LessonPlayerScreenContent(
+    lessonNumber: Int,
+    lessonName: String,
+    uiState: LessonPlayerUiState,
+    listenProgress: Float,
+    playProgress: Float,
+    onBack: () -> Unit,
+    onDone: () -> Unit,
+    onReplay: () -> Unit,
+    onPadTapped: (Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -120,7 +158,7 @@ fun LessonPlayerComposable(
                     contentDescription = null,
                     modifier = Modifier
                         .size(0.07.dw)
-                        .bounceClick(onClick = finish),
+                        .bounceClick(onClick = onBack),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
                 Column(
@@ -130,7 +168,7 @@ fun LessonPlayerComposable(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(id = R.string.lessons_number).format(lesson.id + 1),
+                        text = stringResource(id = R.string.lessons_number).format(lessonNumber),
                         color = Color.White,
                         fontFamily = RobotoFont,
                         fontSize = 0.048.sw,
@@ -139,7 +177,7 @@ fun LessonPlayerComposable(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = lesson.name,
+                        text = lessonName,
                         color = Color.LightGray,
                         fontFamily = RobotoFont,
                         fontSize = 0.036.sw,
@@ -158,7 +196,7 @@ fun LessonPlayerComposable(
                         fontSize = 0.045.sw,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .bounceClick(onClick = finish)
+                            .bounceClick(onClick = onDone)
                             .padding(0.01.dw)
                     )
                 }
@@ -169,23 +207,120 @@ fun LessonPlayerComposable(
                     isPass = uiState.isPass,
                     scorePercent = uiState.finalScorePercent ?: 0,
                     bestScorePercent = uiState.bestScorePercent,
-                    onReplay = { lessonPlayerViewModel.start(preset, lesson) },
-                    onDone = finish,
+                    onReplay = onReplay,
+                    onDone = onDone,
                     modifier = Modifier.weight(1f)
                 )
             } else {
                 Spacer(modifier = Modifier.height(0.06.dw))
                 LessonPlayerTopBar(
                     phase = uiState.phase,
-                    listenProgress = listenProgress.value,
-                    playProgress = playProgress.value
+                    listenProgress = listenProgress,
+                    playProgress = playProgress
                 )
                 Spacer(modifier = Modifier.height(0.08.dw))
                 LessonPadGrid(
                     uiState = uiState,
-                    onPadTapped = lessonPlayerViewModel::onPadTapped
+                    onPadTapped = onPadTapped
                 )
             }
         }
     }
+}
+
+private fun initPreviewUnits() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+}
+
+private val previewUsedPadColors = mapOf(9 to PadColor.Blue, 10 to PadColor.Orange, 11 to PadColor.Blue)
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerScreenListenPreview() {
+    initPreviewUnits()
+    LessonPlayerScreenContent(
+        lessonNumber = 1,
+        lessonName = "New Tone",
+        uiState = LessonPlayerUiState(
+            phase = LessonPhase.Listen,
+            usedPadIndices = setOf(9, 10, 11),
+            padColors = previewUsedPadColors,
+            glowingPads = setOf(10)
+        ),
+        listenProgress = 0.45f,
+        playProgress = 0f,
+        onBack = {},
+        onDone = {},
+        onReplay = {},
+        onPadTapped = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerScreenPlayPreview() {
+    initPreviewUnits()
+    LessonPlayerScreenContent(
+        lessonNumber = 1,
+        lessonName = "New Tone",
+        uiState = LessonPlayerUiState(
+            phase = LessonPhase.Play,
+            usedPadIndices = setOf(9, 10, 11),
+            padColors = previewUsedPadColors,
+            expectedPadIndices = setOf(9)
+        ),
+        listenProgress = 1f,
+        playProgress = 0f,
+        onBack = {},
+        onDone = {},
+        onReplay = {},
+        onPadTapped = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerScreenResultPassPreview() {
+    initPreviewUnits()
+    LessonPlayerScreenContent(
+        lessonNumber = 1,
+        lessonName = "New Tone",
+        uiState = LessonPlayerUiState(
+            phase = LessonPhase.Result,
+            finalScorePercent = 100,
+            bestScorePercent = 100,
+            isPass = true
+        ),
+        listenProgress = 1f,
+        playProgress = 1f,
+        onBack = {},
+        onDone = {},
+        onReplay = {},
+        onPadTapped = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerScreenResultFailPreview() {
+    initPreviewUnits()
+    LessonPlayerScreenContent(
+        lessonNumber = 1,
+        lessonName = "New Tone",
+        uiState = LessonPlayerUiState(
+            phase = LessonPhase.Result,
+            finalScorePercent = 17,
+            bestScorePercent = 17,
+            isPass = false
+        ),
+        listenProgress = 1f,
+        playProgress = 1f,
+        onBack = {},
+        onDone = {},
+        onReplay = {},
+        onPadTapped = {}
+    )
 }

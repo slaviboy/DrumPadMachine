@@ -2,9 +2,11 @@ package com.slaviboy.drumpadmachine.screens.lessonplayer.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +17,12 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
@@ -64,5 +72,53 @@ fun LessonPadComposable(
                     .background(color = Color.White, shape = CircleShape)
             )
         }
+    }
+}
+
+/** Fixed reference metrics so `dw`/`sw` percentage units resolve to sane values in previews. */
+private fun initPreviewUnits() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPadComposablePreview() {
+    initPreviewUnits()
+    Row {
+        // Idle - unused pad, dim/inactive art
+        LessonPadComposable(
+            padColor = PadColor.None,
+            showGlow = false,
+            showTapIndicator = false,
+            modifier = Modifier.width(90.dp),
+            onPositionInParentChange = {}
+        )
+        // Idle - used pad, its real preset color
+        LessonPadComposable(
+            padColor = PadColor.Blue,
+            showGlow = false,
+            showTapIndicator = false,
+            modifier = Modifier.width(90.dp),
+            onPositionInParentChange = {}
+        )
+        // Listen-phase flash / correct-tap feedback
+        LessonPadComposable(
+            padColor = PadColor.Orange,
+            showGlow = true,
+            showTapIndicator = false,
+            modifier = Modifier.width(90.dp),
+            onPositionInParentChange = {}
+        )
+        // Play-phase "tap here" target
+        LessonPadComposable(
+            padColor = PadColor.Blue,
+            showGlow = false,
+            showTapIndicator = true,
+            modifier = Modifier.width(90.dp),
+            onPositionInParentChange = {}
+        )
     }
 }

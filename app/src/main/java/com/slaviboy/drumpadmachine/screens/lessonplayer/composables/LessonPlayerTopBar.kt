@@ -23,6 +23,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
@@ -125,4 +130,34 @@ private fun ProgressSegment(fraction: Float, modifier: Modifier = Modifier) {
                 .background(color = ActiveColor, shape = RoundedCornerShape(50))
         )
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerTopBarListenPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonPlayerTopBar(phase = LessonPhase.Listen, listenProgress = 0.45f, playProgress = 0f)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerTopBarPlayPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonPlayerTopBar(phase = LessonPhase.Play, listenProgress = 1f, playProgress = 0.3f)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonPlayerTopBarResultPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    LessonPlayerTopBar(phase = LessonPhase.Result, listenProgress = 1f, playProgress = 1f)
 }
