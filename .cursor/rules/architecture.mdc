@@ -1,0 +1,48 @@
+---
+description: DrumPadMachine architecture & conventions
+alwaysApply: true
+---
+
+# DrumPadMachine
+
+Kotlin, multi-module Gradle (Kotlin DSL, **no version catalog** — deps live
+only in `buildSrc/src/main/kotlin/ApplicationDependencies*.kt`, add new ones
+there). Jetpack Compose + Material3 (no XML layouts). Dagger Hilt DI. Room DB.
+Retrofit/OkHttp/Gson. `compose-destinations` nav (generated `NavGraphs` —
+don't hand-write). Firebase Crashlytics/Analytics. Native audio via Oboe/JNI.
+
+## Modules
+- `:app` (`com.slaviboy.drumpadmachine`) — feature-first:
+  `screens/<feature>/{composables,viewmodels,helpers,usecases}` for
+  `drumpad`/`home`/`lessonslist`/`presetslist`; `data/room/<entity>/` one
+  folder per table (`*Entity.kt` + `*Dao.kt`); `data/entities/` domain
+  models; `data/workers/` CoroutineWorkers; `api/` Retrofit
+  repos/services; `modules/` Hilt modules.
+- `:lib:audio` — Kotlin/JNI bridge, `DrumPadPlayer.kt`
+  (trigger/stopTrigger/pan/gain/loadWav*).
+- `:lib:oboe`, `:lib:iolib`, `:lib:parselib` — native C++, edit with care,
+  needs NDK/CMake 3.22.1. Prefer changing `:lib:audio` over native code
+  unless the task requires it.
+
+## Pattern
+MVVM + Repository, `@HiltViewModel` injects repositories. Namespace =
+`com.slaviboy.<module>`.
+
+## Domain core
+`DrumPadPlayer` (native audio wrapper) + `DrumPadViewModel`
+(`screens/drumpad/viewmodels/`, multi-touch hit-testing, choke groups, pad
+paging) are the heart of pad/audio behavior. `Preset`/`File` entities hold
+pad config (filename, color, choke, stopOnRelease). Resource load order:
+DB → extracted ZIP → API ZIP, synced via `CoroutineWorker` into Room.
+
+## Facts to stop re-deriving
+- No tests exist (`app/src/test`, `androidTest` absent) — don't search for
+  them.
+- No CI (`.github/` absent).
+- Build variants: `dev`/`beta`/`prod` × debug/release, e.g.
+  `./gradlew assembleDevDebug`.
+
+## Conventions
+Follow the existing feature-first / per-entity-folder shape for new code
+instead of inventing a new structure. Don't grep `build.gradle.kts` files for
+dependency versions — check `buildSrc` instead.
