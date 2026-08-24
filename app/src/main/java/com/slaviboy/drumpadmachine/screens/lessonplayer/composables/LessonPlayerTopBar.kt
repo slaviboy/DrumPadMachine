@@ -2,7 +2,6 @@ package com.slaviboy.drumpadmachine.screens.lessonplayer.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,57 +53,69 @@ fun LessonPlayerTopBar(
         LessonPhase.Result -> 1f
     }
     Column(modifier = modifier.fillMaxWidth()) {
-        Row(
+        val listenColor = if (phase == LessonPhase.Listen) ActiveColor else InactiveColor
+        val playColor = if (phase != LessonPhase.Listen) ActiveColor else InactiveColor
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.07.dw),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 0.07.dw)
         ) {
-            val listenColor = if (phase == LessonPhase.Listen) ActiveColor else InactiveColor
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            // Icons anchor exactly to the start/middle/end dot positions of the track below -
+            // the start/end icons are centered ON the row's edge (not aligned by their own edge
+            // to it), so they're shifted out by half their own width to sit on top of the dot.
+            val edgeIconSize = 0.07.dw
+            Image(
+                painter = painterResource(id = R.drawable.ic_note),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = -(edgeIconSize / 2))
+                    .size(edgeIconSize),
+                colorFilter = ColorFilter.tint(listenColor)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_play),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(0.085.dw)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_circular_check),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = edgeIconSize / 2)
+                    .size(edgeIconSize),
+                colorFilter = ColorFilter.tint(if (phase == LessonPhase.Result) ActiveColor else InactiveColor)
+            )
+            // Labels are centered within their own half of the row, independent of the icons.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxWidth(0.5f)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_note),
-                    contentDescription = null,
-                    modifier = Modifier.size(0.07.dw),
-                    colorFilter = ColorFilter.tint(listenColor)
-                )
-                Spacer(modifier = Modifier.width(0.02.dw))
                 Text(
                     text = stringResource(id = R.string.listen),
                     color = listenColor,
                     fontFamily = RobotoFont,
                     fontSize = 0.045.sw,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
-            Image(
-                painter = painterResource(id = R.drawable.ic_play),
-                contentDescription = null,
-                modifier = Modifier.size(0.085.dw)
-            )
-            val playColor = if (phase != LessonPhase.Listen) ActiveColor else InactiveColor
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxWidth(0.5f)
             ) {
                 Text(
                     text = stringResource(id = R.string.play),
                     color = playColor,
                     fontFamily = RobotoFont,
                     fontSize = 0.045.sw,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(0.02.dw))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_circular_check),
-                    contentDescription = null,
-                    modifier = Modifier.size(0.07.dw),
-                    colorFilter = ColorFilter.tint(if (phase == LessonPhase.Result) ActiveColor else InactiveColor)
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         }
