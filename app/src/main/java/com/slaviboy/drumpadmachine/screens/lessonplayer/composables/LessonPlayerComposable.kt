@@ -7,6 +7,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -32,6 +36,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.bumptech.glide.integration.compose.CrossFade
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -46,6 +54,7 @@ import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.extensions.bounceClick
+import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPhase
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPlayerUiState
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonResultPayload
@@ -107,6 +116,7 @@ fun LessonPlayerComposable(
     }
 
     LessonPlayerScreenContent(
+        presetId = preset.id,
         lessonNumber = lesson.id + 1,
         lessonName = lesson.name,
         uiState = uiState,
@@ -125,8 +135,10 @@ fun LessonPlayerComposable(
  * owns the Hilt [LessonPlayerViewModel] and its native-audio side effects, which can't run
  * inside a Compose preview.
  */
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun LessonPlayerScreenContent(
+    presetId: Long,
     lessonNumber: Int,
     lessonName: String,
     uiState: LessonPlayerUiState,
@@ -146,7 +158,7 @@ private fun LessonPlayerScreenContent(
             )
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
-            Spacer(modifier = Modifier.height(0.07.dw))
+            Spacer(modifier = Modifier.height(0.1.dw))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -161,30 +173,44 @@ private fun LessonPlayerScreenContent(
                         .bounceClick(onClick = onBack),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
-                Column(
+                Row(
                     modifier = Modifier
                         .weight(1f)
                         .wrapContentHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.lessons_number).format(lessonNumber),
-                        color = Color.White,
-                        fontFamily = RobotoFont,
-                        fontSize = 0.048.sw,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    GlideImage(
+                        model = NetworkModule.coverIconUrl(presetId),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(0.14.dw)
+                            .clip(RoundedCornerShape(0.02.dw)),
+                        transition = CrossFade,
+                        failure = placeholder(R.drawable.ic_no_image),
+                        loading = placeholder(R.drawable.ic_default_image)
                     )
-                    Text(
-                        text = lessonName,
-                        color = Color.LightGray,
-                        fontFamily = RobotoFont,
-                        fontSize = 0.036.sw,
-                        fontWeight = FontWeight.Normal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Spacer(modifier = Modifier.width(0.02.dw))
+                    Column {
+                        Text(
+                            text = stringResource(id = R.string.lessons_number).format(lessonNumber),
+                            color = Color.White,
+                            fontFamily = RobotoFont,
+                            fontSize = 0.048.sw,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = lessonName,
+                            color = Color.LightGray,
+                            fontFamily = RobotoFont,
+                            fontSize = 0.036.sw,
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 if (uiState.phase == LessonPhase.Result) {
                     Spacer(modifier = Modifier.size(0.07.dw))
@@ -212,7 +238,7 @@ private fun LessonPlayerScreenContent(
                     modifier = Modifier.weight(1f)
                 )
             } else {
-                Spacer(modifier = Modifier.height(0.06.dw))
+                Spacer(modifier = Modifier.height(0.08.dw))
                 LessonPlayerTopBar(
                     phase = uiState.phase,
                     listenProgress = listenProgress,
@@ -248,6 +274,7 @@ private val previewUsedPadColors = mapOf(9 to PadColor.Blue, 10 to PadColor.Oran
 private fun LessonPlayerScreenListenPreview() {
     initPreviewUnits()
     LessonPlayerScreenContent(
+        presetId = 1,
         lessonNumber = 1,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
@@ -270,6 +297,7 @@ private fun LessonPlayerScreenListenPreview() {
 private fun LessonPlayerScreenPlayPreview() {
     initPreviewUnits()
     LessonPlayerScreenContent(
+        presetId = 1,
         lessonNumber = 1,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
@@ -292,6 +320,7 @@ private fun LessonPlayerScreenPlayPreview() {
 private fun LessonPlayerScreenResultPassPreview() {
     initPreviewUnits()
     LessonPlayerScreenContent(
+        presetId = 1,
         lessonNumber = 1,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
@@ -314,6 +343,7 @@ private fun LessonPlayerScreenResultPassPreview() {
 private fun LessonPlayerScreenResultFailPreview() {
     initPreviewUnits()
     LessonPlayerScreenContent(
+        presetId = 1,
         lessonNumber = 1,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
