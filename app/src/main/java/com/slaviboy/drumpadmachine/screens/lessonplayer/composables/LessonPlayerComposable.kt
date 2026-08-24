@@ -218,11 +218,17 @@ private fun LessonPlayerScreenContent(
                     listenProgress = listenProgress,
                     playProgress = playProgress
                 )
-                Spacer(modifier = Modifier.height(0.08.dw))
-                LessonPadGrid(
-                    uiState = uiState,
-                    onPadTapped = onPadTapped
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LessonPadGrid(
+                        uiState = uiState,
+                        onPadTapped = onPadTapped
+                    )
+                }
             }
         }
     }
