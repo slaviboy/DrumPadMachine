@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -156,15 +155,28 @@ private fun PromoCover(
     x: Dp,
     y: Dp
 ) {
-    Image(
-        painter = painterResource(id = drawableRes),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
+    Box(
         modifier = Modifier
             .offset(x = x, y = y)
             .size(size)
-            .rotate(TILT_ANGLE)
-            .shadow(elevation = 0.015.dw, shape = RoundedCornerShape(0.02.dw))
-            .clip(RoundedCornerShape(0.02.dw))
-    )
+    ) {
+        // Soft drop shadow beneath the tilted cover, offset slightly down-right
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(x = -0.007.dw, y = 0.014.dw)
+                .rotate(TILT_ANGLE)
+                .clip(RoundedCornerShape(0.02.dw))
+                .background(Color.Black.copy(alpha = 0.2f))
+        )
+        Image(
+            painter = painterResource(id = drawableRes),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .matchParentSize()
+                .rotate(TILT_ANGLE)
+                .clip(RoundedCornerShape(0.02.dw))
+        )
+    }
 }
