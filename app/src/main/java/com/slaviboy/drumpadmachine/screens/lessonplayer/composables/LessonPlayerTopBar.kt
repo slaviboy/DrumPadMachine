@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,74 +46,89 @@ fun LessonPlayerTopBar(
     playProgress: Float,
     modifier: Modifier = Modifier
 ) {
+    val listenSegmentFraction = if (phase == LessonPhase.Listen) listenProgress else 1f
+    val playSegmentFraction = when (phase) {
+        LessonPhase.Listen -> 0f
+        LessonPhase.Play -> playProgress
+        LessonPhase.Result -> 1f
+    }
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.08.dw),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 0.07.dw),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val listenColor = if (phase == LessonPhase.Listen) ActiveColor else InactiveColor
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_metronome),
+                    painter = painterResource(id = R.drawable.ic_note),
                     contentDescription = null,
-                    modifier = Modifier.size(0.045.dw),
+                    modifier = Modifier.size(0.07.dw),
                     colorFilter = ColorFilter.tint(listenColor)
                 )
-                Spacer(modifier = Modifier.width(0.015.dw))
+                Spacer(modifier = Modifier.width(0.02.dw))
                 Text(
-                    text = stringResource(id = R.string.listen).uppercase(),
+                    text = stringResource(id = R.string.listen),
                     color = listenColor,
                     fontFamily = RobotoFont,
-                    fontSize = 0.04.sw,
+                    fontSize = 0.045.sw,
                     fontWeight = FontWeight.Bold
                 )
             }
+            Image(
+                painter = painterResource(id = R.drawable.ic_play),
+                contentDescription = null,
+                modifier = Modifier.size(0.085.dw)
+            )
             val playColor = if (phase != LessonPhase.Listen) ActiveColor else InactiveColor
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = stringResource(id = R.string.play).uppercase(),
+                    text = stringResource(id = R.string.play),
                     color = playColor,
                     fontFamily = RobotoFont,
-                    fontSize = 0.04.sw,
+                    fontSize = 0.045.sw,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.width(0.015.dw))
+                Spacer(modifier = Modifier.width(0.02.dw))
                 Image(
                     painter = painterResource(id = R.drawable.ic_circular_check),
                     contentDescription = null,
-                    modifier = Modifier.size(0.045.dw),
+                    modifier = Modifier.size(0.07.dw),
                     colorFilter = ColorFilter.tint(if (phase == LessonPhase.Result) ActiveColor else InactiveColor)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(0.02.dw))
+        Spacer(modifier = Modifier.height(0.025.dw))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.08.dw)
-                .height(0.008.dw),
+                .padding(horizontal = 0.07.dw),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            ProgressDot(filled = true)
             ProgressSegment(
-                fraction = if (phase == LessonPhase.Listen) listenProgress else 1f,
+                fraction = listenSegmentFraction,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight()
+                    .height(0.008.dw)
             )
-            Spacer(modifier = Modifier.width(0.02.dw))
+            ProgressDot(filled = listenSegmentFraction >= 1f)
             ProgressSegment(
-                fraction = when (phase) {
-                    LessonPhase.Listen -> 0f
-                    LessonPhase.Play -> playProgress
-                    LessonPhase.Result -> 1f
-                },
+                fraction = playSegmentFraction,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight()
+                    .height(0.008.dw)
             )
+            ProgressDot(filled = playSegmentFraction >= 1f)
         }
     }
 }
@@ -130,6 +146,15 @@ private fun ProgressSegment(fraction: Float, modifier: Modifier = Modifier) {
                 .background(color = ActiveColor, shape = RoundedCornerShape(50))
         )
     }
+}
+
+@Composable
+private fun ProgressDot(filled: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(0.022.dw)
+            .background(color = if (filled) ActiveColor else TrackColor, shape = CircleShape)
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF232339)
