@@ -251,7 +251,8 @@ private fun LessonPlayerScreenContent(
                 LessonPlayerTopBar(
                     phase = uiState.phase,
                     listenProgress = listenProgress,
-                    playProgress = playProgress
+                    playProgress = playProgress,
+                    onListenClick = onReplay
                 )
                 Spacer(modifier = Modifier.height(0.06.dw))
                 LessonPadGrid(

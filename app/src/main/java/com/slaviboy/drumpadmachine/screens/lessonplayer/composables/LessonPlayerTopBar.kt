@@ -32,6 +32,7 @@ import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonPhase
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
@@ -44,7 +45,8 @@ fun LessonPlayerTopBar(
     phase: LessonPhase,
     listenProgress: Float,
     playProgress: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onListenClick: () -> Unit = {}
 ) {
     val listenSegmentFraction = if (phase == LessonPhase.Listen) listenProgress else 1f
     val playSegmentFraction = when (phase) {
@@ -70,7 +72,8 @@ fun LessonPlayerTopBar(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .offset(x = -(edgeIconSize / 2))
-                    .size(edgeIconSize),
+                    .size(edgeIconSize)
+                    .bounceClick(onClick = onListenClick),
                 colorFilter = ColorFilter.tint(listenColor)
             )
             Image(
@@ -94,6 +97,7 @@ fun LessonPlayerTopBar(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .fillMaxWidth(0.5f)
+                    .bounceClick(onClick = onListenClick)
             ) {
                 Text(
                     text = stringResource(id = R.string.listen),
