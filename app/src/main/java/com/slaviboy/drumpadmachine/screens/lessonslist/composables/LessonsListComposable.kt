@@ -53,6 +53,8 @@ import com.bumptech.glide.integration.compose.placeholder
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.slaviboy.composeunits.DpToPx
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
@@ -67,7 +69,9 @@ import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
 import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.destinations.LessonPlayerComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
+import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonResultPayload
 import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
@@ -80,11 +84,17 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 fun LessonsListComposable(
     navigator: DestinationsNavigator,
     lessonsListViewModel: LessonsListViewModel,
+    resultRecipient: ResultRecipient<LessonPlayerComposableDestination, LessonResultPayload>,
     onError: (error: String) -> Unit = {},
     preset: Preset
 ) {
     LaunchedEffect(preset) {
         lessonsListViewModel.init(preset)
+    }
+    resultRecipient.onNavResult { result ->
+        if (result is NavResult.Value) {
+            lessonsListViewModel.applyResult(result.value)
+        }
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     var topBarHeight by remember {
@@ -126,9 +136,18 @@ fun LessonsListComposable(
         }
         val list = lessonsListViewModel.filteredLessonsState.value
         items(list.size) {
-            LessonItem(lesson = list[it],
+            val lesson = list[it]
+            LessonItem(lesson = lesson,
                 onButtonClick = {
                     keyboardController?.hide()
+                    if (lesson.lessonState != LessonState.Unlock) {
+                        navigator.navigate(
+                            direction = LessonPlayerComposableDestination(
+                                preset = preset,
+                                lesson = lesson
+                            )
+                        )
+                    }
                 }
             )
             Spacer(

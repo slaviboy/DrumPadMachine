@@ -9,9 +9,11 @@ import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.core.entities.BaseItem
 import com.slaviboy.drumpadmachine.data.entities.Lesson
+import com.slaviboy.drumpadmachine.data.entities.LessonState
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.extensions.containsString
+import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonResultPayload
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -76,5 +78,26 @@ class LessonsListViewModel @Inject constructor(
         val lesson = preset.lessons ?: return
         _lessonsState.value = lesson
         search()
+    }
+
+    /** Patches the in-memory lesson list after returning from the lesson player screen. */
+    fun applyResult(payload: LessonResultPayload) {
+        fun patch(list: List<Lesson>): List<Lesson> = list.map {
+            when {
+                it.side == payload.side && it.id == payload.lessonId -> it.copy(
+                    lastScore = payload.lastScore,
+                    bestScore = payload.bestScore,
+                    lessonState = payload.newState
+                )
+
+                payload.unlockedNextLessonId != null &&
+                    it.side == payload.side &&
+                    it.id == payload.unlockedNextLessonId -> it.copy(lessonState = LessonState.Play)
+
+                else -> it
+            }
+        }
+        _lessonsState.value = patch(_lessonsState.value)
+        _filteredLessonsState.value = patch(_filteredLessonsState.value)
     }
 }
