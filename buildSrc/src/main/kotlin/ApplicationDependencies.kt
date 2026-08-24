@@ -11,6 +11,7 @@ object ApplicationDependencies {
     private const val composeMaterial3 = "androidx.compose.material3:material3:${ApplicationDependencyVersions.composeMaterial3}"
     private const val composeMaterial3WindowSize = "androidx.compose.material3:material3-window-size-class:${ApplicationDependencyVersions.composeMaterial3}"
     private const val composeUIToolingPreview = "androidx.compose.ui:ui-tooling-preview:${ApplicationDependencyVersions.composeUI}"
+    private const val composeUITooling = "androidx.compose.ui:ui-tooling:${ApplicationDependencyVersions.composeUI}"
     private const val daggerHilt = "com.google.dagger:hilt-android:${ApplicationDependencyVersions.daggerHilt}"
     private const val daggerHiltCompiler = "com.google.dagger:hilt-android-compiler:${ApplicationDependencyVersions.daggerHilt}"
     private const val hiltNavigationCompose = "androidx.hilt:hilt-navigation-compose:${ApplicationDependencyVersions.hilt}"
@@ -87,6 +88,11 @@ object ApplicationDependencies {
         firebaseAnalytics,
         firebaseCrashlytics
         //kotlinInterpolator
+    )
+
+    // Only needed by Android Studio's Compose preview renderer - never shipped in release.
+    val dependenciesAppDebug = arrayOf(
+        composeUITooling
     )
 
     val dependenciesLibrary = arrayOf(

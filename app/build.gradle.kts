@@ -10,6 +10,7 @@ plugins {
 dependencies {
     implementationPlatform(*ApplicationDependencies.dependenciesAppPlatform)
     implementation(*ApplicationDependencies.dependenciesApp)
+    debugImplementation(*ApplicationDependencies.dependenciesAppDebug)
     ksp(*ApplicationDependencies.ksp)
     project(
         ":lib:oboe",
