@@ -44,6 +44,22 @@ class DrumPadViewModel @Inject constructor(
 
     private val activePointerIndex: MutableMap<Int, Int> = mutableMapOf()
 
+    private val _volume: MutableState<Int> = mutableIntStateOf(100) // [0,150]
+    val volume: State<Int> = _volume
+
+    private val _reverb: MutableState<Int> = mutableIntStateOf(0) // [0,100]
+    val reverb: State<Int> = _reverb
+
+    fun setVolume(value: Int) {
+        _volume.value = value.coerceIn(0, 150)
+        drumPadPlayer?.setVolume(_volume.value)
+    }
+
+    fun setReverb(value: Int) {
+        _reverb.value = value.coerceIn(0, 100)
+        drumPadPlayer?.setReverb(_reverb.value)
+    }
+
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
             teardownAudioStream()

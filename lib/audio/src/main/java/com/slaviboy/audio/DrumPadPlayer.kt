@@ -4,6 +4,7 @@ import android.content.res.AssetManager
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import kotlin.math.roundToInt
 
 class DrumPadPlayer {
     companion object {
@@ -65,6 +66,24 @@ class DrumPadPlayer {
         unloadWavAssetsNative()
     }
 
+    /** Master output volume, as a percentage: 0 = silent, 100 = unity, up to 150 = boosted. */
+    fun setVolume(volume: Int) {
+        setMasterGain(volume.coerceIn(0, 150) / 100f)
+    }
+
+    fun getVolume(): Int {
+        return (getMasterGain() * 100f).roundToInt()
+    }
+
+    /** Reverb wet/dry mix: 0 = no reverb, 100 = fully wet. */
+    fun setReverb(amount: Int) {
+        setReverbMix(amount.coerceIn(0, 100) / 100f)
+    }
+
+    fun getReverb(): Int {
+        return (getReverbMix() * 100f).roundToInt()
+    }
+
     private fun getByteArrayFromWavFile(filePath: String): ByteArray? {
         return try {
             val file = File(filePath)
@@ -109,6 +128,12 @@ class DrumPadPlayer {
 
     external fun setGain(index: Int, gain: Float)
     external fun getGain(index: Int): Float
+
+    private external fun setMasterGain(gain: Float)
+    private external fun getMasterGain(): Float
+
+    private external fun setReverbMix(mix: Float)
+    private external fun getReverbMix(): Float
 
     external fun getOutputReset(): Boolean
     external fun clearOutputReset()

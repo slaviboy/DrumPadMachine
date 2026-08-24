@@ -5,6 +5,7 @@ set(iolib_sources
         ${CMAKE_CURRENT_LIST_DIR}/player/SampleBuffer.cpp
         ${CMAKE_CURRENT_LIST_DIR}/player/OneShotSampleSource.cpp
         ${CMAKE_CURRENT_LIST_DIR}/player/SimpleMultiPlayer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/player/Reverb.cpp
 )
 add_library(iolib STATIC ${iolib_sources})
 

@@ -60,6 +60,34 @@ DataCallbackResult SimpleMultiPlayer::MyDataCallback::onAudioReady(AudioStream *
         }
     }
 
+    float* outBuffer = (float*)audioData;
+    size_t numSamples = static_cast<size_t>(numFrames) * static_cast<size_t>(mParent->mChannelCount);
+
+    if (mParent->mReverbMix > 0.0f) {
+        if (mParent->mReverbScratch.size() < numSamples) {
+            mParent->mReverbScratch.resize(numSamples);
+        }
+        mParent->mReverb.process(outBuffer, mParent->mReverbScratch.data(), numFrames,
+                                  mParent->mChannelCount);
+        float wet = mParent->mReverbMix;
+        float dry = 1.0f - wet;
+        for (size_t i = 0; i < numSamples; i++) {
+            outBuffer[i] = (outBuffer[i] * dry) + (mParent->mReverbScratch[i] * wet);
+        }
+    }
+
+    float masterGain = mParent->mMasterGain;
+    for (size_t i = 0; i < numSamples; i++) {
+        float sample = outBuffer[i] * masterGain;
+        // cheap safety limiter - master gain can go above unity (boost)
+        if (sample > 1.0f) {
+            sample = 1.0f;
+        } else if (sample < -1.0f) {
+            sample = -1.0f;
+        }
+        outBuffer[i] = sample;
+    }
+
     return DataCallbackResult::Continue;
 }
 
@@ -126,6 +154,7 @@ bool SimpleMultiPlayer::openStream() {
     }
 
     mSampleRate = mAudioStream->getSampleRate();
+    mReverb.init(mSampleRate);
 
     return true;
 }
@@ -230,6 +259,14 @@ void SimpleMultiPlayer::setGain(int index, float gain) {
 
 float SimpleMultiPlayer::getGain(int index) {
     return mSampleSources[index]->getGain();
+}
+
+void SimpleMultiPlayer::setMasterGain(float gain) {
+    mMasterGain = gain;
+}
+
+void SimpleMultiPlayer::setReverbMix(float mix) {
+    mReverbMix = mix;
 }
 
 }

@@ -147,6 +147,26 @@ JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getGain(
     return sDTPlayer.getGain(index);
 }
 
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setMasterGain(
+        JNIEnv *env, jobject thiz, jfloat gain) {
+    sDTPlayer.setMasterGain(gain);
+}
+
+JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getMasterGain(
+        JNIEnv *env, jobject thiz) {
+    return sDTPlayer.getMasterGain();
+}
+
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setReverbMix(
+        JNIEnv *env, jobject thiz, jfloat mix) {
+    sDTPlayer.setReverbMix(mix);
+}
+
+JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getReverbMix(
+        JNIEnv *env, jobject thiz) {
+    return sDTPlayer.getReverbMix();
+}
+
 #ifdef __cplusplus
 }
 #endif

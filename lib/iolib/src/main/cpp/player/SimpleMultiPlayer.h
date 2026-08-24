@@ -23,6 +23,7 @@
 
 #include "OneShotSampleSource.h"
 #include "SampleBuffer.h"
+#include "Reverb.h"
 
 namespace iolib {
 
@@ -68,6 +69,12 @@ public:
     void setGain(int index, float gain);
     float getGain(int index);
 
+    void setMasterGain(float gain);
+    float getMasterGain() { return mMasterGain; }
+
+    void setReverbMix(float mix);
+    float getReverbMix() { return mReverbMix; }
+
 private:
     class MyDataCallback : public oboe::AudioStreamDataCallback {
     public:
@@ -108,6 +115,12 @@ private:
     std::vector<SampleSource*>  mSampleSources;
 
     bool    mOutputReset;
+
+    // Master output stage
+    float mMasterGain = 1.0f;
+    float mReverbMix = 0.0f;
+    Reverb mReverb;
+    std::vector<float> mReverbScratch;
 
     std::shared_ptr<MyDataCallback> mDataCallback;
     std::shared_ptr<MyErrorCallback> mErrorCallback;
