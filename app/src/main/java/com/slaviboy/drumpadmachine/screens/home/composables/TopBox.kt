@@ -82,39 +82,39 @@ fun TopBox(
         // Cascading, tilted sound-pack covers fanning off the top-right corner
         PromoCover(
             drawableRes = R.drawable.cover_acoustic_dreams,
-            size = 0.16.dw,
-            x = 0.34.dw,
-            y = -0.075.dh
+            size = 0.155.dw,
+            x = 0.30.dw,
+            y = -0.065.dh
         )
         PromoCover(
             drawableRes = R.drawable.cover_horns_of_jericho,
-            size = 0.18.dw,
-            x = 0.40.dw,
-            y = 0.095.dh
+            size = 0.185.dw,
+            x = 0.37.dw,
+            y = 0.105.dh
         )
         PromoCover(
             drawableRes = R.drawable.cover_could_this_be_love,
-            size = 0.17.dw,
-            x = 0.80.dw,
-            y = 0.11.dh
+            size = 0.165.dw,
+            x = 0.76.dw,
+            y = 0.115.dh
         )
         PromoCover(
             drawableRes = R.drawable.cover_saxo_bass,
-            size = 0.19.dw,
-            x = 0.64.dw,
-            y = -0.02.dh
+            size = 0.205.dw,
+            x = 0.60.dw,
+            y = -0.015.dh
         )
         PromoCover(
             drawableRes = R.drawable.cover_inspiring_folk,
-            size = 0.18.dw,
-            x = 0.95.dw,
-            y = -0.01.dh
+            size = 0.175.dw,
+            x = 0.91.dw,
+            y = -0.005.dh
         )
         PromoCover(
             drawableRes = R.drawable.cover_zombo_step,
-            size = 0.27.dw,
-            x = 0.48.dw,
-            y = -0.135.dh
+            size = 0.285.dw,
+            x = 0.45.dw,
+            y = -0.14.dh
         )
 
         Text(
