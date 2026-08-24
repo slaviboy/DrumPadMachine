@@ -458,8 +458,8 @@ fun LessonItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val iconColor = when (lesson.lessonState) {
-                    LessonState.Replay, LessonState.Unlock -> Color(0xFF908F9C)
-                    LessonState.Play -> Color(0xFFFFD011)
+                    LessonState.Unlock -> Color(0xFF908F9C)
+                    LessonState.Replay, LessonState.Play -> Color(0xFFFFD011)
                 }
                 val iconResId = when (lesson.lessonState) {
                     LessonState.Unlock -> R.drawable.ic_chain
