@@ -23,14 +23,16 @@ import com.slaviboy.drumpadmachine.screens.drumpad.composables.PadComposable
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 /**
- * Wraps the existing [PadComposable] (base color art + glow flash, reused as-is) with two new
- * overlays for the lesson player: a dark scrim for pads not used in this lesson, and a
- * white-ball + "Tap" indicator for the pad the user must currently hit.
+ * Wraps the existing [PadComposable] (base color art + glow flash, reused as-is) with the
+ * white-ball + "Tap" indicator for the pad the user must currently hit. Pads not used in this
+ * lesson are simply passed [PadColor.None] by the caller - that drawable is already a styled
+ * dim/inactive rect, so no extra disabled overlay is drawn here (layering one on top produced
+ * a mismatched second background, since the scrim's square corners didn't match the art's
+ * rounded ones).
  */
 @Composable
 fun LessonPadComposable(
     padColor: PadColor,
-    enabled: Boolean,
     showGlow: Boolean,
     showTapIndicator: Boolean,
     modifier: Modifier = Modifier,
@@ -43,13 +45,6 @@ fun LessonPadComposable(
             modifier = Modifier.fillMaxWidth(),
             onPositionInParentChange = onPositionInParentChange
         )
-        if (!enabled) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(Color(0xCC232339))
-            )
-        }
         if (showTapIndicator) {
             Text(
                 text = stringResource(id = R.string.tap).uppercase(),

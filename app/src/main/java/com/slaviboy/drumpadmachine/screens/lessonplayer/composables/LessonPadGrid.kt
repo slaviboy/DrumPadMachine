@@ -72,7 +72,6 @@ fun LessonPadGrid(
                     val globalIndex = uiState.page * DrumPadHelper.numberItemsPerPage() + localIndex
                     LessonPadComposable(
                         padColor = uiState.padColors[globalIndex] ?: PadColor.None,
-                        enabled = globalIndex in uiState.usedPadIndices,
                         showGlow = globalIndex in uiState.glowingPads,
                         showTapIndicator = globalIndex in uiState.expectedPadIndices,
                         modifier = Modifier.weight(1f),
