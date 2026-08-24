@@ -239,8 +239,6 @@ fun PresetsListComposable(
         HomePresetDetails(
             boxScope = this,
             animatedValue = animatedValue,
-            fromWidth = fromWidth,
-            fromHeight = fromHeight,
             animatedWidth = animatedWidth,
             animatedHeight = animatedHeight,
             animatedX = animatedX,

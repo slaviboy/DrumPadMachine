@@ -57,8 +57,6 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
 fun HomePresetDetails(
     boxScope: BoxScope,
     animatedValue: Float,
-    fromWidth: Dp,
-    fromHeight: Dp,
     animatedWidth: Dp,
     animatedHeight: Dp,
     animatedX: Float,
@@ -73,6 +71,10 @@ fun HomePresetDetails(
 ) = with(boxScope) {
     clickedPreset ?: return@with
     if (animatedValue <= 0f) return@with
+    val cardCornerRadius = 0.043.dw
+    // small downward overlap so the growing cover image always fully covers the
+    // card's white background at the seam, even with sub-pixel rounding differences
+    val coverBottomOverlap = 2.dp
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,21 +88,24 @@ fun HomePresetDetails(
             modifier = Modifier
                 .width(0.76.dw)
                 .height(0.51.dh)
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(0.043.dw)
-                )
                 .align(Alignment.Center)
                 .onGloballyPositioned {
                     val position = it.positionInWindow()
                     onGloballyPositioned(position.x, position.y)
                 }
         ) {
+            // Only the button area is painted white. The top area is covered
+            // exclusively by the animated cover image as it grows into place,
+            // so no white background is ever exposed behind it mid-transition.
             Box(
                 modifier = Modifier
-                    .width(fromWidth)
-                    .height(fromHeight)
-                    .clip(RoundedCornerShape(topStart = 0.04.dw, topEnd = 0.04.dw))
+                    .fillMaxWidth()
+                    .height(0.18.dh)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(bottomStart = cardCornerRadius, bottomEnd = cardCornerRadius)
+                    )
             )
             if (isLoading) {
                 LoadingBox(
@@ -110,8 +115,10 @@ fun HomePresetDetails(
                         .height(0.18.dh)
                         .align(Alignment.BottomCenter)
                         .padding(
-                            horizontal = 0.03.dw,
-                            vertical = 0.03.dw
+                            start = 0.03.dw,
+                            end = 0.03.dw,
+                            top = 0.03.dw,
+                            bottom = 0.03.dw
                         ),
                     textColor = Color(0xFF050505)
                 )
@@ -122,8 +129,10 @@ fun HomePresetDetails(
                         .height(0.18.dh)
                         .align(Alignment.BottomCenter)
                         .padding(
-                            horizontal = 0.03.dw,
-                            vertical = 0.03.dw
+                            start = 0.03.dw,
+                            end = 0.03.dw,
+                            top = 0.03.dw,
+                            bottom = 0.03.dw
                         ),
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
@@ -229,13 +238,13 @@ fun HomePresetDetails(
                     y = animatedY.pxToDp()
                 )
                 .width(animatedWidth)
-                .height(animatedHeight)
+                .height(animatedHeight + coverBottomOverlap)
                 .clip(
                     RoundedCornerShape(
-                        topStart = 0.04.dw,
-                        topEnd = 0.04.dw,
-                        bottomStart = 0.04.dw * (1f - animatedValue),
-                        bottomEnd = 0.04.dw * (1f - animatedValue)
+                        topStart = cardCornerRadius,
+                        topEnd = cardCornerRadius,
+                        bottomStart = cardCornerRadius * (1f - animatedValue),
+                        bottomEnd = cardCornerRadius * (1f - animatedValue)
                     )
                 )
                 .onGloballyPositioned {
