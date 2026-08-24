@@ -106,7 +106,8 @@ fun LessonPlayerComposable(
     LaunchedEffect(uiState.playActivatedAtElapsedRealtime) {
         val activatedAt = uiState.playActivatedAtElapsedRealtime ?: return@LaunchedEffect
         playProgress.snapTo(uiState.playActivationFraction)
-        val remainingMsAtActivation = uiState.playTotalDurationMs * (1f - uiState.playActivationFraction)
+        val remainingMsAtActivation =
+            uiState.playTotalDurationMs * (1f - uiState.playActivationFraction)
         val trueRemaining = remainingMsAtActivation - (SystemClock.elapsedRealtime() - activatedAt)
         if (trueRemaining > 0) {
             playProgress.animateTo(1f, tween(trueRemaining.toInt(), easing = LinearEasing))
@@ -154,15 +155,21 @@ private fun LessonPlayerScreenContent(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(
-                brush = Brush.verticalGradient(listOf(backgroundGradientTop, backgroundGradientBottom))
+                brush = Brush.verticalGradient(
+                    listOf(
+                        backgroundGradientTop,
+                        backgroundGradientBottom
+                    )
+                )
             )
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
-            Spacer(modifier = Modifier.height(0.1.dw))
+            Spacer(modifier = Modifier.height(0.07.dw))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 0.04.dw),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -173,45 +180,6 @@ private fun LessonPlayerScreenContent(
                         .bounceClick(onClick = onBack),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .wrapContentHeight(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    GlideImage(
-                        model = NetworkModule.coverIconUrl(presetId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(0.14.dw)
-                            .clip(RoundedCornerShape(0.02.dw)),
-                        transition = CrossFade,
-                        failure = placeholder(R.drawable.ic_no_image),
-                        loading = placeholder(R.drawable.ic_default_image)
-                    )
-                    Spacer(modifier = Modifier.width(0.02.dw))
-                    Column {
-                        Text(
-                            text = stringResource(id = R.string.lessons_number).format(lessonNumber),
-                            color = Color.White,
-                            fontFamily = RobotoFont,
-                            fontSize = 0.048.sw,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = lessonName,
-                            color = Color.LightGray,
-                            fontFamily = RobotoFont,
-                            fontSize = 0.036.sw,
-                            fontWeight = FontWeight.Normal,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
                 if (uiState.phase == LessonPhase.Result) {
                     Spacer(modifier = Modifier.size(0.07.dw))
                 } else {
@@ -227,6 +195,47 @@ private fun LessonPlayerScreenContent(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(0.07.dw))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                GlideImage(
+                    model = NetworkModule.coverIconUrl(presetId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.14.dw)
+                        .clip(RoundedCornerShape(0.02.dw)),
+                    transition = CrossFade,
+                    failure = placeholder(R.drawable.ic_no_image),
+                    loading = placeholder(R.drawable.ic_default_image)
+                )
+                Spacer(modifier = Modifier.width(0.02.dw))
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.lessons_number).format(lessonNumber),
+                        color = Color.White,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.048.sw,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = lessonName,
+                        color = Color.LightGray,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.036.sw,
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
 
             if (uiState.phase == LessonPhase.Result) {
                 LessonResultComposable(
@@ -238,23 +247,17 @@ private fun LessonPlayerScreenContent(
                     modifier = Modifier.weight(1f)
                 )
             } else {
-                Spacer(modifier = Modifier.height(0.08.dw))
+                Spacer(modifier = Modifier.height(0.1.dw))
                 LessonPlayerTopBar(
                     phase = uiState.phase,
                     listenProgress = listenProgress,
                     playProgress = playProgress
                 )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LessonPadGrid(
-                        uiState = uiState,
-                        onPadTapped = onPadTapped
-                    )
-                }
+                Spacer(modifier = Modifier.height(0.06.dw))
+                LessonPadGrid(
+                    uiState = uiState,
+                    onPadTapped = onPadTapped
+                )
             }
         }
     }
@@ -267,7 +270,8 @@ private fun initPreviewUnits() {
     ScaleDensity = 3f
 }
 
-private val previewUsedPadColors = mapOf(9 to PadColor.Blue, 10 to PadColor.Orange, 11 to PadColor.Blue)
+private val previewUsedPadColors =
+    mapOf(9 to PadColor.Blue, 10 to PadColor.Orange, 11 to PadColor.Blue)
 
 @Preview(showBackground = true, backgroundColor = 0xFF232339)
 @Composable
