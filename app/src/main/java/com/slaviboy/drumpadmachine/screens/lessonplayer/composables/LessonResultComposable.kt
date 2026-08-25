@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,8 +86,10 @@ fun LessonResultComposable(
     isPass: Boolean,
     scorePercent: Int,
     bestScorePercent: Int,
+    nextLessonNumber: Int,
     onReplay: () -> Unit,
     onDone: () -> Unit,
+    onNextLevel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ringColor = if (isPass) PassColor else FailColor
@@ -207,14 +210,14 @@ fun LessonResultComposable(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))
-        Column  (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 0.08.dw),
             verticalArrangement = Arrangement.spacedBy(0.04.dw)
         ) {
             Text(
-                text = stringResource(id = R.string.replay).uppercase(),
+                text = stringResource(id = if (isPass) R.string.done else R.string.replay).uppercase(),
                 color = Color.White,
                 fontFamily = RobotoFont,
                 fontSize = 0.04.sw,
@@ -222,29 +225,60 @@ fun LessonResultComposable(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .bounceClick(onClick = onReplay)
+                    .bounceClick(onClick = if (isPass) onDone else onReplay)
                     .background(
                         color = Color(0x3348475C),
                         shape = RoundedCornerShape(0.02.dw)
                     )
                     .padding(0.04.dw)
             )
-            Text(
-                text = stringResource(id = R.string.done).uppercase(),
-                color = Color.Black,
-                fontFamily = RobotoFont,
-                fontSize = 0.04.sw,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .bounceClick(onClick = onDone)
-                    .background(
-                        color = PassColor,
-                        shape = RoundedCornerShape(0.02.dw)
+            if (isPass) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .bounceClick(onClick = onNextLevel)
+                        .background(
+                            color = PassColor,
+                            shape = RoundedCornerShape(0.02.dw)
+                        )
+                        .padding(0.04.dw)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.level_number).format(nextLessonNumber).uppercase(),
+                        color = Color.Black,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.04.sw,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
-                    .padding(0.04.dw)
-            )
+                    Spacer(modifier = Modifier.width(0.02.dw))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_right),
+                        contentDescription = null,
+                        modifier = Modifier.size(0.035.dw),
+                        colorFilter = ColorFilter.tint(Color.Black)
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(id = R.string.done).uppercase(),
+                    color = Color.Black,
+                    fontFamily = RobotoFont,
+                    fontSize = 0.04.sw,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .bounceClick(onClick = onDone)
+                        .background(
+                            color = PassColor,
+                            shape = RoundedCornerShape(0.02.dw)
+                        )
+                        .padding(0.04.dw)
+                )
+            }
         }
     }
 }
@@ -260,8 +294,10 @@ private fun LessonResultComposablePassPreview() {
         isPass = true,
         scorePercent = 100,
         bestScorePercent = 100,
+        nextLessonNumber = 2,
         onReplay = {},
-        onDone = {}
+        onDone = {},
+        onNextLevel = {}
     )
 }
 
@@ -276,7 +312,9 @@ private fun LessonResultComposableFailPreview() {
         isPass = false,
         scorePercent = 17,
         bestScorePercent = 17,
+        nextLessonNumber = 0,
         onReplay = {},
-        onDone = {}
+        onDone = {},
+        onNextLevel = {}
     )
 }

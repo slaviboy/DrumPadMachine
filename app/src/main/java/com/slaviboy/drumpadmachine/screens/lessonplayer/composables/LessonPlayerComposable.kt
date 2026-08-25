@@ -78,17 +78,31 @@ fun LessonPlayerComposable(
 
     val uiState by lessonPlayerViewModel.uiState
 
-    val finish: () -> Unit = {
+    // The next lesson in play order, resolved locally from data already on hand - independent
+    // of whether it was *freshly* unlocked by this pass (LessonResultPayload.unlockedNextLessonId
+    // only fires on a fresh unlock, so it stays null on a replay even though a next lesson
+    // clearly exists). Resolving it here also means "Level %s" never has to wait on the async
+    // DB save to know where to go.
+    val nextLesson = preset.lessons
+        ?.filter { it.side == lesson.side && it.orderBy > lesson.orderBy }
+        ?.minByOrNull { it.orderBy }
+
+    val finish: (continueToNextLesson: Boolean) -> Unit = { continueToNextLesson ->
         lessonPlayerViewModel.onDone()
         val payload = uiState.savedResultPayload
         if (payload != null) {
-            resultNavigator.navigateBack(result = payload)
+            resultNavigator.navigateBack(
+                result = payload.copy(
+                    continueToNextLesson = continueToNextLesson,
+                    nextLessonId = nextLesson?.id
+                )
+            )
         } else {
             resultNavigator.navigateBack()
         }
     }
 
-    BackHandler(onBack = finish)
+    BackHandler(onBack = { finish(false) })
 
     val listenProgress = remember { Animatable(0f) }
     LaunchedEffect(uiState.listenStartedAtElapsedRealtime) {
@@ -119,12 +133,14 @@ fun LessonPlayerComposable(
     LessonPlayerScreenContent(
         presetId = preset.id,
         lessonNumber = lesson.id + 1,
+        nextLessonNumber = nextLesson?.let { it.id + 1 } ?: (lesson.id + 2),
         lessonName = lesson.name,
         uiState = uiState,
         listenProgress = listenProgress.value,
         playProgress = playProgress.value,
-        onBack = finish,
-        onDone = finish,
+        onBack = { finish(false) },
+        onDone = { finish(false) },
+        onNextLevel = { finish(true) },
         onReplay = { lessonPlayerViewModel.start(preset, lesson) },
         onPadTapped = lessonPlayerViewModel::onPadTapped
     )
@@ -141,12 +157,14 @@ fun LessonPlayerComposable(
 private fun LessonPlayerScreenContent(
     presetId: Long,
     lessonNumber: Int,
+    nextLessonNumber: Int,
     lessonName: String,
     uiState: LessonPlayerUiState,
     listenProgress: Float,
     playProgress: Float,
     onBack: () -> Unit,
     onDone: () -> Unit,
+    onNextLevel: () -> Unit,
     onReplay: () -> Unit,
     onPadTapped: (Int) -> Unit
 ) {
@@ -242,8 +260,10 @@ private fun LessonPlayerScreenContent(
                     isPass = uiState.isPass,
                     scorePercent = uiState.finalScorePercent ?: 0,
                     bestScorePercent = uiState.bestScorePercent,
+                    nextLessonNumber = nextLessonNumber,
                     onReplay = onReplay,
                     onDone = onDone,
+                    onNextLevel = onNextLevel,
                     modifier = Modifier.weight(1f)
                 )
             } else {
@@ -281,6 +301,7 @@ private fun LessonPlayerScreenListenPreview() {
     LessonPlayerScreenContent(
         presetId = 1,
         lessonNumber = 1,
+        nextLessonNumber = 2,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
             phase = LessonPhase.Listen,
@@ -292,6 +313,7 @@ private fun LessonPlayerScreenListenPreview() {
         playProgress = 0f,
         onBack = {},
         onDone = {},
+        onNextLevel = {},
         onReplay = {},
         onPadTapped = {}
     )
@@ -304,6 +326,7 @@ private fun LessonPlayerScreenPlayPreview() {
     LessonPlayerScreenContent(
         presetId = 1,
         lessonNumber = 1,
+        nextLessonNumber = 2,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
             phase = LessonPhase.Play,
@@ -315,6 +338,7 @@ private fun LessonPlayerScreenPlayPreview() {
         playProgress = 0f,
         onBack = {},
         onDone = {},
+        onNextLevel = {},
         onReplay = {},
         onPadTapped = {}
     )
@@ -327,6 +351,7 @@ private fun LessonPlayerScreenResultPassPreview() {
     LessonPlayerScreenContent(
         presetId = 1,
         lessonNumber = 1,
+        nextLessonNumber = 2,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
             phase = LessonPhase.Result,
@@ -338,6 +363,7 @@ private fun LessonPlayerScreenResultPassPreview() {
         playProgress = 1f,
         onBack = {},
         onDone = {},
+        onNextLevel = {},
         onReplay = {},
         onPadTapped = {}
     )
@@ -350,6 +376,7 @@ private fun LessonPlayerScreenResultFailPreview() {
     LessonPlayerScreenContent(
         presetId = 1,
         lessonNumber = 1,
+        nextLessonNumber = 2,
         lessonName = "New Tone",
         uiState = LessonPlayerUiState(
             phase = LessonPhase.Result,
@@ -361,6 +388,7 @@ private fun LessonPlayerScreenResultFailPreview() {
         playProgress = 1f,
         onBack = {},
         onDone = {},
+        onNextLevel = {},
         onReplay = {},
         onPadTapped = {}
     )

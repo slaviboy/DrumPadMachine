@@ -99,7 +99,21 @@ fun LessonsListComposable(
     }
     resultRecipient.onNavResult { result ->
         if (result is NavResult.Value) {
-            lessonsListViewModel.applyResult(result.value)
+            val payload = result.value
+            lessonsListViewModel.applyResult(payload)
+            if (payload.continueToNextLesson && payload.nextLessonId != null) {
+                val nextLesson = lessonsListViewModel.filteredLessonsState.value.firstOrNull {
+                    it.id == payload.nextLessonId && it.side == payload.side
+                }
+                if (nextLesson != null) {
+                    navigator.navigate(
+                        direction = LessonPlayerComposableDestination(
+                            preset = preset,
+                            lesson = nextLesson
+                        )
+                    )
+                }
+            }
         }
     }
     val keyboardController = LocalSoftwareKeyboardController.current

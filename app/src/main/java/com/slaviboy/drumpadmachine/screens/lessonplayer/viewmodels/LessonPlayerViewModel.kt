@@ -219,25 +219,31 @@ class LessonPlayerViewModel @Inject constructor(
             allAccuracies.sumOf { it.scorePercent } / allAccuracies.size
         }
         val bestScore = maxOf(lesson.bestScore, finalScore)
+        val isPass = finalScore >= PASS_THRESHOLD_PERCENT
 
-        _uiState.value = _uiState.value.copy(
-            phase = LessonPhase.Result,
-            glowingPads = emptySet(),
-            expectedPadIndices = emptySet(),
-            finalScorePercent = finalScore,
-            bestScorePercent = bestScore,
-            isPass = finalScore >= PASS_THRESHOLD_PERCENT
-        )
-
+        // Wait for the save to land before switching to the Result phase, so the Result
+        // screen's buttons - in particular "Level %s", which needs savedResultPayload to route
+        // to the next lesson - never render ahead of a payload that isn't there yet.
         saveLessonResultUseCase.execute(
             presetId = preset.id,
             lesson = lesson,
             scorePercent = finalScore,
             passThreshold = PASS_THRESHOLD_PERCENT
         ).collect { result ->
-            if (result is Result.Success) {
-                _uiState.value = _uiState.value.copy(savedResultPayload = result.data)
+            val payload = when (result) {
+                is Result.Success -> result.data
+                is Result.Fail -> null
+                Result.Loading, Result.Initial -> return@collect
             }
+            _uiState.value = _uiState.value.copy(
+                phase = LessonPhase.Result,
+                glowingPads = emptySet(),
+                expectedPadIndices = emptySet(),
+                finalScorePercent = finalScore,
+                bestScorePercent = bestScore,
+                isPass = isPass,
+                savedResultPayload = payload
+            )
         }
     }
 

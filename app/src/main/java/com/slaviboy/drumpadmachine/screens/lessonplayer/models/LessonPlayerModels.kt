@@ -43,5 +43,11 @@ data class LessonResultPayload(
     val lastScore: Int,
     val bestScore: Int,
     val newState: LessonState,
-    val unlockedNextLessonId: Int?
+    /** Set only when this pass just unlocked a lesson that was previously locked. */
+    val unlockedNextLessonId: Int?,
+    val continueToNextLesson: Boolean = false,
+    /** The next lesson in order after this one, if any - independent of whether it was already
+     *  unlocked before (e.g. on a replay). Used to route the "Level %s" button regardless of
+     *  [unlockedNextLessonId], which only fires on a fresh unlock. */
+    val nextLessonId: Int? = null
 ) : Parcelable

@@ -25,6 +25,7 @@
     <string name="play">Play</string>
     <string name="unlock">Unlock</string>
     <string name="lessons_number">Lessons %s</string>
+    <string name="level_number">Level %s</string>
     <string name="listen">Listen</string>
     <string name="tap">Tap</string>
     <string name="done">Done</string>
