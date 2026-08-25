@@ -207,11 +207,11 @@ fun LessonResultComposable(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.weight(1f))
-        Row(
+        Column  (
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 0.08.dw),
-            horizontalArrangement = Arrangement.spacedBy(0.04.dw)
+            verticalArrangement = Arrangement.spacedBy(0.04.dw)
         ) {
             Text(
                 text = stringResource(id = R.string.replay).uppercase(),
@@ -221,13 +221,13 @@ fun LessonResultComposable(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
                     .bounceClick(onClick = onReplay)
                     .background(
                         color = Color(0x3348475C),
                         shape = RoundedCornerShape(0.02.dw)
                     )
-                    .padding(0.035.dw)
+                    .padding(0.04.dw)
             )
             Text(
                 text = stringResource(id = R.string.done).uppercase(),
@@ -237,13 +237,13 @@ fun LessonResultComposable(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
                     .bounceClick(onClick = onDone)
                     .background(
                         color = PassColor,
                         shape = RoundedCornerShape(0.02.dw)
                     )
-                    .padding(0.035.dw)
+                    .padding(0.04.dw)
             )
         }
     }
