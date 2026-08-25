@@ -1,5 +1,8 @@
 package com.slaviboy.drumpadmachine.screens.lessonplayer.composables
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,10 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +42,7 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.ui.RobotoFont
+import kotlin.math.roundToInt
 
 private val PassColor = Color(0xFFFFD011)
 private val FailColor = Color(0xFFFF4D67)
@@ -59,6 +64,15 @@ fun LessonResultComposable(
     modifier: Modifier = Modifier
 ) {
     val ringColor = if (isPass) PassColor else FailColor
+    val animatedScore = remember { Animatable(0f) }
+    LaunchedEffect(scorePercent) {
+        animatedScore.snapTo(0f)
+        animatedScore.animateTo(
+            targetValue = scorePercent / 100f,
+            animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing)
+        )
+    }
+    val animatedScorePercent = (animatedScore.value * 100f).roundToInt()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -90,7 +104,7 @@ fun LessonResultComposable(
                 drawArc(
                     color = ringColor,
                     startAngle = -90f,
-                    sweepAngle = 360f * (scorePercent / 100f).coerceIn(0f, 1f),
+                    sweepAngle = 360f * animatedScore.value.coerceIn(0f, 1f),
                     useCenter = false,
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
@@ -111,7 +125,7 @@ fun LessonResultComposable(
                 }
                 Spacer(modifier = Modifier.height(0.02.dw))
                 Text(
-                    text = "$scorePercent%",
+                    text = "$animatedScorePercent%",
                     color = Color.White,
                     fontFamily = RobotoFont,
                     fontSize = 0.1.sw,
