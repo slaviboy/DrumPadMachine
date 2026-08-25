@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
@@ -52,6 +55,29 @@ private fun starsFor(scorePercent: Int): Int = when {
     scorePercent >= 60 -> 2
     scorePercent > 0 -> 1
     else -> 0
+}
+
+/** Small rotated square used as a "romb" accent scattered around the result ring. */
+@Composable
+private fun DiamondDecoration(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(0.025.dw)
+            .rotate(45f)
+            .background(color = Color(0x33FFFFFF), shape = RoundedCornerShape(0.004.dw))
+    )
+}
+
+/** Graduation-cap accent scattered around the result ring, dimmed so it stays in the background. */
+@Composable
+private fun GraduationCapDecoration(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(id = R.drawable.ic_graduation),
+        contentDescription = null,
+        modifier = modifier
+            .size(0.085.dw)
+            .alpha(0.35f)
+    )
 }
 
 @Composable
@@ -87,11 +113,41 @@ fun LessonResultComposable(
             fontSize = 0.08.sw,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(0.08.dw))
+        Spacer(modifier = Modifier.height(0.18.dw))
         Box(
             modifier = Modifier.size(0.55.dw),
             contentAlignment = Alignment.Center
         ) {
+            DiamondDecoration(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 0.03.dw, y = (-0.02).dw)
+            )
+            GraduationCapDecoration(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 0.15.dw, y = 0.16.dw)
+            )
+            DiamondDecoration(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-0.08).dw, y = (-0.2).dw)
+            )
+            GraduationCapDecoration(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-0.16).dw, y = 0.06.dw)
+            )
+            DiamondDecoration(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .offset(x = (-0.03).dw, y = 0.04.dw)
+            )
+            GraduationCapDecoration(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 0.05.dw, y = 0.06.dw)
+            )
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val strokeWidth = size.minDimension * 0.045f
                 drawArc(
