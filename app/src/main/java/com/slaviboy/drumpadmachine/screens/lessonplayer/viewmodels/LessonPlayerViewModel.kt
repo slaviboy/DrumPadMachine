@@ -98,35 +98,48 @@ class LessonPlayerViewModel @Inject constructor(
         val event = schedule.tapEvents.getOrNull(expectedEventIndex) ?: return
         val now = SystemClock.elapsedRealtime()
         val activatedAt = state.playActivatedAtElapsedRealtime
-        val resolvedActivatedAt: Long
-        val accuracy: TapAccuracy
+
         if (activatedAt == null) {
             // First correct tap activates the fixed clock, backdated so this pad's own
             // scheduled time lines up with "now" (matches the Listen-phase timing exactly).
-            resolvedActivatedAt = now - event.timeMs
-            accuracy = TapAccuracy.Perfect
-            activatePlayClock(resolvedActivatedAt)
-        } else {
-            resolvedActivatedAt = activatedAt
-            accuracy = LessonScheduler.accuracyFor(now - (activatedAt + event.timeMs), schedule.stepDurationMs)
+            // Always scored Perfect - it's what *defines* the clock, there's nothing to
+            // compare it against yet.
+            val resolvedActivatedAt = now - event.timeMs
+            tapResults.add(TapAccuracy.Perfect)
+            val tappedNow = setOf(index)
+            if (tappedNow.containsAll(event.nonAmbientPadIds)) {
+                advanceToEvent(expectedEventIndex + 1, resolvedActivatedAt)
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    tappedInCurrentEvent = tappedNow,
+                    playActivatedAtElapsedRealtime = resolvedActivatedAt
+                )
+            }
+            // Metronomic scheduler: from here on the expected pad advances on the clock, not
+            // on tap success, so one missed/late pad can't permanently stall scoring for the
+            // rest of the lesson (see runPlayScheduler for why that mattered).
+            runPlayScheduler(resolvedActivatedAt)
+            return
         }
-        tapResults.add(accuracy)
 
+        val accuracy = LessonScheduler.accuracyFor(now - (activatedAt + event.timeMs), schedule.stepDurationMs)
+        tapResults.add(accuracy)
         val tappedNow = state.tappedInCurrentEvent + index
         if (tappedNow.containsAll(event.nonAmbientPadIds)) {
-            expectedEventIndex++
-            val next = schedule.tapEvents.getOrNull(expectedEventIndex)
-            _uiState.value = _uiState.value.copy(
-                expectedPadIndices = next?.nonAmbientPadIds ?: emptySet(),
-                tappedInCurrentEvent = emptySet(),
-                playActivatedAtElapsedRealtime = resolvedActivatedAt
-            )
+            advanceToEvent(expectedEventIndex + 1, activatedAt)
         } else {
-            _uiState.value = _uiState.value.copy(
-                tappedInCurrentEvent = tappedNow,
-                playActivatedAtElapsedRealtime = resolvedActivatedAt
-            )
+            _uiState.value = _uiState.value.copy(tappedInCurrentEvent = tappedNow)
         }
+    }
+
+    private fun advanceToEvent(newIndex: Int, activatedAt: Long) {
+        expectedEventIndex = newIndex
+        val next = schedule.tapEvents.getOrNull(newIndex)
+        _uiState.value = _uiState.value.copy(
+            expectedPadIndices = next?.nonAmbientPadIds ?: emptySet(),
+            tappedInCurrentEvent = emptySet(),
+            playActivatedAtElapsedRealtime = activatedAt
+        )
     }
 
     fun onDone() {
@@ -177,8 +190,32 @@ class LessonPlayerViewModel @Inject constructor(
         }
     }
 
-    private fun activatePlayClock(activatedAt: Long) {
+    /**
+     * Walks every remaining tap event on the fixed clock started at [activatedAt]. Whichever
+     * event isn't fully tapped by [LessonSchedule.stepDurationMs] * 2 past its scheduled time
+     * (matching [LessonScheduler.accuracyFor]'s own "Late" cutoff) has its untapped pads scored
+     * Missed and the expected pad advances anyway - this is what lets the user recover after
+     * dropping a beat instead of every later correct tap being silently ignored because the
+     * ViewModel was still waiting on a pad they'd already missed.
+     */
+    private fun runPlayScheduler(activatedAt: Long) {
         job = viewModelScope.launch {
+            val timeoutMs = (schedule.stepDurationMs * 2).toLong()
+            while (expectedEventIndex < schedule.tapEvents.size) {
+                val event = schedule.tapEvents[expectedEventIndex]
+                val wait = (activatedAt + event.timeMs + timeoutMs) - SystemClock.elapsedRealtime()
+                if (wait > 0) delay(wait)
+                // Only act if we're still waiting on this exact event - a tap may already have
+                // advanced (or partially advanced) it while we were delaying.
+                val current = _uiState.value
+                if (expectedEventIndex < schedule.tapEvents.size &&
+                    schedule.tapEvents[expectedEventIndex] === event
+                ) {
+                    val stillPending = event.nonAmbientPadIds - current.tappedInCurrentEvent
+                    repeat(stillPending.size) { tapResults.add(TapAccuracy.Missed) }
+                    advanceToEvent(expectedEventIndex + 1, activatedAt)
+                }
+            }
             val remaining = schedule.totalDurationMs - (SystemClock.elapsedRealtime() - activatedAt)
             if (remaining > 0) delay(remaining)
             finishLesson()
