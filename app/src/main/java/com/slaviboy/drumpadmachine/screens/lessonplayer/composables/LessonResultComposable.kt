@@ -197,7 +197,7 @@ fun LessonResultComposable(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(0.06.dw))
+        Spacer(modifier = Modifier.height(0.11.dw))
         Text(
             text = stringResource(id = if (isPass) R.string.lesson_completed else R.string.you_can_do_better),
             color = Color.White,
