@@ -1,5 +1,7 @@
 package com.slaviboy.drumpadmachine.screens.lessonplayer.composables
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -30,6 +34,9 @@ import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.composables.PadComposable
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
+/** Dimmed resting opacity for a pad that's used in the lesson but not currently "live". */
+private const val UsedPadRestingAlpha = 0.75f
+
 /**
  * Wraps the existing [PadComposable] (base color art + glow flash, reused as-is) with the
  * white-ball + "Tap" indicator for the pad the user must currently hit. Pads not used in this
@@ -37,6 +44,10 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
  * dim/inactive rect, so no extra disabled overlay is drawn here (layering one on top produced
  * a mismatched second background, since the scrim's square corners didn't match the art's
  * rounded ones).
+ *
+ * Pads that are used in the lesson rest at [UsedPadRestingAlpha] so the currently-relevant pad
+ * stands out, then jump to full opacity while it's being played back ([showGlow], the "Listen"
+ * part) or is the one the user must tap ([showTapIndicator], the "Play" part).
  */
 @Composable
 fun LessonPadComposable(
@@ -46,7 +57,13 @@ fun LessonPadComposable(
     modifier: Modifier = Modifier,
     onPositionInParentChange: (Rect) -> Unit
 ) {
-    Box(modifier = modifier) {
+    val isUsedPad = padColor != PadColor.None
+    val alpha: Float by animateFloatAsState(
+        targetValue = if (isUsedPad && !showGlow && !showTapIndicator) UsedPadRestingAlpha else 1f,
+        label = "",
+        animationSpec = tween(durationMillis = 150)
+    )
+    Box(modifier = modifier.alpha(alpha)) {
         PadComposable(
             padColor = padColor,
             showGlow = showGlow,
