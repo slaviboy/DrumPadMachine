@@ -25,7 +25,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -115,9 +114,9 @@ class LessonPlayerViewModel @Inject constructor(
                     playActivatedAtElapsedRealtime = resolvedActivatedAt
                 )
             }
-            // Metronomic scheduler: from here on the expected pad advances on the clock, not
-            // on tap success, so one missed/late pad can't permanently stall scoring for the
-            // rest of the lesson (see runPlayScheduler for why that mattered).
+            // Starts the fixed clock the progress bar and tempo scoring run on. Pad-to-pad
+            // advancement itself stays purely tap-driven from here (see advanceToEvent) -
+            // this clock only ends the lesson once its scheduled duration runs out.
             runPlayScheduler(resolvedActivatedAt)
             return
         }
@@ -191,31 +190,16 @@ class LessonPlayerViewModel @Inject constructor(
     }
 
     /**
-     * Walks every remaining tap event on the fixed clock started at [activatedAt]. Whichever
-     * event isn't fully tapped by [LessonSchedule.stepDurationMs] * 2 past its scheduled time
-     * (matching [LessonScheduler.accuracyFor]'s own "Late" cutoff) has its untapped pads scored
-     * Missed and the expected pad advances anyway - this is what lets the user recover after
-     * dropping a beat instead of every later correct tap being silently ignored because the
-     * ViewModel was still waiting on a pad they'd already missed.
+     * Owns only the lesson's fixed end-of-schedule clock, started at [activatedAt] - the
+     * progress bar and tap-timing scoring both run off this same clock. The expected pad never
+     * advances on its own; it only moves forward from an actual tap (see [onPadTapped] /
+     * [advanceToEvent]), so the UI genuinely waits for user input on each pad. Once the
+     * schedule's total duration elapses, whatever pads are still untapped are simply scored
+     * Missed by [finishLesson] (it already reconciles `tapResults` against the full expected
+     * count, regardless of which specific events were never reached).
      */
     private fun runPlayScheduler(activatedAt: Long) {
         job = viewModelScope.launch {
-            val timeoutMs = (schedule.stepDurationMs * 2).toLong()
-            while (expectedEventIndex < schedule.tapEvents.size) {
-                val event = schedule.tapEvents[expectedEventIndex]
-                val wait = (activatedAt + event.timeMs + timeoutMs) - SystemClock.elapsedRealtime()
-                if (wait > 0) delay(wait)
-                // Only act if we're still waiting on this exact event - a tap may already have
-                // advanced (or partially advanced) it while we were delaying.
-                val current = _uiState.value
-                if (expectedEventIndex < schedule.tapEvents.size &&
-                    schedule.tapEvents[expectedEventIndex] === event
-                ) {
-                    val stillPending = event.nonAmbientPadIds - current.tappedInCurrentEvent
-                    repeat(stillPending.size) { tapResults.add(TapAccuracy.Missed) }
-                    advanceToEvent(expectedEventIndex + 1, activatedAt)
-                }
-            }
             val remaining = schedule.totalDurationMs - (SystemClock.elapsedRealtime() - activatedAt)
             if (remaining > 0) delay(remaining)
             finishLesson()
