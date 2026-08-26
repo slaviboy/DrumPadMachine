@@ -199,7 +199,7 @@ fun DrumPadComposable(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .align(Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
