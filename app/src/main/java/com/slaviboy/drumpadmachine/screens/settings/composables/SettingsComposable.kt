@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -52,10 +53,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -85,11 +88,6 @@ private val badgeCache = Color(0xFFE0574A)
 private val badgeBackup = Color(0xFF5B8DEF)
 private val dangerColor = Color(0xFFFF5A5A)
 private val dialogSurfaceColor = Color(0xFF2D2D42)
-private val appIconGridColors = listOf(
-    Color(0xFF9B6BFF), Color(0xFFFF8A3D), Color(0xFFE85D9C),
-    Color(0xFF4CC98A), Color(0xFF5B8DEF), Color(0xFFF2A93B),
-    Color(0xFF3FC7C7), Color(0xFF9B6BFF), Color(0xFF5B8DEF)
-)
 
 @RootNavGraph(start = false)
 @Destination
@@ -677,25 +675,17 @@ private fun AppIconGrid() {
             .size(0.1.dw)
             .clip(RoundedCornerShape(0.025.dw))
             .background(Color.White.copy(alpha = 0.06f))
-            .padding(0.012.dw),
+            .padding(0.002.dw),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        for (row in 0 until 3) {
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                for (column in 0 until 3) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(0.002.dw)
-                            .clip(RoundedCornerShape(0.006.dw))
-                            .background(appIconGridColors[row * 3 + column])
-                    )
-                }
-            }
-        }
+        Image(
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .scale(1.9f),
+            contentScale = ContentScale.Fit
+        )
     }
 }
 
