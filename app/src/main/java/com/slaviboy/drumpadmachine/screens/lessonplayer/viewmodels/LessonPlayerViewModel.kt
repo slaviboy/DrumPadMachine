@@ -51,7 +51,7 @@ class LessonPlayerViewModel @Inject constructor(
     private val _uiState: MutableState<LessonPlayerUiState> = mutableStateOf(LessonPlayerUiState())
     val uiState: State<LessonPlayerUiState> = _uiState
 
-    fun start(preset: Preset, lesson: Lesson) {
+    fun start(preset: Preset, lesson: Lesson, skipListen: Boolean = false) {
         job?.cancel()
         terminatePlayer()
         this.preset = preset
@@ -65,7 +65,7 @@ class LessonPlayerViewModel @Inject constructor(
         val colors = usedIndices.associateWith { index -> mapPadColor(preset.files?.getOrNull(index)?.color) }
 
         _uiState.value = LessonPlayerUiState(
-            phase = LessonPhase.Listen,
+            phase = if (skipListen) LessonPhase.Play else LessonPhase.Listen,
             page = page,
             usedPadIndices = usedIndices,
             padColors = colors,
@@ -82,7 +82,11 @@ class LessonPlayerViewModel @Inject constructor(
                 )
                 startAudioStream()
             }
-            runListenPhase()
+            if (skipListen) {
+                startPlayPhase()
+            } else {
+                runListenPhase()
+            }
         }
     }
 

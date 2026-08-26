@@ -118,8 +118,8 @@ fun LessonPlayerComposable(
 
     val playProgress = remember { Animatable(0f) }
     LaunchedEffect(uiState.playActivatedAtElapsedRealtime) {
-        val activatedAt = uiState.playActivatedAtElapsedRealtime ?: return@LaunchedEffect
         playProgress.snapTo(uiState.playActivationFraction)
+        val activatedAt = uiState.playActivatedAtElapsedRealtime ?: return@LaunchedEffect
         val remainingMsAtActivation =
             uiState.playTotalDurationMs * (1f - uiState.playActivationFraction)
         val trueRemaining = remainingMsAtActivation - (SystemClock.elapsedRealtime() - activatedAt)
@@ -142,6 +142,7 @@ fun LessonPlayerComposable(
         onDone = { finish(false) },
         onNextLevel = { finish(true) },
         onReplay = { lessonPlayerViewModel.start(preset, lesson) },
+        onRetry = { lessonPlayerViewModel.start(preset, lesson, skipListen = true) },
         onPadTapped = lessonPlayerViewModel::onPadTapped
     )
 }
@@ -166,6 +167,7 @@ private fun LessonPlayerScreenContent(
     onDone: () -> Unit,
     onNextLevel: () -> Unit,
     onReplay: () -> Unit,
+    onRetry: () -> Unit,
     onPadTapped: (Int) -> Unit
 ) {
     Box(
@@ -261,7 +263,7 @@ private fun LessonPlayerScreenContent(
                     scorePercent = uiState.finalScorePercent ?: 0,
                     bestScorePercent = uiState.bestScorePercent,
                     nextLessonNumber = nextLessonNumber,
-                    onReplay = onReplay,
+                    onReplay = onRetry,
                     onDone = onDone,
                     onNextLevel = onNextLevel,
                     modifier = Modifier.weight(1f)
@@ -315,6 +317,7 @@ private fun LessonPlayerScreenListenPreview() {
         onDone = {},
         onNextLevel = {},
         onReplay = {},
+        onRetry = {},
         onPadTapped = {}
     )
 }
@@ -340,6 +343,7 @@ private fun LessonPlayerScreenPlayPreview() {
         onDone = {},
         onNextLevel = {},
         onReplay = {},
+        onRetry = {},
         onPadTapped = {}
     )
 }
@@ -365,6 +369,7 @@ private fun LessonPlayerScreenResultPassPreview() {
         onDone = {},
         onNextLevel = {},
         onReplay = {},
+        onRetry = {},
         onPadTapped = {}
     )
 }
@@ -390,6 +395,7 @@ private fun LessonPlayerScreenResultFailPreview() {
         onDone = {},
         onNextLevel = {},
         onReplay = {},
+        onRetry = {},
         onPadTapped = {}
     )
 }
