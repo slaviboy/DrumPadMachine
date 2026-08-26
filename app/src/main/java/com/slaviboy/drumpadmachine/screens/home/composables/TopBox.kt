@@ -58,7 +58,7 @@ fun TopBox(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = 0.06.dw, y = 0.145.dh)
+                .offset(x = 0.06.dw, y = 0.175.dh)
                 .size(0.05.dw)
                 .rotate(TILT_ANGLE)
                 .clip(RoundedCornerShape(0.006.dw))
@@ -67,7 +67,7 @@ fun TopBox(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = 0.155.dw, y = 0.165.dh)
+                .offset(x = 0.165.dw, y = 0.195.dh)
                 .size(0.06.dw)
                 .rotate(TILT_ANGLE)
                 .clip(RoundedCornerShape(0.006.dw))
@@ -76,7 +76,7 @@ fun TopBox(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = 0.27.dw, y = 0.14.dh)
+                .offset(x = 0.29.dw, y = 0.06.dh)
                 .size(0.04.dw)
                 .rotate(TILT_ANGLE)
                 .clip(RoundedCornerShape(0.006.dw))
@@ -129,15 +129,16 @@ fun TopBox(
             fontWeight = FontWeight.Black,
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .offset(x = 0.04.dw)
+                .offset(
+                    x = 0.04.dw,
+                    y = 0.02.dw
+                )
         )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = -(0.04).dw, y = -(0.04).dw)
-                .bounceClick {
-
-                }
+                .bounceClick {}
                 .background(Color(0xFFFFD112), CircleShape)
                 .padding(horizontal = 0.07.dw, vertical = 0.03.dw),
             contentAlignment = Alignment.Center

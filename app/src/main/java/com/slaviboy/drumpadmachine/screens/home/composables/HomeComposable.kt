@@ -272,8 +272,8 @@ fun HomeComposable(
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 0.04.dw, start = 0.04.dw)
-                .size(0.07.dw)
+                .padding(top = 0.07.dw, start = 0.05.dw)
+                .size(0.06.dw)
                 .bounceClick {
                     navigator.navigate(direction = SettingsComposableDestination())
                 },
