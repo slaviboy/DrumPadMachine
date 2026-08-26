@@ -72,6 +72,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.NumberStepper
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.settings.viewmodels.SettingsViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
@@ -589,34 +590,12 @@ private fun SettingsStepperRow(
         Box(modifier = Modifier.weight(1f)) {
             SettingsRowTexts(titleResId = titleResId, subtitleResId = subtitleResId)
         }
-        Text(
-            text = "−",
-            color = sliderAccentColor,
-            fontFamily = RobotoFont,
-            fontSize = 0.05.sw,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .bounceClick { onValueChange((value - step).coerceIn(range.first, range.last)) }
-                .padding(0.02.dw)
-        )
-        Text(
-            text = "$value",
-            color = Color.White,
-            fontFamily = RobotoFont,
-            fontSize = 0.04.sw,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(0.12.dw)
-        )
-        Text(
-            text = "+",
-            color = sliderAccentColor,
-            fontFamily = RobotoFont,
-            fontSize = 0.05.sw,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .bounceClick { onValueChange((value + step).coerceIn(range.first, range.last)) }
-                .padding(0.02.dw)
+        NumberStepper(
+            value = value,
+            range = range,
+            step = step,
+            accentColor = sliderAccentColor,
+            onValueChange = onValueChange
         )
     }
 }

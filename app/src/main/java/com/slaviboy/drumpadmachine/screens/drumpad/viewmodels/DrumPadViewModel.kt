@@ -60,6 +60,12 @@ class DrumPadViewModel @Inject constructor(
     private val _keepScreenOn: MutableState<Boolean> = mutableStateOf(false)
     val keepScreenOn: State<Boolean> = _keepScreenOn
 
+    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(true)
+    val metronomeEnabled: State<Boolean> = _metronomeEnabled
+
+    private val _defaultBpm: MutableState<Int> = mutableIntStateOf(120)
+    val defaultBpm: State<Int> = _defaultBpm
+
     private val vibrator: Vibrator by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
@@ -80,6 +86,8 @@ class DrumPadViewModel @Inject constructor(
                 settingsRepository.metronomeVolume,
                 settingsRepository.defaultBpm
             ) { enabled, volume, bpm -> Triple(enabled, volume, bpm) }.collect { (enabled, volume, bpm) ->
+                _metronomeEnabled.value = enabled
+                _defaultBpm.value = bpm
                 if (enabled) metronome.start(bpm, volume) else metronome.stop()
             }
         }
@@ -88,6 +96,14 @@ class DrumPadViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         metronome.stop()
+    }
+
+    fun toggleMetronome() = viewModelScope.launch {
+        settingsRepository.setMetronomeEnabled(!_metronomeEnabled.value)
+    }
+
+    fun setDefaultBpm(value: Int) = viewModelScope.launch {
+        settingsRepository.setDefaultBpm(value)
     }
 
     fun terminate() = viewModelScope.launch {

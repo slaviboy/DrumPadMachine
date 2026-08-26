@@ -49,6 +49,7 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
+import com.slaviboy.drumpadmachine.composables.NumberStepper
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
@@ -59,6 +60,8 @@ import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+
+private val metronomeActiveColor = Color(0xFFffd112)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @RootNavGraph(start = false)
@@ -199,13 +202,38 @@ fun DrumPadComposable(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ImageButtonWithText(
-                    iconResId = R.drawable.ic_metronome,
-                    textResId = R.string.tempo,
-                    onClick = {
-
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val metronomeEnabled = drumPadViewModel.metronomeEnabled.value
+                    ImageButtonWithText(
+                        iconResId = R.drawable.ic_metronome,
+                        textResId = R.string.tempo,
+                        iconTint = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
+                        onClick = {
+                            drumPadViewModel.toggleMetronome()
+                        }
+                    )
+                    if (metronomeEnabled) {
+                        Spacer(
+                            modifier = Modifier
+                                .width(0.02.dw)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(percent = 50))
+                                .background(Color.Black.copy(alpha = 0.3f))
+                                .padding(horizontal = 0.015.dw, vertical = 0.01.dw),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            NumberStepper(
+                                value = drumPadViewModel.defaultBpm.value,
+                                range = 40..240,
+                                step = 5,
+                                accentColor = metronomeActiveColor,
+                                onValueChange = { drumPadViewModel.setDefaultBpm(it) }
+                            )
+                        }
                     }
-                )
+                }
                 ImageButtonWithText(
                     iconResId = R.drawable.ic_record,
                     textResId = R.string.record,
