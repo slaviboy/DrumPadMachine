@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -112,6 +115,35 @@ fun SettingsComposable(
             valueRange = 0f..150f,
             onValueChange = { settingsViewModel.setVolume(it) }
         )
+        Spacer(
+            modifier = Modifier
+                .height(0.03.dw)
+        )
+        SettingsSwitch(
+            labelResId = R.string.keep_screen_on,
+            checked = settingsViewModel.keepScreenOn.value,
+            onCheckedChange = { settingsViewModel.setKeepScreenOn(it) }
+        )
+        SettingsSwitch(
+            labelResId = R.string.haptic_feedback,
+            checked = settingsViewModel.hapticFeedback.value,
+            onCheckedChange = { settingsViewModel.setHapticFeedback(it) }
+        )
+        Spacer(
+            modifier = Modifier
+                .height(0.03.dw)
+        )
+        Text(
+            text = stringResource(id = R.string.reset_to_defaults),
+            color = Color(0xFFFFD011),
+            fontFamily = RobotoFont,
+            fontSize = 0.04.sw,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .bounceClick { settingsViewModel.resetToDefaults() }
+                .padding(0.01.dw)
+        )
         Row(
             modifier = Modifier
                 .wrapContentHeight(Alignment.Bottom)
@@ -188,6 +220,37 @@ private fun SettingsSlider(
             colors = SliderDefaults.colors(
                 thumbColor = sliderAccentColor,
                 activeTrackColor = sliderAccentColor
+            )
+        )
+    }
+}
+
+@Composable
+private fun SettingsSwitch(
+    labelResId: Int,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 0.06.dw, vertical = 0.01.dw),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(id = labelResId),
+            color = Color.White,
+            fontFamily = RobotoFont,
+            fontSize = 0.04.sw,
+            fontWeight = FontWeight.Normal
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = sliderAccentColor,
+                checkedTrackColor = sliderAccentColor.copy(alpha = 0.5f)
             )
         )
     }

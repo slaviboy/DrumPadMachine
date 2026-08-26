@@ -1,6 +1,10 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.viewmodels
 
 import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -48,6 +52,25 @@ class DrumPadViewModel @Inject constructor(
     private val activePointerIndex: MutableMap<Int, Int> = mutableMapOf()
 
     private var settingsSyncJobs: List<Job> = emptyList()
+
+    private var isHapticFeedbackEnabled = true
+
+    private val _keepScreenOn: MutableState<Boolean> = mutableStateOf(false)
+    val keepScreenOn: State<Boolean> = _keepScreenOn
+
+    private val vibrator: Vibrator by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+    }
+
+    init {
+        viewModelScope.launch { settingsRepository.hapticFeedback.collect { isHapticFeedbackEnabled = it } }
+        viewModelScope.launch { settingsRepository.keepScreenOn.collect { _keepScreenOn.value = it } }
+    }
 
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
@@ -203,5 +226,17 @@ class DrumPadViewModel @Inject constructor(
             }
         }
         drumPadPlayer?.trigger(index)
+        if (isHapticFeedbackEnabled) {
+            vibratePadHit()
+        }
+    }
+
+    private fun vibratePadHit() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(20)
+        }
     }
 }
