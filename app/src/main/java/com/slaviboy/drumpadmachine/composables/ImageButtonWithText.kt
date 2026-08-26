@@ -32,6 +32,7 @@ fun ImageButtonWithText(
     @DrawableRes iconResId: Int,
     @StringRes textResId: Int,
     iconTint: Color = Color.Gray,
+    textColor: Color = Color.Gray,
     onClick: () -> Unit
 ) {
     Column(
@@ -49,7 +50,7 @@ fun ImageButtonWithText(
         )
         Text(
             text = stringResource(id = textResId).uppercase(),
-            color = Color.Gray,
+            color = textColor,
             fontFamily = RobotoFont,
             fontSize = 0.035.sw,
             fontWeight = FontWeight.Normal

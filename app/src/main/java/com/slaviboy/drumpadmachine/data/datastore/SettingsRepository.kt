@@ -34,7 +34,7 @@ class SettingsRepository @Inject constructor(
     val pan: Flow<Int> = context.settingsDataStore.data.map { it[Keys.PAN] ?: 0 } // [-100,100]
     val keepScreenOn: Flow<Boolean> = context.settingsDataStore.data.map { it[Keys.KEEP_SCREEN_ON] ?: false }
     val hapticFeedback: Flow<Boolean> = context.settingsDataStore.data.map { it[Keys.HAPTIC_FEEDBACK] ?: true }
-    val metronomeEnabled: Flow<Boolean> = context.settingsDataStore.data.map { it[Keys.METRONOME_ENABLED] ?: true }
+    val metronomeEnabled: Flow<Boolean> = context.settingsDataStore.data.map { it[Keys.METRONOME_ENABLED] ?: false }
     val metronomeVolume: Flow<Int> = context.settingsDataStore.data.map { it[Keys.METRONOME_VOLUME] ?: 60 } // [0,100]
     val defaultBpm: Flow<Int> = context.settingsDataStore.data.map { it[Keys.DEFAULT_BPM] ?: 120 } // [40,240]
 

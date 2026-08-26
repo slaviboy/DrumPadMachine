@@ -202,21 +202,9 @@ fun DrumPadComposable(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val metronomeEnabled = drumPadViewModel.metronomeEnabled.value
-                    ImageButtonWithText(
-                        iconResId = R.drawable.ic_metronome,
-                        textResId = R.string.tempo,
-                        iconTint = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
-                        onClick = {
-                            drumPadViewModel.toggleMetronome()
-                        }
-                    )
                     if (metronomeEnabled) {
-                        Spacer(
-                            modifier = Modifier
-                                .width(0.02.dw)
-                        )
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(percent = 50))
@@ -227,12 +215,25 @@ fun DrumPadComposable(
                             NumberStepper(
                                 value = drumPadViewModel.defaultBpm.value,
                                 range = 40..240,
-                                step = 5,
+                                step = 1,
                                 accentColor = metronomeActiveColor,
                                 onValueChange = { drumPadViewModel.setDefaultBpm(it) }
                             )
                         }
+                        Spacer(
+                            modifier = Modifier
+                                .height(0.01.dw)
+                        )
                     }
+                    ImageButtonWithText(
+                        iconResId = if (metronomeEnabled) R.drawable.ic_metronome_active else R.drawable.ic_metronome,
+                        textResId = R.string.tempo,
+                        iconTint = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
+                        textColor = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
+                        onClick = {
+                            drumPadViewModel.toggleMetronome()
+                        }
+                    )
                 }
                 ImageButtonWithText(
                     iconResId = R.drawable.ic_record,

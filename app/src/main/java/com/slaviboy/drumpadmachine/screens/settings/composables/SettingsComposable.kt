@@ -229,7 +229,7 @@ fun SettingsComposable(
                 subtitleResId = R.string.default_bpm_subtitle,
                 value = settingsViewModel.defaultBpm.value,
                 range = 40..240,
-                step = 5,
+                step = 1,
                 onValueChange = { settingsViewModel.setDefaultBpm(it) }
             )
         }

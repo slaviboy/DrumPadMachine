@@ -60,7 +60,7 @@ class DrumPadViewModel @Inject constructor(
     private val _keepScreenOn: MutableState<Boolean> = mutableStateOf(false)
     val keepScreenOn: State<Boolean> = _keepScreenOn
 
-    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(true)
+    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(false)
     val metronomeEnabled: State<Boolean> = _metronomeEnabled
 
     private val _defaultBpm: MutableState<Int> = mutableIntStateOf(120)

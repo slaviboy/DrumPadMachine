@@ -32,7 +32,7 @@ class SettingsViewModel @Inject constructor(
     private val _hapticFeedback: MutableState<Boolean> = mutableStateOf(true)
     val hapticFeedback: State<Boolean> = _hapticFeedback
 
-    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(true)
+    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(false)
     val metronomeEnabled: State<Boolean> = _metronomeEnabled
 
     private val _metronomeVolume: MutableState<Int> = mutableIntStateOf(60) // [0,100]
