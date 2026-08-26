@@ -260,6 +260,17 @@ fun HomePresetDetails(
                 }
         ) {
             val context = LocalContext.current
+            // Already-cached (from the preset list/card) lower quality cover-icon, kept mounted
+            // as a permanent base layer underneath - never swapped out - so there's no blank
+            // cover during the open transition. The full cover fades in on top of it once
+            // loaded; if it fails outright (e.g. no internet), this icon just stays visible.
+            CachedAsyncImage(
+                model = NetworkModule.coverIconUrl(clickedPreset.id),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                error = painterResource(id = R.drawable.ic_no_image)
+            )
             SubcomposeAsyncImage(
                 model = remember(clickedPreset.id) {
                     ImageRequest.Builder(context)
@@ -274,16 +285,7 @@ fun HomePresetDetails(
                     .fillMaxSize(),
                 contentScale = ContentScale.Crop
             ) {
-                if (painter.state is AsyncImagePainter.State.Error) {
-                    // if no internet try loading the cached lower quality cover-icon
-                    CachedAsyncImage(
-                        model = NetworkModule.coverIconUrl(clickedPreset.id),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        error = painterResource(id = R.drawable.ic_no_image)
-                    )
-                } else {
+                if (painter.state is AsyncImagePainter.State.Success) {
                     SubcomposeAsyncImageContent()
                 }
             }
