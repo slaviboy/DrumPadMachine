@@ -51,6 +51,7 @@ import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.SettingsComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
@@ -95,18 +96,36 @@ fun DrumPadComposable(
                 modifier = Modifier
                     .height(0.07.dw)
             )
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_left),
-                contentDescription = null,
+            Row(
                 modifier = Modifier
-                    .size(0.07.dw)
-                    .offset(x = 0.04.dw)
-                    .bounceClick {
-                        drumPadViewModel.terminate()
-                        navigator.navigateUp()
-                    },
-                colorFilter = ColorFilter.tint(Color.White)
-            )
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.07.dw)
+                        .offset(x = 0.04.dw)
+                        .bounceClick {
+                            drumPadViewModel.terminate()
+                            navigator.navigateUp()
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_settings),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.07.dw)
+                        .offset(x = -(0.04.dw))
+                        .bounceClick {
+                            navigator.navigate(direction = SettingsComposableDestination())
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
             Spacer(
                 modifier = Modifier
                     .height(0.05.dw)

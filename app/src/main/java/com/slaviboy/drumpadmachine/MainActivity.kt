@@ -31,6 +31,7 @@ import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestinatio
 import com.slaviboy.drumpadmachine.screens.destinations.LessonPlayerComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.SettingsComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.screens.home.composables.HomeComposable
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
@@ -39,6 +40,7 @@ import com.slaviboy.drumpadmachine.screens.lessonslist.composables.LessonsListCo
 import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.screens.presetslist.composables.PresetsListComposable
 import com.slaviboy.drumpadmachine.screens.presetslist.viewmodels.PresetsListViewModel
+import com.slaviboy.drumpadmachine.screens.settings.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -97,6 +99,9 @@ class MainActivity : ComponentActivity() {
                             }
                             dependency(LessonPlayerComposableDestination) {
                                 hiltViewModel<LessonPlayerViewModel>()
+                            }
+                            dependency(SettingsComposableDestination) {
+                                hiltViewModel<SettingsViewModel>()
                             }
                         }
                     ) {

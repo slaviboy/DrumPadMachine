@@ -77,8 +77,12 @@ DataCallbackResult SimpleMultiPlayer::MyDataCallback::onAudioReady(AudioStream *
     }
 
     float masterGain = mParent->mMasterGain;
+    float pan = mParent->mMasterPan;
+    float leftGain = pan <= 0.0f ? 1.0f : 1.0f - pan;
+    float rightGain = pan >= 0.0f ? 1.0f : 1.0f + pan;
     for (size_t i = 0; i < numSamples; i++) {
-        float sample = outBuffer[i] * masterGain;
+        bool isLeftChannel = (i % mParent->mChannelCount) == 0;
+        float sample = outBuffer[i] * masterGain * (isLeftChannel ? leftGain : rightGain);
         // cheap safety limiter - master gain can go above unity (boost)
         if (sample > 1.0f) {
             sample = 1.0f;
@@ -267,6 +271,10 @@ void SimpleMultiPlayer::setMasterGain(float gain) {
 
 void SimpleMultiPlayer::setReverbMix(float mix) {
     mReverbMix = mix;
+}
+
+void SimpleMultiPlayer::setMasterPan(float pan) {
+    mMasterPan = pan;
 }
 
 }

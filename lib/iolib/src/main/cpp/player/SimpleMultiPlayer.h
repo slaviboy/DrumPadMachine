@@ -75,6 +75,9 @@ public:
     void setReverbMix(float mix);
     float getReverbMix() { return mReverbMix; }
 
+    void setMasterPan(float pan);
+    float getMasterPan() { return mMasterPan; }
+
 private:
     class MyDataCallback : public oboe::AudioStreamDataCallback {
     public:
@@ -119,6 +122,7 @@ private:
     // Master output stage
     float mMasterGain = 1.0f;
     float mReverbMix = 0.0f;
+    float mMasterPan = 0.0f;
     Reverb mReverb;
     std::vector<float> mReverbScratch;
 

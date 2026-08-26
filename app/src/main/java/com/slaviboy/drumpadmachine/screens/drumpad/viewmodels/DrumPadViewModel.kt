@@ -12,12 +12,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.audio.DrumPadPlayer
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
+import com.slaviboy.drumpadmachine.data.datastore.SettingsRepository
 import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DrumPadViewModel @Inject constructor(
     private val repository: ApiRepository,
+    private val settingsRepository: SettingsRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -44,21 +47,7 @@ class DrumPadViewModel @Inject constructor(
 
     private val activePointerIndex: MutableMap<Int, Int> = mutableMapOf()
 
-    private val _volume: MutableState<Int> = mutableIntStateOf(100) // [0,150]
-    val volume: State<Int> = _volume
-
-    private val _reverb: MutableState<Int> = mutableIntStateOf(0) // [0,100]
-    val reverb: State<Int> = _reverb
-
-    fun setVolume(value: Int) {
-        _volume.value = value.coerceIn(0, 150)
-        drumPadPlayer?.setVolume(_volume.value)
-    }
-
-    fun setReverb(value: Int) {
-        _reverb.value = value.coerceIn(0, 100)
-        drumPadPlayer?.setReverb(_reverb.value)
-    }
+    private var settingsSyncJobs: List<Job> = emptyList()
 
     fun terminate() = viewModelScope.launch {
         drumPadPlayer?.apply {
@@ -83,6 +72,7 @@ class DrumPadViewModel @Inject constructor(
     fun loadSounds(preset: Preset) = viewModelScope.launch {
         setPreset(preset)
         terminate()
+        settingsSyncJobs.forEach { it.cancel() }
         awaitFrame()
         drumPadPlayer = DrumPadPlayer().apply {
             setupAudioStream()
@@ -94,6 +84,11 @@ class DrumPadViewModel @Inject constructor(
             )
             startAudioStream()
         }
+        settingsSyncJobs = listOf(
+            viewModelScope.launch { settingsRepository.volume.collect { drumPadPlayer?.setVolume(it) } },
+            viewModelScope.launch { settingsRepository.reverb.collect { drumPadPlayer?.setReverb(it) } },
+            viewModelScope.launch { settingsRepository.pan.collect { drumPadPlayer?.setMasterPan(it) } }
+        )
     }
 
     fun movePage() {

@@ -167,6 +167,16 @@ JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getReverbMix(
     return sDTPlayer.getReverbMix();
 }
 
+JNIEXPORT void JNICALL Java_com_slaviboy_audio_DrumPadPlayer_setMasterPanNative(
+        JNIEnv *env, jobject thiz, jfloat pan) {
+    sDTPlayer.setMasterPan(pan);
+}
+
+JNIEXPORT jfloat JNICALL Java_com_slaviboy_audio_DrumPadPlayer_getMasterPanNative(
+        JNIEnv *env, jobject thiz) {
+    return sDTPlayer.getMasterPan();
+}
+
 #ifdef __cplusplus
 }
 #endif

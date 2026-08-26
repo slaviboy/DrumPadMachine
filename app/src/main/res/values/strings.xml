@@ -17,6 +17,10 @@
     <string name="side">Side</string>
     <string name="lessons">Lessons</string>
     <string name="recreated_by">Recreated by:</string>
+    <string name="settings">Settings</string>
+    <string name="pan">Pan</string>
+    <string name="reverb">Reverb</string>
+    <string name="volume">Volume</string>
     <string name="sound_packs">Sound packs</string>
     <string name="there_are_no_items_found">There are no items found</string>
     <string name="last">Last</string>
