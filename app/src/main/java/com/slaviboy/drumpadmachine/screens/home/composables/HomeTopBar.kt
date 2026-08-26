@@ -15,8 +15,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
 import com.slaviboy.composeunits.DpToPx
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
@@ -89,4 +94,36 @@ fun HomeTopBar(
                 .padding(horizontal = 0.04.dw)
         )
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun HomeTopBarExpandedPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    HomeTopBar(
+        height = 0.35.dh,
+        minHeight = 0.165.dh,
+        maxHeight = 0.35.dh,
+        title = "SOUND PACKS",
+        searchText = ""
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun HomeTopBarCollapsedPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    HomeTopBar(
+        height = 0.165.dh,
+        minHeight = 0.165.dh,
+        maxHeight = 0.35.dh,
+        title = "SOUND PACKS",
+        searchText = ""
+    )
 }

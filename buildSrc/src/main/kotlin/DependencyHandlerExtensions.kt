@@ -18,6 +18,12 @@ fun DependencyHandler.implementation(vararg list: String) {
     }
 }
 
+fun DependencyHandler.debugImplementation(vararg list: String) {
+    list.forEach { dependency ->
+        add("debugImplementation", dependency)
+    }
+}
+
 fun DependencyHandler.implementationPlatform(vararg list: String) {
     list.forEach { dependency ->
         add("implementation", platform(dependency))

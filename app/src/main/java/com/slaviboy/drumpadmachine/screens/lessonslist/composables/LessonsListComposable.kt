@@ -46,28 +46,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.slaviboy.composeunits.DpToPx
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.composables.NoItems
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.LessonState
+import com.slaviboy.drumpadmachine.data.entities.Pad
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
 import com.slaviboy.drumpadmachine.modules.NetworkModule
+import com.slaviboy.drumpadmachine.screens.destinations.LessonPlayerComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
+import com.slaviboy.drumpadmachine.screens.lessonplayer.models.LessonResultPayload
 import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
@@ -80,11 +87,31 @@ import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 fun LessonsListComposable(
     navigator: DestinationsNavigator,
     lessonsListViewModel: LessonsListViewModel,
+    resultRecipient: ResultRecipient<LessonPlayerComposableDestination, LessonResultPayload>,
     onError: (error: String) -> Unit = {},
     preset: Preset
 ) {
     LaunchedEffect(preset) {
         lessonsListViewModel.init(preset)
+    }
+    resultRecipient.onNavResult { result ->
+        if (result is NavResult.Value) {
+            val payload = result.value
+            lessonsListViewModel.applyResult(payload)
+            if (payload.continueToNextLesson && payload.nextLessonId != null) {
+                val nextLesson = lessonsListViewModel.filteredLessonsState.value.firstOrNull {
+                    it.id == payload.nextLessonId && it.side == payload.side
+                }
+                if (nextLesson != null) {
+                    navigator.navigate(
+                        direction = LessonPlayerComposableDestination(
+                            preset = preset,
+                            lesson = nextLesson
+                        )
+                    )
+                }
+            }
+        }
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     var topBarHeight by remember {
@@ -126,9 +153,16 @@ fun LessonsListComposable(
         }
         val list = lessonsListViewModel.filteredLessonsState.value
         items(list.size) {
-            LessonItem(lesson = list[it],
+            val lesson = list[it]
+            LessonItem(lesson = lesson,
                 onButtonClick = {
                     keyboardController?.hide()
+                    navigator.navigate(
+                        direction = LessonPlayerComposableDestination(
+                            preset = preset,
+                            lesson = lesson
+                        )
+                    )
                 }
             )
             Spacer(
@@ -157,7 +191,6 @@ fun LessonsListComposable(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun LessonsListTopBar(
     height: Dp,
@@ -272,15 +305,14 @@ fun LessonsListTopBar(
                     .alpha(presetAlpha),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                GlideImage(
+                CachedAsyncImage(
                     model = NetworkModule.coverIconUrl(presetId),
                     contentDescription = null,
                     modifier = Modifier
                         .size(0.14.dw)
                         .clip(RoundedCornerShape(0.02.dw)),
-                    transition = CrossFade,
-                    failure = placeholder(R.drawable.ic_no_image),
-                    loading = placeholder(R.drawable.ic_default_image)
+                    error = painterResource(id = R.drawable.ic_no_image),
+                    placeholder = painterResource(id = R.drawable.ic_default_image)
                 )
                 Spacer(
                     modifier = Modifier
@@ -441,8 +473,8 @@ fun LessonItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val iconColor = when (lesson.lessonState) {
-                    LessonState.Replay, LessonState.Unlock -> Color(0xFF908F9C)
-                    LessonState.Play -> Color(0xFFFFD011)
+                    LessonState.Unlock -> Color(0xFF908F9C)
+                    LessonState.Replay, LessonState.Play -> Color(0xFFFFD011)
                 }
                 val iconResId = when (lesson.lessonState) {
                     LessonState.Unlock -> R.drawable.ic_chain
@@ -666,5 +698,39 @@ fun LessonItem(
             modifier = Modifier
                 .height(0.04.dw)
         )
+    }
+}
+
+private fun previewLesson(id: Int, lessonState: LessonState, rating: Int, lastScore: Int, bestScore: Int) = Lesson(
+    id = id,
+    side = "a",
+    version = 1,
+    name = "New Tone",
+    orderBy = id,
+    sequencerSize = 17,
+    rating = rating,
+    lastScore = lastScore,
+    bestScore = bestScore,
+    lessonState = lessonState,
+    pads = listOf(
+        Pad(id = 9, start = 0, ambient = false, duration = 1),
+        Pad(id = 10, start = 4, ambient = false, duration = 1),
+        Pad(id = 11, start = 8, ambient = false, duration = 1)
+    )
+)
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun LessonItemPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    Column {
+        LessonItem(lesson = previewLesson(0, LessonState.Play, rating = 0, lastScore = 0, bestScore = 0), onButtonClick = {})
+        Spacer(modifier = Modifier.height(0.03.dw))
+        LessonItem(lesson = previewLesson(1, LessonState.Replay, rating = 3, lastScore = 100, bestScore = 100), onButtonClick = {})
+        Spacer(modifier = Modifier.height(0.03.dw))
+        LessonItem(lesson = previewLesson(2, LessonState.Unlock, rating = 0, lastScore = 0, bestScore = 0), onButtonClick = {})
     }
 }

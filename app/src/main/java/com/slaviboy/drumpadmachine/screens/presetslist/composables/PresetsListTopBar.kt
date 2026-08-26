@@ -26,11 +26,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
 import com.slaviboy.composeunits.DpToPx
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.SearchTextField
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
@@ -183,4 +189,40 @@ fun PresetsListTopBar(
                 )
         )
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun PresetsListTopBarExpandedPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    PresetsListTopBar(
+        height = 0.53.dw,
+        minHeight = 0.36.dw,
+        maxHeight = 0.53.dw,
+        title = "Dubstep",
+        subtitle = "Search for your favorite sound pack",
+        leftIconResId = R.drawable.ic_arrow_left,
+        text = ""
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun PresetsListTopBarCollapsedPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    PresetsListTopBar(
+        height = 0.36.dw,
+        minHeight = 0.36.dw,
+        maxHeight = 0.53.dw,
+        title = "Dubstep",
+        subtitle = "Search for your favorite sound pack",
+        leftIconResId = R.drawable.ic_arrow_left,
+        text = ""
+    )
 }

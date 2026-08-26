@@ -68,8 +68,20 @@ class DrumPadViewModel @Inject constructor(
         drumPadPlayer = null
     }
 
-    fun loadSounds(preset: Preset) = viewModelScope.launch {
+    /**
+     * Publishes [preset] to pad-grid state synchronously - call this directly from the
+     * composable body (not from a LaunchedEffect) so the very first frame already has the
+     * correct pad colors, instead of a blank/gray frame that only turns colored once
+     * `loadSounds`'s LaunchedEffect gets a chance to run.
+     */
+    fun setPreset(preset: Preset) {
+        if (_preset.value?.id == preset.id) return
         _preset.value = preset
+        bounds = MutableList(preset.files?.size ?: 0) { Rect.Zero }
+    }
+
+    fun loadSounds(preset: Preset) = viewModelScope.launch {
+        setPreset(preset)
         terminate()
         awaitFrame()
         drumPadPlayer = DrumPadPlayer().apply {
@@ -82,8 +94,6 @@ class DrumPadViewModel @Inject constructor(
             )
             startAudioStream()
         }
-        val filesSize = preset.files?.size ?: 0
-        bounds = MutableList(filesSize) { Rect.Zero }
     }
 
     fun movePage() {

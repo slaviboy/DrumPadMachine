@@ -39,16 +39,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
@@ -60,7 +57,7 @@ import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @RootNavGraph(start = false)
 @Destination
 @Composable
@@ -70,6 +67,9 @@ fun DrumPadComposable(
     preset: Preset
 ) {
     val uriHandler = LocalUriHandler.current
+    // Synchronous, not in the LaunchedEffect below - keeps pad colors correct on the very
+    // first frame instead of a blank/gray flash until the effect gets a chance to run.
+    drumPadViewModel.setPreset(preset)
     LaunchedEffect(preset) {
         drumPadViewModel.loadSounds(preset)
     }
@@ -118,15 +118,14 @@ fun DrumPadComposable(
                     .align(Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                GlideImage(
+                CachedAsyncImage(
                     model = NetworkModule.coverIconUrl(preset.id),
                     contentDescription = null,
                     modifier = Modifier
                         .size(0.14.dw)
                         .clip(RoundedCornerShape(0.02.dw)),
-                    transition = CrossFade,
-                    failure = placeholder(R.drawable.ic_no_image),
-                    loading = placeholder(R.drawable.ic_default_image)
+                    error = painterResource(id = R.drawable.ic_no_image),
+                    placeholder = painterResource(id = R.drawable.ic_default_image)
                 )
                 Spacer(
                     modifier = Modifier

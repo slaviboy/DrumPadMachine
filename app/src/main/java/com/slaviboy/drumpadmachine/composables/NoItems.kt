@@ -3,9 +3,11 @@ package com.slaviboy.drumpadmachine.composables
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -20,8 +22,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
 @Composable
@@ -66,6 +74,24 @@ fun NoItems(
             fontFamily = RobotoFont,
             fontSize = 0.035.sw,
             fontWeight = FontWeight.Normal
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun NoItemsPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    Box(modifier = Modifier.fillMaxSize()) {
+        NoItems(
+            boxScope = this,
+            iconResId = R.drawable.ic_audio,
+            titleResId = R.string.no_items,
+            subtitleResId = R.string.there_are_no_items_found,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

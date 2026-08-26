@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -30,10 +32,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
 import com.slaviboy.composeunits.PxToDp
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
+import com.slaviboy.composeunits.sw
+import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
 
@@ -142,6 +152,50 @@ fun <T> rememberRef(): MutableState<T?> {
             override fun component1(): T? = value
 
             override fun component2(): (T?) -> Unit = { value = it }
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun ScrollableContainerPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    ScrollableContainer(
+        minHeight = 0.12.dh,
+        maxHeight = 0.12.dh,
+        topBar = { height, _, _ ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .background(
+                        brush = Brush.verticalGradient(listOf(backgroundGradientTop, backgroundGradientBottom))
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Header",
+                    color = Color.White,
+                    fontFamily = RobotoFont,
+                    fontSize = 0.06.sw,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    ) { _, _ ->
+        items(5) {
+            Text(
+                text = "Item $it",
+                color = Color.White,
+                fontFamily = RobotoFont,
+                fontSize = 0.045.sw,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.04.dw)
+            )
         }
     }
 }

@@ -19,21 +19,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.MemoryCategory
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.scope.resultRecipient
 import com.slaviboy.composeunits.initSize
 import com.slaviboy.drumpadmachine.extensions.hideSystemBars
 import com.slaviboy.drumpadmachine.screens.NavGraphs
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.HomeComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.LessonPlayerComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.screens.home.composables.HomeComposable
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
+import com.slaviboy.drumpadmachine.screens.lessonplayer.viewmodels.LessonPlayerViewModel
 import com.slaviboy.drumpadmachine.screens.lessonslist.composables.LessonsListComposable
 import com.slaviboy.drumpadmachine.screens.lessonslist.viewmodels.LessonsListViewModel
 import com.slaviboy.drumpadmachine.screens.presetslist.composables.PresetsListComposable
@@ -46,7 +47,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Glide.get(this).setMemoryCategory(MemoryCategory.HIGH)
         installSplashScreen().apply {
             //setKeepOnScreenCondition { loginViewModel.isLoading }
         }
@@ -95,6 +95,9 @@ class MainActivity : ComponentActivity() {
                             dependency(DrumPadComposableDestination) {
                                 hiltViewModel<DrumPadViewModel>()
                             }
+                            dependency(LessonPlayerComposableDestination) {
+                                hiltViewModel<LessonPlayerViewModel>()
+                            }
                         }
                     ) {
                         composable(HomeComposableDestination) {
@@ -117,6 +120,7 @@ class MainActivity : ComponentActivity() {
                             LessonsListComposable(
                                 navigator = destinationsNavigator,
                                 lessonsListViewModel = hiltViewModel<LessonsListViewModel>(),
+                                resultRecipient = resultRecipient(),
                                 onError = onError,
                                 preset = navArgs.preset
                             )

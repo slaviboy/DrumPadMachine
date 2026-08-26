@@ -24,20 +24,22 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import com.slaviboy.composeunits.DeviceHeight
+import com.slaviboy.composeunits.DeviceWidth
+import com.slaviboy.composeunits.Density
+import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
+import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PresetCard(
     preset: Preset,
@@ -68,14 +70,13 @@ fun PresetCard(
         Box(
             contentAlignment = Alignment.BottomEnd
         ) {
-            GlideImage(
+            CachedAsyncImage(
                 model = NetworkModule.coverIconUrl(preset.id),
                 contentDescription = null,
                 modifier = Modifier
                     .size(coverSize)
                     .clip(RoundedCornerShape(0.04.dw)),
-                transition = CrossFade,
-                failure = placeholder(R.drawable.ic_no_image)
+                error = painterResource(id = R.drawable.ic_no_image)
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_play_button),
@@ -111,4 +112,33 @@ fun PresetCard(
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF232339)
+@Composable
+private fun PresetCardPreview() {
+    DeviceWidth = 1080f
+    DeviceHeight = 2400f
+    Density = 3f
+    ScaleDensity = 3f
+    PresetCard(
+        preset = Preset(
+            id = 1,
+            name = "Beautiful Vibes",
+            author = "Slaviboy",
+            price = 100,
+            orderBy = "1",
+            timestamp = null,
+            deleted = false,
+            hasInfo = true,
+            tempo = 150,
+            tags = listOf("#dubstep"),
+            files = null,
+            lessons = null
+        ),
+        titleTextSize = 0.045.sw,
+        subtitleTextSize = 0.03.sw,
+        coverSize = 0.41.dw,
+        onPresetClick = { _, _, _ -> }
+    )
 }
