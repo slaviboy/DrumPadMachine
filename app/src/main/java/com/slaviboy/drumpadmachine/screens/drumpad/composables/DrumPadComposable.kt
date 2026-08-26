@@ -278,7 +278,7 @@ fun DrumPadComposable(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(id = R.string.rected_by),
+                        text = stringResource(id = R.string.recreated_by),
                         color = Color.Gray,
                         fontFamily = RobotoFont,
                         fontSize = 0.028.sw,
