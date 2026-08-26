@@ -118,8 +118,8 @@ fun DrumPadComposable(
                     painter = painterResource(id = R.drawable.ic_settings),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(0.07.dw)
-                        .offset(x = -(0.04.dw))
+                        .size(0.06.dw)
+                        .offset(x = -(0.05.dw))
                         .bounceClick {
                             navigator.navigate(direction = SettingsComposableDestination())
                         },

@@ -114,7 +114,7 @@ fun SettingsComposable(
         )
         Row(
             modifier = Modifier
-                .wrapContentHeight()
+                .wrapContentHeight(Alignment.Bottom)
                 .weight(1f)
                 .align(Alignment.CenterHorizontally)
                 .bounceClick {
@@ -152,6 +152,10 @@ fun SettingsComposable(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(horizontal = 0.01.dw)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .height(0.09.dw)
                 )
             }
         }
