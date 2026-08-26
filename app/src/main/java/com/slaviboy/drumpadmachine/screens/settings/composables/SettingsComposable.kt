@@ -1,8 +1,11 @@
 package com.slaviboy.drumpadmachine.screens.settings.composables
 
+import android.content.pm.PackageManager
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,18 +29,26 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,11 +56,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -70,6 +83,13 @@ private val badgeMetronome = Color(0xFF4CC98A)
 private val badgeBpm = Color(0xFFF2A93B)
 private val badgeCache = Color(0xFFE0574A)
 private val badgeBackup = Color(0xFF5B8DEF)
+private val dangerColor = Color(0xFFFF5A5A)
+private val dialogSurfaceColor = Color(0xFF2D2D42)
+private val appIconGridColors = listOf(
+    Color(0xFF9B6BFF), Color(0xFFFF8A3D), Color(0xFFE85D9C),
+    Color(0xFF4CC98A), Color(0xFF5B8DEF), Color(0xFFF2A93B),
+    Color(0xFF3FC7C7), Color(0xFF9B6BFF), Color(0xFF5B8DEF)
+)
 
 @RootNavGraph(start = false)
 @Destination
@@ -79,6 +99,15 @@ fun SettingsComposable(
     settingsViewModel: SettingsViewModel
 ) {
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val appVersion = remember {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.0"
+        } catch (e: PackageManager.NameNotFoundException) {
+            "1.0.0"
+        }
+    }
+    var showResetConfirmation by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -205,18 +234,6 @@ fun SettingsComposable(
                 onValueChange = { settingsViewModel.setDefaultBpm(it) }
             )
         }
-        Text(
-            text = stringResource(id = R.string.reset_to_defaults),
-            color = Color(0xFFFFD011),
-            fontFamily = RobotoFont,
-            fontSize = 0.038.sw,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 0.02.dw)
-                .bounceClick { settingsViewModel.resetToDefaults() }
-                .padding(0.01.dw)
-        )
 
         Spacer(modifier = Modifier.height(0.05.dw))
 
@@ -257,6 +274,60 @@ fun SettingsComposable(
                 titleResId = R.string.export_logs,
                 subtitleResId = R.string.export_logs_subtitle,
                 enabled = false
+            )
+        }
+
+        Spacer(modifier = Modifier.height(0.05.dw))
+
+        SettingsCard {
+            SettingsAppInfoRow(appVersion = appVersion)
+        }
+
+        Spacer(modifier = Modifier.height(0.05.dw))
+
+        ResetSettingsButton(onClick = { showResetConfirmation = true })
+
+        if (showResetConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showResetConfirmation = false },
+                containerColor = dialogSurfaceColor,
+                titleContentColor = Color.White,
+                textContentColor = Color.LightGray,
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.reset_settings_confirm_title),
+                        fontFamily = RobotoFont,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.reset_settings_confirm_message),
+                        fontFamily = RobotoFont
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        settingsViewModel.resetToDefaults()
+                        showResetConfirmation = false
+                    }) {
+                        Text(
+                            text = stringResource(id = R.string.reset),
+                            color = dangerColor,
+                            fontFamily = RobotoFont,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showResetConfirmation = false }) {
+                        Text(
+                            text = stringResource(id = R.string.cancel),
+                            color = Color.White,
+                            fontFamily = RobotoFont
+                        )
+                    }
+                }
             )
         }
 
@@ -595,6 +666,112 @@ private fun SettingsActionRow(
             contentDescription = null,
             tint = Color.Gray,
             modifier = Modifier.size(0.055.dw)
+        )
+    }
+}
+
+@Composable
+private fun AppIconGrid() {
+    Column(
+        modifier = Modifier
+            .size(0.1.dw)
+            .clip(RoundedCornerShape(0.025.dw))
+            .background(Color.White.copy(alpha = 0.06f))
+            .padding(0.012.dw),
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        for (row in 0 until 3) {
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                for (column in 0 until 3) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(0.002.dw)
+                            .clip(RoundedCornerShape(0.006.dw))
+                            .background(appIconGridColors[row * 3 + column])
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsAppInfoRow(appVersion: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 0.04.dw, vertical = 0.025.dw),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIconGrid()
+        Spacer(modifier = Modifier.width(0.03.dw))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(id = R.string.app_display_name),
+                color = Color.White,
+                fontFamily = RobotoFont,
+                fontSize = 0.04.sw,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = stringResource(id = R.string.app_version, appVersion),
+                color = Color.LightGray,
+                fontFamily = RobotoFont,
+                fontSize = 0.032.sw,
+                fontWeight = FontWeight.Normal
+            )
+            Text(
+                text = stringResource(id = R.string.app_tagline),
+                color = Color.Gray,
+                fontFamily = RobotoFont,
+                fontSize = 0.032.sw,
+                fontWeight = FontWeight.Normal
+            )
+        }
+        Icon(
+            imageVector = Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier.size(0.055.dw)
+        )
+    }
+}
+
+@Composable
+private fun ResetSettingsButton(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 0.045.dw)
+            .clip(RoundedCornerShape(0.035.dw))
+            .background(dangerColor.copy(alpha = 0.08f))
+            .border(
+                width = 1.dp,
+                color = dangerColor.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(0.035.dw)
+            )
+            .bounceClick(onClick = onClick)
+            .padding(vertical = 0.03.dw),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Restore,
+            contentDescription = null,
+            tint = dangerColor,
+            modifier = Modifier.size(0.045.dw)
+        )
+        Spacer(modifier = Modifier.width(0.02.dw))
+        Text(
+            text = stringResource(id = R.string.reset_to_defaults),
+            color = dangerColor,
+            fontFamily = RobotoFont,
+            fontSize = 0.04.sw,
+            fontWeight = FontWeight.Bold
         )
     }
 }
