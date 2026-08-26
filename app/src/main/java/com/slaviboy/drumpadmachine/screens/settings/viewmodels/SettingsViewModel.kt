@@ -3,6 +3,7 @@ package com.slaviboy.drumpadmachine.screens.settings.viewmodels
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,12 +32,28 @@ class SettingsViewModel @Inject constructor(
     private val _hapticFeedback: MutableState<Boolean> = mutableStateOf(true)
     val hapticFeedback: State<Boolean> = _hapticFeedback
 
+    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(true)
+    val metronomeEnabled: State<Boolean> = _metronomeEnabled
+
+    private val _metronomeVolume: MutableState<Int> = mutableIntStateOf(60) // [0,100]
+    val metronomeVolume: State<Int> = _metronomeVolume
+
+    private val _defaultBpm: MutableState<Int> = mutableIntStateOf(120) // [40,240]
+    val defaultBpm: State<Int> = _defaultBpm
+
+    private val _cacheSizeBytes: MutableState<Long> = mutableLongStateOf(0L)
+    val cacheSizeBytes: State<Long> = _cacheSizeBytes
+
     init {
         viewModelScope.launch { settingsRepository.volume.collect { _volume.value = it } }
         viewModelScope.launch { settingsRepository.reverb.collect { _reverb.value = it } }
         viewModelScope.launch { settingsRepository.pan.collect { _pan.value = it } }
         viewModelScope.launch { settingsRepository.keepScreenOn.collect { _keepScreenOn.value = it } }
         viewModelScope.launch { settingsRepository.hapticFeedback.collect { _hapticFeedback.value = it } }
+        viewModelScope.launch { settingsRepository.metronomeEnabled.collect { _metronomeEnabled.value = it } }
+        viewModelScope.launch { settingsRepository.metronomeVolume.collect { _metronomeVolume.value = it } }
+        viewModelScope.launch { settingsRepository.defaultBpm.collect { _defaultBpm.value = it } }
+        refreshCacheSize()
     }
 
     fun setVolume(value: Int) = viewModelScope.launch {
@@ -61,5 +78,26 @@ class SettingsViewModel @Inject constructor(
 
     fun resetToDefaults() = viewModelScope.launch {
         settingsRepository.resetToDefaults()
+    }
+
+    fun setMetronomeEnabled(value: Boolean) = viewModelScope.launch {
+        settingsRepository.setMetronomeEnabled(value)
+    }
+
+    fun setMetronomeVolume(value: Int) = viewModelScope.launch {
+        settingsRepository.setMetronomeVolume(value)
+    }
+
+    fun setDefaultBpm(value: Int) = viewModelScope.launch {
+        settingsRepository.setDefaultBpm(value)
+    }
+
+    fun clearCache() = viewModelScope.launch {
+        settingsRepository.clearCache()
+        refreshCacheSize()
+    }
+
+    private fun refreshCacheSize() = viewModelScope.launch {
+        _cacheSizeBytes.value = settingsRepository.getCacheSizeBytes()
     }
 }

@@ -21,10 +21,12 @@ import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
+import com.slaviboy.drumpadmachine.screens.drumpad.helpers.Metronome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -67,9 +69,25 @@ class DrumPadViewModel @Inject constructor(
         }
     }
 
+    private val metronome = Metronome(viewModelScope)
+
     init {
         viewModelScope.launch { settingsRepository.hapticFeedback.collect { isHapticFeedbackEnabled = it } }
         viewModelScope.launch { settingsRepository.keepScreenOn.collect { _keepScreenOn.value = it } }
+        viewModelScope.launch {
+            combine(
+                settingsRepository.metronomeEnabled,
+                settingsRepository.metronomeVolume,
+                settingsRepository.defaultBpm
+            ) { enabled, volume, bpm -> Triple(enabled, volume, bpm) }.collect { (enabled, volume, bpm) ->
+                if (enabled) metronome.start(bpm, volume) else metronome.stop()
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        metronome.stop()
     }
 
     fun terminate() = viewModelScope.launch {
