@@ -36,10 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -50,6 +46,7 @@ import com.slaviboy.composeunits.ScaleDensity
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.data.entities.Lesson
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.enums.PadColor
@@ -153,7 +150,6 @@ fun LessonPlayerComposable(
  * owns the Hilt [LessonPlayerViewModel] and its native-audio side effects, which can't run
  * inside a Compose preview.
  */
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun LessonPlayerScreenContent(
     presetId: Long,
@@ -224,15 +220,14 @@ private fun LessonPlayerScreenContent(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                GlideImage(
+                CachedAsyncImage(
                     model = NetworkModule.coverIconUrl(presetId),
                     contentDescription = null,
                     modifier = Modifier
                         .size(0.14.dw)
                         .clip(RoundedCornerShape(0.02.dw)),
-                    transition = CrossFade,
-                    failure = placeholder(R.drawable.ic_no_image),
-                    loading = placeholder(R.drawable.ic_default_image)
+                    error = painterResource(id = R.drawable.ic_no_image),
+                    placeholder = painterResource(id = R.drawable.ic_default_image)
                 )
                 Spacer(modifier = Modifier.width(0.02.dw))
                 Column {

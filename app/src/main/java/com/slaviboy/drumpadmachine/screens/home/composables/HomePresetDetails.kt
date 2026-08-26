@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,16 +32,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.slaviboy.composeunits.DeviceHeight
 import com.slaviboy.composeunits.DeviceWidth
 import com.slaviboy.composeunits.Density
@@ -49,6 +52,7 @@ import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
+import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.composables.LoadingBox
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
@@ -57,7 +61,6 @@ import com.slaviboy.drumpadmachine.extensions.pxToDp
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun HomePresetDetails(
     boxScope: BoxScope,
@@ -256,22 +259,33 @@ fun HomePresetDetails(
 
                 }
         ) {
-            GlideImage(
-                model = NetworkModule.coverUrl(clickedPreset.id),
+            val context = LocalContext.current
+            SubcomposeAsyncImage(
+                model = remember(clickedPreset.id) {
+                    ImageRequest.Builder(context)
+                        .data(NetworkModule.coverUrl(clickedPreset.id))
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .crossfade(true)
+                        .build()
+                },
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                transition = CrossFade,
-                failure = placeholder(R.drawable.ic_no_image)
+                contentScale = ContentScale.Crop
             ) {
-                // if no internet try loading the cached lower quality cover-icon
-                it.clone()
-                    .thumbnail(
-                        it
-                            .load(NetworkModule.coverIconUrl(clickedPreset.id))
-                            .signature(it.signature)
+                if (painter.state is AsyncImagePainter.State.Error) {
+                    // if no internet try loading the cached lower quality cover-icon
+                    CachedAsyncImage(
+                        model = NetworkModule.coverIconUrl(clickedPreset.id),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_no_image)
                     )
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
             }
             Image(
                 painter = painterResource(id = R.drawable.ic_close),

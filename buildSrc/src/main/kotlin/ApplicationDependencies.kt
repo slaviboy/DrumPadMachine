@@ -36,7 +36,6 @@ object ApplicationDependencies {
     private const val timber = "com.jakewharton.timber:timber:${ApplicationDependencyVersions.timber}"
     private const val room = "androidx.room:room-ktx:${ApplicationDependencyVersions.room}"
     private const val roomCompiler = "androidx.room:room-compiler:${ApplicationDependencyVersions.room}"
-    private const val glide = "com.github.bumptech.glide:compose:${ApplicationDependencyVersions.glide}"
     private const val coil = "io.coil-kt:coil-compose:${ApplicationDependencyVersions.coil}"
     private const val kotlinInterpolator = "com.github.slaviboy:KotlinInterpolator:${ApplicationDependencyVersions.kotlinInterpolator}"
 
@@ -83,7 +82,6 @@ object ApplicationDependencies {
         loggingInterceptor,
         appcompat,
         room,
-        glide,
         coil,
         firebaseAnalytics,
         firebaseCrashlytics
