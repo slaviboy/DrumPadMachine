@@ -38,6 +38,9 @@
     <string name="settings_section_data">Data &amp; Storage</string>
     <string name="settings_section_other">Other</string>
     <string name="settings_section_about">About</string>
+    <string name="contact">Contact</string>
+    <string name="contact_developer_subtitle">Send feedback via email</string>
+    <string name="contact_developer_email_subject">GitHub Drum Pad Machine App</string>
     <string name="metronome_volume">Metronome Volume</string>
     <string name="metronome">Metronome</string>
     <string name="metronome_subtitle">Play metronome during practice</string>

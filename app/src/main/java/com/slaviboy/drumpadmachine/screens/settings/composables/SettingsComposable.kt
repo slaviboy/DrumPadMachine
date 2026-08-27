@@ -1,6 +1,9 @@
 package com.slaviboy.drumpadmachine.screens.settings.composables
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Language
@@ -75,6 +79,8 @@ fun SettingsComposable(
     }
     var showResetConfirmation by rememberSaveable { mutableStateOf(false) }
     var showMetronomeSoundPicker by rememberSaveable { mutableStateOf(false) }
+    val developerEmail = "slavi94slavi94@gmail.com"
+    val emailSubject = stringResource(id = R.string.contact_developer_email_subject)
 
     ScrollableContainer(
         minHeight = 0.19.dw,
@@ -246,6 +252,24 @@ fun SettingsComposable(
 
         item {
             SettingsCard {
+                SettingsActionRow(
+                    icon = Icons.Filled.Email,
+                    iconTint = badgeBackup,
+                    titleResId = R.string.contact,
+                    subtitleResId = R.string.contact_developer_subtitle,
+                    trailingText = developerEmail,
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:")
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf(developerEmail))
+                            putExtra(Intent.EXTRA_SUBJECT, emailSubject)
+                        }
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                        }
+                    }
+                )
                 SettingsAppInfoRow(appVersion = appVersion)
             }
         }
