@@ -238,7 +238,11 @@ fun DrumPadComposable(
                         color = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
                         fontFamily = RobotoFont,
                         fontSize = 0.035.sw,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .bounceClick {
+                                drumPadViewModel.toggleMetronome()
+                            }
                     )
                 }
                 ImageButtonWithText(
