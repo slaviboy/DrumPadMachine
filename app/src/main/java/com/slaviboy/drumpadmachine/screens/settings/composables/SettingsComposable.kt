@@ -1,27 +1,18 @@
 package com.slaviboy.drumpadmachine.screens.settings.composables
 
 import android.content.pm.PackageManager
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
@@ -29,20 +20,14 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -53,50 +38,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.slaviboy.composeunits.DpToPx
-import com.slaviboy.composeunits.dh
 import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
-import com.slaviboy.drumpadmachine.composables.NumberStepper
 import com.slaviboy.drumpadmachine.composables.ScrollableContainer
 import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import com.slaviboy.drumpadmachine.extensions.bounceClick
-import com.slaviboy.drumpadmachine.extensions.factMultiplyBy
 import com.slaviboy.drumpadmachine.screens.settings.viewmodels.SettingsViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
-import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
-import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
-import kotlin.math.roundToInt
-
-private val sliderAccentColor = Color(0xFFffd112)
-private val badgeHaptic = Color(0xFFE85D9C)
-private val badgeScreen = Color(0xFF3FC7C7)
-private val badgeMetronome = Color(0xFF4CC98A)
-private val badgeBpm = Color(0xFFF2A93B)
-private val badgeCache = Color(0xFFE0574A)
-private val badgeBackup = Color(0xFF5B8DEF)
-private val dangerColor = Color(0xFFFF5A5A)
-private val dialogSurfaceColor = Color(0xFF2D2D42)
 
 @RootNavGraph(start = false)
 @Destination
@@ -457,442 +416,7 @@ fun SettingsComposable(
     }
 }
 
-@Composable
-private fun SettingsTopBar(
-    height: Dp,
-    minHeight: Dp? = null,
-    maxHeight: Dp? = null,
-    title: String,
-    onLeftButtonClicked: () -> Unit = {}
-) {
-    val fact = if (minHeight != null && maxHeight != null) {
-        (height - minHeight) / (maxHeight - minHeight)
-    } else {
-        1f
-    }
-    val fontFact = Math.max(0.8f, fact)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        backgroundGradientTop,
-                        backgroundGradientBottom
-                    ),
-                    endY = 1.dh.value.DpToPx
-                )
-            )
-            .padding(horizontal = 0.04.dw)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_arrow_left),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(y = 0.07.dw)
-                .width(0.08.dw)
-                .wrapContentHeight()
-                .clip(CircleShape)
-                .bounceClick {
-                    onLeftButtonClicked()
-                },
-            contentScale = ContentScale.FillWidth,
-            colorFilter = ColorFilter.tint(Color.White)
-        )
-        Text(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(
-                    y = 0.029.dh
-                )
-                .alpha(1f - fact.factMultiplyBy(2f)),
-            text = title,
-            fontSize = 0.08.sw * fontFact,
-            fontWeight = FontWeight.Bold,
-            fontFamily = RobotoFont,
-            color = Color.White
-        )
-        val titleAlpha = fact.factMultiplyBy(2.5f)
-        if (titleAlpha > 0) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(
-                        y = 0.08.dh * fact.factMultiplyBy(0.62f)
-                    )
-                    .alpha(titleAlpha),
-                text = title,
-                fontSize = 0.08.sw,
-                fontWeight = FontWeight.Bold,
-                fontFamily = RobotoFont,
-                color = Color.White
-            )
-        }
-    }
-}
-
 private fun formatCacheSize(bytes: Long): String {
     val megabytes = bytes / (1024.0 * 1024.0)
     return "%.1f MB".format(megabytes)
-}
-
-@Composable
-private fun SettingsSectionHeader(text: String) {
-    Text(
-        text = text.uppercase(),
-        color = Color.White,
-        fontFamily = RobotoFont,
-        fontSize = 0.032.sw,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .padding(horizontal = 0.06.dw, vertical = 0.015.dw)
-    )
-}
-
-@Composable
-private fun SettingsCard(content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.045.dw)
-            .clip(RoundedCornerShape(0.035.dw))
-            .background(Color.White.copy(alpha = 0.06f))
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun SettingsIconBadge(tint: Color, content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(0.1.dw)
-            .clip(RoundedCornerShape(0.025.dw))
-            .background(tint.copy(alpha = 0.2f)),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun SettingsRowTexts(titleResId: Int, subtitleResId: Int, enabled: Boolean = true) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(id = titleResId),
-            color = if (enabled) Color.White else Color.Gray,
-            fontFamily = RobotoFont,
-            fontSize = 0.04.sw,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = stringResource(id = subtitleResId),
-            color = Color.Gray,
-            fontFamily = RobotoFont,
-            fontSize = 0.032.sw,
-            fontWeight = FontWeight.Normal
-        )
-    }
-}
-
-@Composable
-private fun SettingsToggleRow(
-    icon: ImageVector,
-    iconTint: Color,
-    titleResId: Int,
-    subtitleResId: Int,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.04.dw, vertical = 0.02.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingsIconBadge(tint = iconTint) {
-            Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(0.05.dw))
-        }
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Box(modifier = Modifier.weight(1f)) {
-            SettingsRowTexts(titleResId = titleResId, subtitleResId = subtitleResId)
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = sliderAccentColor,
-                checkedTrackColor = sliderAccentColor.copy(alpha = 0.5f)
-            )
-        )
-    }
-}
-
-@Composable
-private fun SettingsToggleRow(
-    @DrawableRes iconResId: Int,
-    iconTint: Color,
-    titleResId: Int,
-    subtitleResId: Int,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.04.dw, vertical = 0.02.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingsIconBadge(tint = iconTint) {
-            Image(
-                painter = painterResource(id = iconResId),
-                contentDescription = null,
-                modifier = Modifier.size(0.05.dw),
-                colorFilter = ColorFilter.tint(iconTint)
-            )
-        }
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Box(modifier = Modifier.weight(1f)) {
-            SettingsRowTexts(titleResId = titleResId, subtitleResId = subtitleResId)
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = sliderAccentColor,
-                checkedTrackColor = sliderAccentColor.copy(alpha = 0.5f)
-            )
-        )
-    }
-}
-
-@Composable
-private fun SettingsSliderRow(
-    icon: ImageVector,
-    iconTint: Color,
-    titleResId: Int,
-    value: Int,
-    valueRange: ClosedFloatingPointRange<Float>,
-    valueText: String,
-    onValueChange: (Int) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.04.dw, vertical = 0.015.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingsIconBadge(tint = iconTint) {
-            Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(0.05.dw))
-        }
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Text(
-            text = stringResource(id = titleResId),
-            color = Color.White,
-            fontFamily = RobotoFont,
-            fontSize = 0.036.sw,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(0.24.dw)
-        )
-        Slider(
-            value = value.toFloat(),
-            onValueChange = { onValueChange(it.roundToInt()) },
-            valueRange = valueRange,
-            modifier = Modifier.weight(1f),
-            colors = SliderDefaults.colors(
-                thumbColor = sliderAccentColor,
-                activeTrackColor = sliderAccentColor
-            )
-        )
-        Spacer(modifier = Modifier.width(0.02.dw))
-        Text(
-            text = valueText,
-            color = Color.LightGray,
-            fontFamily = RobotoFont,
-            fontSize = 0.032.sw,
-            textAlign = TextAlign.End,
-            modifier = Modifier.width(0.13.dw)
-        )
-    }
-}
-
-@Composable
-private fun SettingsStepperRow(
-    icon: ImageVector,
-    iconTint: Color,
-    titleResId: Int,
-    subtitleResId: Int,
-    value: Int,
-    range: IntRange,
-    step: Int,
-    onValueChange: (Int) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.04.dw, vertical = 0.02.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingsIconBadge(tint = iconTint) {
-            Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(0.05.dw))
-        }
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Box(modifier = Modifier.weight(1f)) {
-            SettingsRowTexts(titleResId = titleResId, subtitleResId = subtitleResId)
-        }
-        NumberStepper(
-            value = value,
-            range = range,
-            step = step,
-            accentColor = sliderAccentColor,
-            onValueChange = onValueChange
-        )
-    }
-}
-
-@Composable
-private fun SettingsActionRow(
-    icon: ImageVector,
-    iconTint: Color,
-    titleResId: Int,
-    subtitleResId: Int,
-    trailingText: String? = null,
-    enabled: Boolean = true,
-    onClick: () -> Unit = {}
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .let { if (enabled) it.bounceClick(onClick = onClick) else it }
-            .padding(horizontal = 0.04.dw, vertical = 0.02.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingsIconBadge(tint = if (enabled) iconTint else Color.Gray) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (enabled) iconTint else Color.Gray,
-                modifier = Modifier.size(0.05.dw)
-            )
-        }
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Box(modifier = Modifier.weight(1f)) {
-            SettingsRowTexts(titleResId = titleResId, subtitleResId = subtitleResId, enabled = enabled)
-        }
-        trailingText?.let {
-            Text(
-                text = it,
-                color = if (enabled) sliderAccentColor else Color.Gray,
-                fontFamily = RobotoFont,
-                fontSize = 0.034.sw,
-                modifier = Modifier.padding(end = 0.01.dw)
-            )
-        }
-        Icon(
-            imageVector = Icons.Filled.ChevronRight,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(0.055.dw)
-        )
-    }
-}
-
-@Composable
-private fun AppIconGrid() {
-    Column(
-        modifier = Modifier
-            .size(0.1.dw)
-            .clip(RoundedCornerShape(0.025.dw))
-            .background(Color.White.copy(alpha = 0.06f))
-            .padding(0.002.dw),
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Image(
-            painter = painterResource(R.drawable.ic_launcher_foreground),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .scale(1.9f),
-            contentScale = ContentScale.Fit
-        )
-    }
-}
-
-@Composable
-private fun SettingsAppInfoRow(appVersion: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.04.dw, vertical = 0.025.dw),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AppIconGrid()
-        Spacer(modifier = Modifier.width(0.03.dw))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(id = R.string.app_display_name),
-                color = Color.White,
-                fontFamily = RobotoFont,
-                fontSize = 0.04.sw,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(id = R.string.app_version, appVersion),
-                color = Color.LightGray,
-                fontFamily = RobotoFont,
-                fontSize = 0.032.sw,
-                fontWeight = FontWeight.Normal
-            )
-            Text(
-                text = stringResource(id = R.string.app_tagline),
-                color = Color.Gray,
-                fontFamily = RobotoFont,
-                fontSize = 0.032.sw,
-                fontWeight = FontWeight.Normal
-            )
-        }
-        Icon(
-            imageVector = Icons.Filled.ChevronRight,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(0.055.dw)
-        )
-    }
-}
-
-@Composable
-private fun ResetSettingsButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.045.dw)
-            .clip(RoundedCornerShape(0.035.dw))
-            .background(dangerColor.copy(alpha = 0.08f))
-            .border(
-                width = 1.dp,
-                color = dangerColor.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(0.035.dw)
-            )
-            .bounceClick(onClick = onClick)
-            .padding(vertical = 0.03.dw),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Restore,
-            contentDescription = null,
-            tint = dangerColor,
-            modifier = Modifier.size(0.045.dw)
-        )
-        Spacer(modifier = Modifier.width(0.02.dw))
-        Text(
-            text = stringResource(id = R.string.reset_to_defaults),
-            color = dangerColor,
-            fontFamily = RobotoFont,
-            fontSize = 0.04.sw,
-            fontWeight = FontWeight.Bold
-        )
-    }
 }
