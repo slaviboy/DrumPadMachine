@@ -457,7 +457,7 @@ private fun formatCacheSize(bytes: Long): String {
 private fun SettingsSectionHeader(text: String) {
     Text(
         text = text.uppercase(),
-        color = sliderAccentColor,
+        color = Color.White,
         fontFamily = RobotoFont,
         fontSize = 0.032.sw,
         fontWeight = FontWeight.Bold,
