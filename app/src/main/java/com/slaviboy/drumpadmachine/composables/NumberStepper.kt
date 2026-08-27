@@ -25,7 +25,8 @@ fun NumberStepper(
     step: Int,
     accentColor: Color,
     onValueChange: (Int) -> Unit,
-    valueColor: Color = Color.White
+    valueColor: Color = Color.White,
+    onValueClick: (() -> Unit)? = null
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
@@ -46,7 +47,9 @@ fun NumberStepper(
             fontSize = 0.04.sw,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.width(0.1.dw)
+            modifier = Modifier
+                .width(0.1.dw)
+                .let { if (onValueClick != null) it.bounceClick(onClick = onValueClick) else it }
         )
         Text(
             text = "+",

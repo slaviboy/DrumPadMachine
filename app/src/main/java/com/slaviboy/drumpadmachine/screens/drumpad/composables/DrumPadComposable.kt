@@ -217,22 +217,28 @@ fun DrumPadComposable(
                                 range = 40..240,
                                 step = 1,
                                 accentColor = metronomeActiveColor,
-                                onValueChange = { drumPadViewModel.setDefaultBpm(it) }
+                                onValueChange = { drumPadViewModel.setDefaultBpm(it) },
+                                onValueClick = { drumPadViewModel.toggleMetronome() }
                             )
                         }
-                        Spacer(
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_metronome),
+                            contentDescription = null,
                             modifier = Modifier
-                                .height(0.01.dw)
+                                .size(0.08.dw)
+                                .bounceClick {
+                                    drumPadViewModel.toggleMetronome()
+                                },
+                            colorFilter = ColorFilter.tint(Color.Gray)
                         )
                     }
-                    ImageButtonWithText(
-                        iconResId = if (metronomeEnabled) R.drawable.ic_metronome_active else R.drawable.ic_metronome,
-                        textResId = R.string.tempo,
-                        iconTint = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
-                        textColor = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
-                        onClick = {
-                            drumPadViewModel.toggleMetronome()
-                        }
+                    Text(
+                        text = stringResource(id = R.string.tempo).uppercase(),
+                        color = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.035.sw,
+                        fontWeight = FontWeight.Normal
                     )
                 }
                 ImageButtonWithText(
