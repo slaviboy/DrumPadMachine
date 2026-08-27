@@ -118,7 +118,7 @@ fun SettingsComposable(
     var showMetronomeSoundPicker by rememberSaveable { mutableStateOf(false) }
 
     ScrollableContainer(
-        minHeight = 0.16.dw,
+        minHeight = 0.19.dw,
         maxHeight = 0.32.dw,
         topBar = { height, minHeight, maxHeight ->
             SettingsTopBar(
