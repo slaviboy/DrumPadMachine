@@ -4,6 +4,23 @@ A native Android drum pad / sampler app built with Jetpack Compose. Browse sound
 play a low-latency multi-touch drum pad grid, and learn presets through interactive,
 tap-along lessons that score your timing.
 
+## Screenshots
+
+| Home | Play |
+|---|---|
+| <img src="https://raw.githubusercontent.com/slaviboy/RepositoryImages/main/apps/DrumPadMachine/Screenshot%202026-08-27%20at%204.53.32.png" height="450"/> | <img src="https://raw.githubusercontent.com/slaviboy/RepositoryImages/main/apps/DrumPadMachine/Screenshot%202026-08-27%20at%204.53.54.png" height="450"/> |
+| Browse sound packs by category, with search and cover previews. | Multi-touch drum pad grid — low-latency triggers, per-pad color, choke groups. |
+
+| Lessons List | Lessons |
+|---|---|
+| <img src="https://raw.githubusercontent.com/slaviboy/RepositoryImages/main/apps/DrumPadMachine/Screenshot%202026-08-27%20at%204.54.30.png" height="450"/> | <img src="https://raw.githubusercontent.com/slaviboy/RepositoryImages/main/apps/DrumPadMachine/Screenshot%202026-08-27%20at%204.54.48.png" height="450"/> |
+| Pick a guided lesson per preset; track best score and star rating. | Tap-along practice: Listen phase plays the pattern, Play phase scores your timing (Perfect / Good / Late / Missed). |
+
+| Settings |
+|---|
+| <img src="https://raw.githubusercontent.com/slaviboy/RepositoryImages/main/apps/DrumPadMachine/Screenshot%202026-08-27%20at%204.40.15.png" height="450"/> |
+| Pan, reverb, volume, metronome, and BPM controls, cache management, and a one-tap email action to reach the developer. |
+
 ## Features
 
 - **Drum pad grid** — multi-touch pad grid with per-pad pan/gain, choke groups (tapping one
@@ -62,10 +79,10 @@ Requires the Android NDK + CMake 3.22.1 for the native audio modules.
 
 TODO:
 1) [x] Implement crashlitics for app
-2) [ ] Implement Tutorials functionality
+2) [x] Implement Tutorials functionality
 3) [ ] Allow users to load custom sounds (23 audio files, pick color and position)
 4) [ ] Implement recording songs
-5) [ ] Implement settings
+5) [x] Implement settings
       - pan
       - reverb
 
