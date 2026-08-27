@@ -516,12 +516,11 @@ private fun SettingsTopBar(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .offset(
-                        x = 0.12.dw,
                         y = 0.08.dh * fact.factMultiplyBy(0.62f)
                     )
                     .alpha(titleAlpha),
                 text = title,
-                fontSize = 0.06.sw,
+                fontSize = 0.075.sw,
                 fontWeight = FontWeight.Bold,
                 fontFamily = RobotoFont,
                 color = Color.White
