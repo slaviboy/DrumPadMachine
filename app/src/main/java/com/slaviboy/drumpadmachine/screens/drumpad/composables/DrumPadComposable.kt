@@ -221,6 +221,10 @@ fun DrumPadComposable(
                                 onValueClick = { drumPadViewModel.toggleMetronome() }
                             )
                         }
+                        Spacer(
+                            modifier = Modifier
+                                .height(0.023.dw)
+                        )
                     } else {
                         Image(
                             painter = painterResource(id = R.drawable.ic_metronome),

@@ -36,7 +36,7 @@ fun NumberStepper(
             fontSize = 0.05.sw,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .bounceClick { onValueChange((value - step).coerceIn(range.first, range.last)) }
+                .bounceClick(debounceTime = 200L) { onValueChange((value - step).coerceIn(range.first, range.last)) }
                 .width(0.06.dw),
             textAlign = TextAlign.Center
         )
@@ -58,7 +58,7 @@ fun NumberStepper(
             fontSize = 0.05.sw,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .bounceClick { onValueChange((value + step).coerceIn(range.first, range.last)) }
+                .bounceClick(debounceTime = 200L) { onValueChange((value + step).coerceIn(range.first, range.last)) }
                 .width(0.06.dw),
             textAlign = TextAlign.Center
         )
