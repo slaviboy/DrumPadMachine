@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.SwapHoriz
@@ -38,6 +39,8 @@ import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -73,6 +76,7 @@ import com.slaviboy.composeunits.dw
 import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.NumberStepper
+import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.screens.settings.viewmodels.SettingsViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
@@ -107,6 +111,7 @@ fun SettingsComposable(
         }
     }
     var showResetConfirmation by rememberSaveable { mutableStateOf(false) }
+    var showMetronomeSoundPicker by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -222,6 +227,14 @@ fun SettingsComposable(
                 checked = settingsViewModel.metronomeEnabled.value,
                 onCheckedChange = { settingsViewModel.setMetronomeEnabled(it) }
             )
+            SettingsActionRow(
+                icon = Icons.Filled.MusicNote,
+                iconTint = badgeMetronome,
+                titleResId = R.string.metronome_sound,
+                subtitleResId = R.string.metronome_sound_subtitle,
+                trailingText = stringResource(id = settingsViewModel.metronomeSound.value.labelResId),
+                onClick = { showMetronomeSoundPicker = true }
+            )
             SettingsStepperRow(
                 icon = Icons.Filled.Timer,
                 iconTint = badgeBpm,
@@ -320,6 +333,60 @@ fun SettingsComposable(
                 },
                 dismissButton = {
                     TextButton(onClick = { showResetConfirmation = false }) {
+                        Text(
+                            text = stringResource(id = R.string.cancel),
+                            color = Color.White,
+                            fontFamily = RobotoFont
+                        )
+                    }
+                }
+            )
+        }
+
+        if (showMetronomeSoundPicker) {
+            AlertDialog(
+                onDismissRequest = { showMetronomeSoundPicker = false },
+                containerColor = dialogSurfaceColor,
+                titleContentColor = Color.White,
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.metronome_sound),
+                        fontFamily = RobotoFont,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Column {
+                        MetronomeSound.values().forEach { sound ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .bounceClick {
+                                        settingsViewModel.setMetronomeSound(sound)
+                                        showMetronomeSoundPicker = false
+                                    }
+                                    .padding(vertical = 0.01.dw),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = settingsViewModel.metronomeSound.value == sound,
+                                    onClick = {
+                                        settingsViewModel.setMetronomeSound(sound)
+                                        showMetronomeSoundPicker = false
+                                    },
+                                    colors = RadioButtonDefaults.colors(selectedColor = sliderAccentColor)
+                                )
+                                Text(
+                                    text = stringResource(id = sound.labelResId),
+                                    color = Color.White,
+                                    fontFamily = RobotoFont
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showMetronomeSoundPicker = false }) {
                         Text(
                             text = stringResource(id = R.string.cancel),
                             color = Color.White,

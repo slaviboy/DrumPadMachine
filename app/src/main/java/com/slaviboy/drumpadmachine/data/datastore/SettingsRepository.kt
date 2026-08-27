@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +29,7 @@ class SettingsRepository @Inject constructor(
         val METRONOME_ENABLED = booleanPreferencesKey("metronome_enabled")
         val METRONOME_VOLUME = intPreferencesKey("metronome_volume")
         val DEFAULT_BPM = intPreferencesKey("default_bpm")
+        val METRONOME_SOUND = stringPreferencesKey("metronome_sound")
     }
 
     val volume: Flow<Int> = context.settingsDataStore.data.map { it[Keys.VOLUME] ?: 100 } // [0,150]
@@ -37,6 +40,7 @@ class SettingsRepository @Inject constructor(
     val metronomeEnabled: Flow<Boolean> = context.settingsDataStore.data.map { it[Keys.METRONOME_ENABLED] ?: false }
     val metronomeVolume: Flow<Int> = context.settingsDataStore.data.map { it[Keys.METRONOME_VOLUME] ?: 60 } // [0,100]
     val defaultBpm: Flow<Int> = context.settingsDataStore.data.map { it[Keys.DEFAULT_BPM] ?: 120 } // [40,240]
+    val metronomeSound: Flow<MetronomeSound> = context.settingsDataStore.data.map { MetronomeSound.fromKey(it[Keys.METRONOME_SOUND]) }
 
     suspend fun setVolume(value: Int) {
         context.settingsDataStore.edit { it[Keys.VOLUME] = value.coerceIn(0, 150) }
@@ -68,6 +72,10 @@ class SettingsRepository @Inject constructor(
 
     suspend fun setDefaultBpm(value: Int) {
         context.settingsDataStore.edit { it[Keys.DEFAULT_BPM] = value.coerceIn(40, 240) }
+    }
+
+    suspend fun setMetronomeSound(sound: MetronomeSound) {
+        context.settingsDataStore.edit { it[Keys.METRONOME_SOUND] = sound.key }
     }
 
     suspend fun resetToDefaults() {

@@ -42,6 +42,10 @@
     <string name="metronome_subtitle">Play metronome during practice</string>
     <string name="default_bpm">Default BPM</string>
     <string name="default_bpm_subtitle">Set the default tempo</string>
+    <string name="metronome_sound">Metronome Sound</string>
+    <string name="metronome_sound_subtitle">Choose the click sound</string>
+    <string name="metronome_sound_1">Metronome 1</string>
+    <string name="metronome_sound_2">Metronome 2</string>
     <string name="clear_cache">Clear Cache</string>
     <string name="clear_cache_subtitle">Free up storage used by temporary files</string>
     <string name="backup_restore">Backup &amp; Restore</string>

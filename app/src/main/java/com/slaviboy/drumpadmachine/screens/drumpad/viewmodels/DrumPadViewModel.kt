@@ -19,6 +19,7 @@ import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
 import com.slaviboy.drumpadmachine.data.datastore.SettingsRepository
 import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.Metronome
@@ -29,6 +30,13 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private data class MetronomeSettings(
+    val enabled: Boolean,
+    val volume: Int,
+    val bpm: Int,
+    val sound: MetronomeSound
+)
 
 @HiltViewModel
 class DrumPadViewModel @Inject constructor(
@@ -75,7 +83,7 @@ class DrumPadViewModel @Inject constructor(
         }
     }
 
-    private val metronome = Metronome(viewModelScope)
+    private val metronome = Metronome(viewModelScope, context)
 
     init {
         viewModelScope.launch { settingsRepository.hapticFeedback.collect { isHapticFeedbackEnabled = it } }
@@ -84,18 +92,24 @@ class DrumPadViewModel @Inject constructor(
             combine(
                 settingsRepository.metronomeEnabled,
                 settingsRepository.metronomeVolume,
-                settingsRepository.defaultBpm
-            ) { enabled, volume, bpm -> Triple(enabled, volume, bpm) }.collect { (enabled, volume, bpm) ->
-                _metronomeEnabled.value = enabled
-                _defaultBpm.value = bpm
-                if (enabled) metronome.start(bpm, volume) else metronome.stop()
-            }
+                settingsRepository.defaultBpm,
+                settingsRepository.metronomeSound
+            ) { enabled, volume, bpm, sound -> MetronomeSettings(enabled, volume, bpm, sound) }
+                .collect { settings ->
+                    _metronomeEnabled.value = settings.enabled
+                    _defaultBpm.value = settings.bpm
+                    if (settings.enabled) {
+                        metronome.start(settings.bpm, settings.volume, settings.sound.rawResId)
+                    } else {
+                        metronome.stop()
+                    }
+                }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        metronome.stop()
+        metronome.release()
     }
 
     fun toggleMetronome() = viewModelScope.launch {

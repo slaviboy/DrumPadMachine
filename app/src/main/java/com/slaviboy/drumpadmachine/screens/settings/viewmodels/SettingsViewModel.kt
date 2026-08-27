@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.drumpadmachine.data.datastore.SettingsRepository
+import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +42,9 @@ class SettingsViewModel @Inject constructor(
     private val _defaultBpm: MutableState<Int> = mutableIntStateOf(120) // [40,240]
     val defaultBpm: State<Int> = _defaultBpm
 
+    private val _metronomeSound: MutableState<MetronomeSound> = mutableStateOf(MetronomeSound.Default)
+    val metronomeSound: State<MetronomeSound> = _metronomeSound
+
     private val _cacheSizeBytes: MutableState<Long> = mutableLongStateOf(0L)
     val cacheSizeBytes: State<Long> = _cacheSizeBytes
 
@@ -53,6 +57,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.metronomeEnabled.collect { _metronomeEnabled.value = it } }
         viewModelScope.launch { settingsRepository.metronomeVolume.collect { _metronomeVolume.value = it } }
         viewModelScope.launch { settingsRepository.defaultBpm.collect { _defaultBpm.value = it } }
+        viewModelScope.launch { settingsRepository.metronomeSound.collect { _metronomeSound.value = it } }
         refreshCacheSize()
     }
 
@@ -90,6 +95,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setDefaultBpm(value: Int) = viewModelScope.launch {
         settingsRepository.setDefaultBpm(value)
+    }
+
+    fun setMetronomeSound(sound: MetronomeSound) = viewModelScope.launch {
+        settingsRepository.setMetronomeSound(sound)
     }
 
     fun clearCache() = viewModelScope.launch {
