@@ -131,7 +131,7 @@ fun SettingsComposable(
         }
     ) { _, topBarOffset ->
         item {
-            Spacer(modifier = Modifier.height(0.04.dw + topBarOffset))
+            Spacer(modifier = Modifier.height(0.02.dw + topBarOffset))
         }
         item {
             SettingsSectionHeader(text = stringResource(id = R.string.settings_section_app))
@@ -280,6 +280,10 @@ fun SettingsComposable(
         }
 
         item { Spacer(modifier = Modifier.height(0.05.dw)) }
+
+        item {
+            SettingsSectionHeader(text = stringResource(id = R.string.settings_section_about))
+        }
 
         item {
             SettingsCard {
@@ -505,7 +509,7 @@ private fun SettingsTopBar(
                 )
                 .alpha(1f - fact.factMultiplyBy(2f)),
             text = title,
-            fontSize = 0.075.sw * fontFact,
+            fontSize = 0.08.sw * fontFact,
             fontWeight = FontWeight.Bold,
             fontFamily = RobotoFont,
             color = Color.White
@@ -520,7 +524,7 @@ private fun SettingsTopBar(
                     )
                     .alpha(titleAlpha),
                 text = title,
-                fontSize = 0.075.sw,
+                fontSize = 0.08.sw,
                 fontWeight = FontWeight.Bold,
                 fontFamily = RobotoFont,
                 color = Color.White
