@@ -9,6 +9,7 @@ object ApplicationDependencies {
     private const val kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ApplicationDependencyVersions.kotlinCoroutinesCore}"
     private const val composeUI = "androidx.compose.ui:ui:${ApplicationDependencyVersions.composeUI}"
     private const val composeMaterial3 = "androidx.compose.material3:material3:${ApplicationDependencyVersions.composeMaterial3}"
+    private const val composeMaterialIconsExtended = "androidx.compose.material:material-icons-extended:${ApplicationDependencyVersions.composeUI}"
     private const val composeMaterial3WindowSize = "androidx.compose.material3:material3-window-size-class:${ApplicationDependencyVersions.composeMaterial3}"
     private const val composeUIToolingPreview = "androidx.compose.ui:ui-tooling-preview:${ApplicationDependencyVersions.composeUI}"
     private const val composeUITooling = "androidx.compose.ui:ui-tooling:${ApplicationDependencyVersions.composeUI}"
@@ -57,6 +58,7 @@ object ApplicationDependencies {
         composeUI,
         composeMaterial3,
         composeMaterial3WindowSize,
+        composeMaterialIconsExtended,
         composeUIToolingPreview,
         core,
         activity,

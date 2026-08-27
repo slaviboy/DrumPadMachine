@@ -1,6 +1,10 @@
 package com.slaviboy.drumpadmachine.screens.drumpad.viewmodels
 
 import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -12,19 +16,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.slaviboy.audio.DrumPadPlayer
 import com.slaviboy.drumpadmachine.api.repositories.ApiRepository
+import com.slaviboy.drumpadmachine.data.datastore.SettingsRepository
 import com.slaviboy.drumpadmachine.data.entities.File
 import com.slaviboy.drumpadmachine.data.entities.Preset
+import com.slaviboy.drumpadmachine.enums.MetronomeSound
 import com.slaviboy.drumpadmachine.enums.PadColor
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
+import com.slaviboy.drumpadmachine.screens.drumpad.helpers.Metronome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private data class MetronomeSettings(
+    val enabled: Boolean,
+    val volume: Int,
+    val bpm: Int,
+    val sound: MetronomeSound
+)
 
 @HiltViewModel
 class DrumPadViewModel @Inject constructor(
     private val repository: ApiRepository,
+    private val settingsRepository: SettingsRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -44,20 +61,63 @@ class DrumPadViewModel @Inject constructor(
 
     private val activePointerIndex: MutableMap<Int, Int> = mutableMapOf()
 
-    private val _volume: MutableState<Int> = mutableIntStateOf(100) // [0,150]
-    val volume: State<Int> = _volume
+    private var settingsSyncJobs: List<Job> = emptyList()
 
-    private val _reverb: MutableState<Int> = mutableIntStateOf(0) // [0,100]
-    val reverb: State<Int> = _reverb
+    private var isHapticFeedbackEnabled = true
 
-    fun setVolume(value: Int) {
-        _volume.value = value.coerceIn(0, 150)
-        drumPadPlayer?.setVolume(_volume.value)
+    private val _keepScreenOn: MutableState<Boolean> = mutableStateOf(false)
+    val keepScreenOn: State<Boolean> = _keepScreenOn
+
+    private val _metronomeEnabled: MutableState<Boolean> = mutableStateOf(false)
+    val metronomeEnabled: State<Boolean> = _metronomeEnabled
+
+    private val _defaultBpm: MutableState<Int> = mutableIntStateOf(120)
+    val defaultBpm: State<Int> = _defaultBpm
+
+    private val vibrator: Vibrator by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
     }
 
-    fun setReverb(value: Int) {
-        _reverb.value = value.coerceIn(0, 100)
-        drumPadPlayer?.setReverb(_reverb.value)
+    private val metronome = Metronome(viewModelScope, context)
+
+    init {
+        viewModelScope.launch { settingsRepository.hapticFeedback.collect { isHapticFeedbackEnabled = it } }
+        viewModelScope.launch { settingsRepository.keepScreenOn.collect { _keepScreenOn.value = it } }
+        viewModelScope.launch {
+            combine(
+                settingsRepository.metronomeEnabled,
+                settingsRepository.metronomeVolume,
+                settingsRepository.defaultBpm,
+                settingsRepository.metronomeSound
+            ) { enabled, volume, bpm, sound -> MetronomeSettings(enabled, volume, bpm, sound) }
+                .collect { settings ->
+                    _metronomeEnabled.value = settings.enabled
+                    _defaultBpm.value = settings.bpm
+                    if (settings.enabled) {
+                        metronome.start(settings.bpm, settings.volume, settings.sound.rawResId)
+                    } else {
+                        metronome.stop()
+                    }
+                }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        metronome.release()
+    }
+
+    fun toggleMetronome() = viewModelScope.launch {
+        settingsRepository.setMetronomeEnabled(!_metronomeEnabled.value)
+    }
+
+    fun setDefaultBpm(value: Int) = viewModelScope.launch {
+        settingsRepository.setDefaultBpm(value)
     }
 
     fun terminate() = viewModelScope.launch {
@@ -83,6 +143,7 @@ class DrumPadViewModel @Inject constructor(
     fun loadSounds(preset: Preset) = viewModelScope.launch {
         setPreset(preset)
         terminate()
+        settingsSyncJobs.forEach { it.cancel() }
         awaitFrame()
         drumPadPlayer = DrumPadPlayer().apply {
             setupAudioStream()
@@ -94,6 +155,11 @@ class DrumPadViewModel @Inject constructor(
             )
             startAudioStream()
         }
+        settingsSyncJobs = listOf(
+            viewModelScope.launch { settingsRepository.volume.collect { drumPadPlayer?.setVolume(it) } },
+            viewModelScope.launch { settingsRepository.reverb.collect { drumPadPlayer?.setReverb(it) } },
+            viewModelScope.launch { settingsRepository.pan.collect { drumPadPlayer?.setMasterPan(it) } }
+        )
     }
 
     fun movePage() {
@@ -208,5 +274,17 @@ class DrumPadViewModel @Inject constructor(
             }
         }
         drumPadPlayer?.trigger(index)
+        if (isHapticFeedbackEnabled) {
+            vibratePadHit()
+        }
+    }
+
+    private fun vibratePadHit() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(20)
+        }
     }
 }

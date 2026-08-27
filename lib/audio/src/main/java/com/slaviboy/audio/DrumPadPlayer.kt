@@ -84,6 +84,15 @@ class DrumPadPlayer {
         return (getReverbMix() * 100f).roundToInt()
     }
 
+    /** Master stereo pan/balance: -100 = full left, 0 = center, 100 = full right. */
+    fun setMasterPan(pan: Int) {
+        setMasterPanNative(pan.coerceIn(-100, 100) / 100f)
+    }
+
+    fun getMasterPan(): Int {
+        return (getMasterPanNative() * 100f).roundToInt()
+    }
+
     private fun getByteArrayFromWavFile(filePath: String): ByteArray? {
         return try {
             val file = File(filePath)
@@ -134,6 +143,9 @@ class DrumPadPlayer {
 
     private external fun setReverbMix(mix: Float)
     private external fun getReverbMix(): Float
+
+    private external fun setMasterPanNative(pan: Float)
+    private external fun getMasterPanNative(): Float
 
     external fun getOutputReset(): Boolean
     external fun clearOutputReset()

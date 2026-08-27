@@ -3,11 +3,13 @@ package com.slaviboy.drumpadmachine.screens.home.composables
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,7 +21,10 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -36,9 +41,11 @@ import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.events.ErrorEvent
 import com.slaviboy.drumpadmachine.events.NavigationEvent
 import com.slaviboy.drumpadmachine.extensions.ObserveAsEvents
+import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.extensions.mapValue
 import com.slaviboy.drumpadmachine.screens.destinations.DrumPadComposableDestination
 import com.slaviboy.drumpadmachine.screens.destinations.PresetsListComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.SettingsComposableDestination
 import com.slaviboy.drumpadmachine.screens.home.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -260,5 +267,17 @@ fun HomeComposable(
                 subtitleResId = it.subtitleResId
             )
         }
+        Image(
+            painter = painterResource(id = R.drawable.ic_settings),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 0.07.dw, start = 0.05.dw)
+                .size(0.06.dw)
+                .bounceClick {
+                    navigator.navigate(direction = SettingsComposableDestination())
+                },
+            colorFilter = ColorFilter.tint(Color.White)
+        )
     }
 }

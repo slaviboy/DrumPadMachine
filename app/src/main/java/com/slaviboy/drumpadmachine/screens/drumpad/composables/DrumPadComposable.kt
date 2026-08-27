@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,15 +49,19 @@ import com.slaviboy.composeunits.sw
 import com.slaviboy.drumpadmachine.R
 import com.slaviboy.drumpadmachine.composables.CachedAsyncImage
 import com.slaviboy.drumpadmachine.composables.ImageButtonWithText
+import com.slaviboy.drumpadmachine.composables.NumberStepper
 import com.slaviboy.drumpadmachine.data.entities.Preset
 import com.slaviboy.drumpadmachine.extensions.bounceClick
 import com.slaviboy.drumpadmachine.modules.NetworkModule
 import com.slaviboy.drumpadmachine.screens.destinations.LessonsListComposableDestination
+import com.slaviboy.drumpadmachine.screens.destinations.SettingsComposableDestination
 import com.slaviboy.drumpadmachine.screens.drumpad.helpers.DrumPadHelper
 import com.slaviboy.drumpadmachine.screens.drumpad.viewmodels.DrumPadViewModel
 import com.slaviboy.drumpadmachine.ui.RobotoFont
 import com.slaviboy.drumpadmachine.ui.backgroundGradientBottom
 import com.slaviboy.drumpadmachine.ui.backgroundGradientTop
+
+private val metronomeActiveColor = Color(0xFFffd112)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @RootNavGraph(start = false)
@@ -67,6 +73,12 @@ fun DrumPadComposable(
     preset: Preset
 ) {
     val uriHandler = LocalUriHandler.current
+    val view = LocalView.current
+    val keepScreenOn = drumPadViewModel.keepScreenOn.value
+    DisposableEffect(keepScreenOn) {
+        view.keepScreenOn = keepScreenOn
+        onDispose { view.keepScreenOn = false }
+    }
     // Synchronous, not in the LaunchedEffect below - keeps pad colors correct on the very
     // first frame instead of a blank/gray flash until the effect gets a chance to run.
     drumPadViewModel.setPreset(preset)
@@ -95,18 +107,36 @@ fun DrumPadComposable(
                 modifier = Modifier
                     .height(0.07.dw)
             )
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_left),
-                contentDescription = null,
+            Row(
                 modifier = Modifier
-                    .size(0.07.dw)
-                    .offset(x = 0.04.dw)
-                    .bounceClick {
-                        drumPadViewModel.terminate()
-                        navigator.navigateUp()
-                    },
-                colorFilter = ColorFilter.tint(Color.White)
-            )
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.07.dw)
+                        .offset(x = 0.04.dw)
+                        .bounceClick {
+                            drumPadViewModel.terminate()
+                            navigator.navigateUp()
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_settings),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(0.06.dw)
+                        .offset(x = -(0.05.dw))
+                        .bounceClick {
+                            navigator.navigate(direction = SettingsComposableDestination())
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
             Spacer(
                 modifier = Modifier
                     .height(0.05.dw)
@@ -169,16 +199,56 @@ fun DrumPadComposable(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .align(Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ImageButtonWithText(
-                    iconResId = R.drawable.ic_metronome,
-                    textResId = R.string.tempo,
-                    onClick = {
-
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val metronomeEnabled = drumPadViewModel.metronomeEnabled.value
+                    if (metronomeEnabled) {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(percent = 50))
+                                .background(Color.Black.copy(alpha = 0.3f))
+                                .padding(horizontal = 0.015.dw, vertical = 0.01.dw),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            NumberStepper(
+                                value = drumPadViewModel.defaultBpm.value,
+                                range = 40..240,
+                                step = 1,
+                                accentColor = metronomeActiveColor,
+                                onValueChange = { drumPadViewModel.setDefaultBpm(it) },
+                                onValueClick = { drumPadViewModel.toggleMetronome() }
+                            )
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .height(0.023.dw)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_metronome),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(0.08.dw)
+                                .bounceClick {
+                                    drumPadViewModel.toggleMetronome()
+                                },
+                            colorFilter = ColorFilter.tint(Color.Gray)
+                        )
                     }
-                )
+                    Text(
+                        text = stringResource(id = R.string.tempo).uppercase(),
+                        color = if (metronomeEnabled) metronomeActiveColor else Color.Gray,
+                        fontFamily = RobotoFont,
+                        fontSize = 0.035.sw,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .bounceClick {
+                                drumPadViewModel.toggleMetronome()
+                            }
+                    )
+                }
                 ImageButtonWithText(
                     iconResId = R.drawable.ic_record,
                     textResId = R.string.record,
@@ -278,7 +348,7 @@ fun DrumPadComposable(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(id = R.string.rected_by),
+                        text = stringResource(id = R.string.recreated_by),
                         color = Color.Gray,
                         fontFamily = RobotoFont,
                         fontSize = 0.028.sw,
